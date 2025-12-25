@@ -1,12 +1,10 @@
 from datetime import time
 from django.db import models
 from django.forms import ValidationError
-from user_auth.models import User
-
+from apps.users.models import User
 from django.core.exceptions import ValidationError
 from django.db.models.signals import pre_save
 from django.dispatch import receiver
-
 from utils.reusable_classes import TimeStamps, TimeUserStamps
 # Create your models here.
 
@@ -17,18 +15,13 @@ from utils.reusable_classes import TimeStamps, TimeUserStamps
 class Category(TimeUserStamps):
     name = models.CharField(max_length=100, unique=True)
     description = models.TextField(blank=True, null=True)
-    created_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now=True)
-    image = models.FileField(upload_to='category_images/', blank=True, null=True)
-    created_by = models.ForeignKey(User, on_delete=models.CASCADE,related_name='category_created_by', null=True, blank=True)
-    updated_by = models.ForeignKey(User, on_delete=models.CASCADE, related_name='category_updated_by', null=True, blank=True)
+    image = models.FileField(upload_to='ecom/category_images/', blank=True, null=True)
+    
 
 class ProductTag(TimeUserStamps):
     name = models.CharField(max_length=50, unique=True)
     slug = models.SlugField(max_length=50, unique=True)
-    created_by = models.ForeignKey(User, on_delete=models.CASCADE,related_name='producttag_created_by', null=True, blank=True)
-    updated_by = models.ForeignKey(User, on_delete=models.CASCADE,related_name='producttag_updated_by', null=True, blank=True)
-
+    
 class Product(TimeUserStamps):
     for_choices = (
         ('Men', 'Men'),
@@ -40,13 +33,10 @@ class Product(TimeUserStamps):
     name = models.CharField(max_length=50)
     description = models.TextField()
     price = models.PositiveIntegerField()
-    created_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now=True)
     # image = models.FileField(upload_to='product_images/', blank=True, null=True)
     # images = models.JSONField(default=list,null=True, blank=True)
     prod_has_category = models.ForeignKey(Category, on_delete=models.CASCADE,related_name='prod_has_category1', null=True, blank=True)
-    created_by = models.ForeignKey(User, on_delete=models.CASCADE,related_name='product_created_by', null=True, blank=True)
-    updated_by = models.ForeignKey(User, on_delete=models.CASCADE,related_name='product_updated_by', null=True, blank=True)
+    
     tags = models.ManyToManyField(ProductTag, blank=True)
     @property
     def images(self):
@@ -55,20 +45,14 @@ class Product(TimeUserStamps):
 
 class ProductImage(TimeUserStamps):
     product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name='images')
-    images = models.ImageField(upload_to='product_images_new/')
+    images = models.ImageField(upload_to='ecom/product_images_new/')
     alt_text = models.CharField(max_length=100, blank=True)
-    created_by = models.ForeignKey(User, on_delete=models.CASCADE,related_name='productimage_created_by', null=True, blank=True)
-    updated_by = models.ForeignKey(User, on_delete=models.CASCADE,related_name='productimage_updated_by', null=True, blank=True)
 
     def __str__(self):
         return f"{self.product.name} Image"
 
 class Color(TimeUserStamps):
     name = models.CharField(max_length=50, unique=True)
-    created_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now=True)
-    created_by = models.ForeignKey(User, on_delete=models.CASCADE,related_name='color_created_by', null=True, blank=True)
-    updated_by = models.ForeignKey(User, on_delete=models.CASCADE,related_name='color_updated_by', null=True, blank=True)
 
     def __str__(self):
         return self.name
@@ -84,10 +68,7 @@ class ProductVariant(TimeUserStamps):
     stock_quantity = models.PositiveIntegerField(default=0)
     additional_price = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
     is_active = models.BooleanField(default=True)
-    created_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now=True)
-    created_by = models.ForeignKey(User, on_delete=models.CASCADE,related_name='productvariant_created_by', null=True, blank=True)
-    updated_by = models.ForeignKey(User, on_delete=models.CASCADE,related_name='productvariant_updated_by', null=True, blank=True)
+    
     
     class Meta:
         unique_together = ['product', 'size', 'material']  # ✅ Removed color, since many-to-many
@@ -140,9 +121,7 @@ class Inventory(TimeUserStamps):
     reorder_point = models.PositiveIntegerField(default=10)
     cost_price = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
     last_restocked = models.DateTimeField(null=True, blank=True)
-    created_by = models.ForeignKey(User, on_delete=models.CASCADE,related_name='productinventory_created_by', null=True, blank=True)
-    updated_by = models.ForeignKey(User, on_delete=models.CASCADE,related_name='productinventory_updated_by', null=True, blank=True)
-    
+   
     @property
     def is_low_stock(self):
         return self.current_stock <= self.minimum_stock_level
@@ -171,12 +150,8 @@ class SalesProduct(TimeUserStamps):
         editable=False,
         help_text="Final price after discount (auto-calculated)", null=True, blank=True
     )
-    created_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now=True)
-    image = models.FileField(upload_to='saleproduct_images/', blank=True, null=True)
+    image = models.FileField(upload_to='ecom/saleproduct_images/', blank=True, null=True)
     salesprod_has_category = models.ForeignKey(Category, on_delete=models.CASCADE,related_name='saleprod_has_category1', null=True, blank=True)
-    created_by = models.ForeignKey(User, on_delete=models.CASCADE,related_name='saleproduct_created_by', null=True, blank=True)
-    updated_by = models.ForeignKey(User, on_delete=models.CASCADE,related_name='saleproduct_updated_by', null=True, blank=True)
     
     class Meta:
         verbose_name = "Sales Product"
@@ -223,10 +198,8 @@ def calculate_final_price(sender, instance, **kwargs):
 
 class SalesProductImage(TimeUserStamps):
     sale_product = models.ForeignKey(SalesProduct, on_delete=models.CASCADE, related_name='images')
-    images = models.ImageField(upload_to='sale_product_images/')
+    images = models.ImageField(upload_to='ecom/sale_product_images/')
     alt_text = models.CharField(max_length=100, blank=True)
-    created_by = models.ForeignKey(User, on_delete=models.CASCADE, related_name='saleproductimage_created_by', null=True, blank=True)
-    updated_by = models.ForeignKey(User, on_delete=models.CASCADE, related_name='saleproductimage_updated_by', null=True, blank=True)
 
     def __str__(self):
         return f"{self.sale_product.name} Sale Image"
@@ -257,8 +230,6 @@ class Order(TimeUserStamps):
     payment_method = models.CharField(max_length=50, choices=payment_choices)
     payment_status = models.BooleanField(default=False)
     delivery_date = models.DateField(null=True, blank=True)
-    created_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now=True)
     rider = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True)
     # customer = models.ForeignKey(User, on_delete=models.CASCADE, related_name='orders')
     customer = models.ForeignKey(User, on_delete=models.CASCADE, related_name='orders', null=True, blank=True)
@@ -276,8 +247,6 @@ class OrderDetail(TimeUserStamps):
     product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name='order_details', null=True, blank=True)
     sales_product = models.ForeignKey(SalesProduct, on_delete=models.CASCADE, related_name='order_details', null=True, blank=True)
     order = models.ForeignKey(Order, on_delete=models.CASCADE, related_name='order_details')
-    created_at = models.DateTimeField(auto_now_add=True, null=True, blank=True)
-    updated_at = models.DateTimeField(auto_now=True, null=True, blank=True)
     
     class Meta:
         verbose_name = "Order Detail"
@@ -323,8 +292,6 @@ class Contact(TimeUserStamps):
     email = models.EmailField(unique=False, validators=[EmailValidator()])
     phone_number = models.CharField(max_length=20, validators=[phone_number_validator])
     message = models.TextField(null=True, blank=True)
-    created_by = models.ForeignKey(User, on_delete=models.CASCADE, related_name='contact_created_by',null=True, blank=True)
-    updated_by = models.ForeignKey(User, on_delete=models.CASCADE, related_name='contact_updated_by',null=True, blank=True)
 
 
 
@@ -363,9 +330,6 @@ class Review(TimeUserStamps):
         null=True,
         blank=True
     )
-
-    created_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now=True)
 
     class Meta:
         ordering = ['-created_at']
