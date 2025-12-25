@@ -1,0 +1,40 @@
+# Ignore Python cache & compiled files
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Ignore virtual environments
+venv/
+env/
+.venv/
+venv2
+venv2/
+
+# Ignore IDE/editor settings
+.idea/
+.vscode/
+*.swp
+
+# Ignore system files
+.DS_Store
+Thumbs.db
+
+# Ignore logs & coverage
+*.log
+*.pot
+*.mo
+*.sqlite3
+coverage/
+htmlcov/
+
+# Ignore local media/static if generated
+/media/
+staticfiles/
+
+# Ignore build and cache artifacts
+build/
+dist/
+*.egg-info
+
+my_mig.bat
