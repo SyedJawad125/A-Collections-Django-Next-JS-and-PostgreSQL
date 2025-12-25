@@ -1,27 +1,93 @@
-from fastapi import Response
-from rest_framework import status
+"""
+E-commerce Views
+Handles all API endpoints for products, orders, categories, reviews, and more
+Uses BaseView for standardized CRUD operations with soft delete support
+"""
+
+import logging
+from datetime import date, timedelta
+
 from django.conf import settings
+from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
+from django.db import transaction
+from django.db.models import Q, F, Case, When, IntegerField
+from django.shortcuts import get_object_or_404
+
+from rest_framework import status
+from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
-from apps.myapp.models import Category
+from rest_framework.pagination import PageNumberPagination
+
 from utils.decorator import permission_required
 from utils.base_api import BaseView
-from utils.helpers import create_response, paginate_data
-from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
-from venv import logger
+from utils.helpers import create_response, paginate_data, get_first_error_message
+from utils.response_messages import SUCCESSFUL, UNSUCCESSFUL
+
+from .models import (
+    Category,
+    Product,
+    ProductTag,
+    ProductImage,
+    Color,
+    ProductVariant,
+    Inventory,
+    SalesProduct,
+    SalesProductImage,
+    Order,
+    OrderDetail,
+    Contact,
+    Review
+)
+
 from .serializers import (
-    ProductSerializer, ColorSerializer, ProductVariantSerializer, InventorySerializer,
-    SalesProductSerializer, CategorySerializer, ProductTagSerializer, OrderSerializer,
-    ContactSerializer, EmployeeSerializer, ReviewSerializer, PublicReviewSerializer
+    ProductSerializer,
+    ColorSerializer,
+    ProductVariantSerializer,
+    InventorySerializer,
+    SalesProductSerializer,
+    CategorySerializer,
+    ProductTagSerializer,
+    OrderSerializer,
+    ContactSerializer,
+    ReviewSerializer,
+    PublicReviewSerializer
 )
+
 from .filters import (
-    ProductFilter, ColorFilter, ProductVariantFilter, InventoryFilter, PublicCategoryFilter,
-    SalesProductFilter, CategoryFilter, ProductTagFilter, OrderFilter,
-    ContactFilter, ReviewFilter
+    ProductFilter,
+    PublicProductFilter,
+    ProductDropdownFilter,
+    ColorFilter,
+    ProductVariantFilter,
+    PublicProductVariantFilter,
+    InventoryFilter,
+    SalesProductFilter,
+    PublicSalesProductFilter,
+    SalesProductDropdownFilter,
+    CategoryFilter,
+    PublicCategoryFilter,
+    CategoryDropdownFilter,
+    ProductTagFilter,
+    OrderFilter,
+    PublicOrderFilter,
+    OrderSearchFilter,
+    OrderDetailFilter,
+    ContactFilter,
+    PublicContactFilter,
+    ReviewFilter,
+    PublicReviewFilter
 )
 
+# Setup logger
+logger = logging.getLogger(__name__)
 
-# Product related views
+
+# ============================================================================
+# PRODUCT VIEWS
+# ============================================================================
+
 class ProductView(BaseView):
+    """Admin product management view - uses BaseView CRUD"""
     permission_classes = (IsAuthenticated,)
     serializer_class = ProductSerializer
     filterset_class = ProductFilter
@@ -42,55 +108,80 @@ class ProductView(BaseView):
     def delete(self, request):
         return super().delete_(request)
 
+
 class PublicProductView(BaseView):
-    permission_classes = ()  # No authentication required for public endpoints
+    """Public product listing view"""
+    permission_classes = ()
     serializer_class = ProductSerializer
-    filterset_class = ProductFilter
+    filterset_class = PublicProductFilter
     
     def get_publicproduct(self, request):
+        """Get public products with pagination"""
         try:
-            # Get all instances
-            instances = self.serializer_class.Meta.model.objects.all()
+            # Get all non-deleted products (BaseView pattern)
+            instances = self.serializer_class.Meta.model.objects.filter(deleted=False)
             
             # Apply filters
             filtered_data = self.filterset_class(request.GET, queryset=instances)
-            data = filtered_data.qs
+            queryset = filtered_data.qs
             
-            # Get pagination parameters from request
+            # Get and validate pagination parameters
             page = request.GET.get('page', 1)
-            limit = request.GET.get('limit', 24)  # Default limit 16 items per page
-            offset = request.GET.get('offset', 0)  # Default offset 0
+            limit = request.GET.get('limit', 24)
+            offset = request.GET.get('offset', 0)
             
             try:
                 page = int(page)
                 limit = int(limit)
                 offset = int(offset)
-            except ValueError:
+                
+                # Validate ranges
+                if page < 1:
+                    page = 1
+                if limit < 1:
+                    limit = 24
+                if limit > 100:
+                    limit = 100
+                if offset < 0:
+                    offset = 0
+            except (ValueError, TypeError):
                 return create_response(
-                    {"error": "Invalid pagination parameters. Page, limit and offset must be integers."},
+                    {"error": "Invalid pagination parameters"},
                     "BAD_REQUEST",
                     400
                 )
             
-            # Apply offset and limit
-            if offset > 0:
-                data = data[offset:]
+            # Get total count
+            total_count = queryset.count()
             
-            paginator = Paginator(data, limit)
+            # Apply offset
+            if offset > 0:
+                if offset >= total_count:
+                    return create_response({
+                        "count": 0,
+                        "total_count": total_count,
+                        "total_pages": 0,
+                        "current_page": 1,
+                        "data": []
+                    }, SUCCESSFUL, 200)
+                queryset = queryset[offset:]
+            
+            # Paginate
+            paginator = Paginator(queryset, limit)
             
             try:
                 paginated_data = paginator.page(page)
             except EmptyPage:
-                return create_response(
-                    {"error": "Page not found"},
-                    "NOT_FOUND",
-                    404
-                )
+                return create_response({
+                    "error": "Page not found",
+                    "total_pages": paginator.num_pages
+                }, "NOT_FOUND", 404)
             
+            # Serialize
             serialized_data = self.serializer_class(paginated_data, many=True).data
             
             response_data = {
-                "count": paginator.count,
+                "count": total_count,
                 "total_pages": paginator.num_pages,
                 "current_page": page,
                 "limit": limit,
@@ -100,61 +191,48 @@ class PublicProductView(BaseView):
                 "data": serialized_data,
             }
             
-            return create_response(response_data, "SUCCESSFUL", 200)
+            return create_response(response_data, SUCCESSFUL, 200)
 
         except Exception as e:
-            return Response({'error': str(e)}, status=500)
-        
-class SliderProductView(BaseView):
-    permission_classes = ()  # No authentication required for public endpoints
-    serializer_class = ProductSerializer
-    filterset_class = ProductFilter
-    
-    def get_sliderproduct(self, request):
-        try:
+            logger.error(f"Error in get_publicproduct: {str(e)}", exc_info=True)
+            return create_response(
+                {"error": "Failed to fetch products"},
+                UNSUCCESSFUL,
+                500
+            )
 
-            instances = self.serializer_class.Meta.model.objects.all()
 
-            filtered_data = self.filterset_class(request.GET, queryset=instances)
-            data = filtered_data.qs
-
-            paginated_data, count = paginate_data(data, request)
-
-            serialized_data = self.serializer_class(paginated_data, many=True).data
-            response_data = {
-                "count": count,
-                "data": serialized_data,
-            }
-            return create_response(response_data, "SUCCESSFUL", 200)
-        except Exception as e:
-            return Response({'error': str(e)}, 500)
-
-class DropDownListProductView(BaseView):
+class ProductDropdownView(BaseView):
+    """Product dropdown list for forms"""
     permission_classes = (IsAuthenticated,)
     serializer_class = ProductSerializer
-    filterset_class = ProductFilter
+    filterset_class = ProductDropdownFilter
     
-    def get_dropdownlistproduct(self, request):
+    def get_dropdown(self, request):
+        """Get products for dropdown (uses BaseView pattern)"""
         try:
-
-            instances = self.serializer_class.Meta.model.objects.all()
-
+            instances = self.serializer_class.Meta.model.objects.filter(deleted=False)
             filtered_data = self.filterset_class(request.GET, queryset=instances)
             data = filtered_data.qs
 
             paginated_data, count = paginate_data(data, request)
-
             serialized_data = self.serializer_class(paginated_data, many=True).data
-            response_data = {
+            
+            return create_response({
                 "count": count,
                 "data": serialized_data,
-            }
-            return create_response(response_data, "SUCCESSFUL", 200)
+            }, SUCCESSFUL, 200)
         except Exception as e:
-            return Response({'error': str(e)}, 500)
+            logger.error(f"Error in ProductDropdownView: {str(e)}")
+            return create_response({"error": str(e)}, UNSUCCESSFUL, 500)
 
-# Color View
+
+# ============================================================================
+# COLOR VIEWS
+# ============================================================================
+
 class ColorView(BaseView):
+    """Color management view - uses BaseView CRUD"""
     permission_classes = (IsAuthenticated,)
     serializer_class = ColorSerializer
     filterset_class = ColorFilter
@@ -175,8 +253,13 @@ class ColorView(BaseView):
     def delete(self, request):
         return super().delete_(request)
 
-# Product Variant View
+
+# ============================================================================
+# PRODUCT VARIANT VIEWS
+# ============================================================================
+
 class ProductVariantView(BaseView):
+    """Product variant management view - uses BaseView CRUD"""
     permission_classes = (IsAuthenticated,)
     serializer_class = ProductVariantSerializer
     filterset_class = ProductVariantFilter
@@ -197,8 +280,43 @@ class ProductVariantView(BaseView):
     def delete(self, request):
         return super().delete_(request)
 
-# Inventory View
+
+class PublicProductVariantView(BaseView):
+    """Public product variant view"""
+    permission_classes = ()
+    serializer_class = ProductVariantSerializer
+    filterset_class = PublicProductVariantFilter
+    
+    def get_variants(self, request):
+        """Get public variants (only active)"""
+        try:
+            # Only show active, non-deleted variants
+            instances = self.serializer_class.Meta.model.objects.filter(
+                deleted=False,
+                is_active=True
+            )
+            
+            filtered_data = self.filterset_class(request.GET, queryset=instances)
+            data = filtered_data.qs
+
+            paginated_data, count = paginate_data(data, request)
+            serialized_data = self.serializer_class(paginated_data, many=True).data
+            
+            return create_response({
+                "count": count,
+                "data": serialized_data,
+            }, SUCCESSFUL, 200)
+        except Exception as e:
+            logger.error(f"Error in PublicProductVariantView: {str(e)}")
+            return create_response({"error": str(e)}, UNSUCCESSFUL, 500)
+
+
+# ============================================================================
+# INVENTORY VIEWS
+# ============================================================================
+
 class InventoryView(BaseView):
+    """Inventory management view - uses BaseView CRUD"""
     permission_classes = (IsAuthenticated,)
     serializer_class = InventorySerializer
     filterset_class = InventoryFilter
@@ -219,8 +337,13 @@ class InventoryView(BaseView):
     def delete(self, request):
         return super().delete_(request)
 
-# Sales Product View
+
+# ============================================================================
+# SALES PRODUCT VIEWS
+# ============================================================================
+
 class SalesProductView(BaseView):
+    """Admin sales product management view - uses BaseView CRUD"""
     permission_classes = (IsAuthenticated,)
     serializer_class = SalesProductSerializer
     filterset_class = SalesProductFilter
@@ -241,15 +364,18 @@ class SalesProductView(BaseView):
     def delete(self, request):
         return super().delete_(request)
 
+
 class PublicSalesProductView(BaseView):
-    permission_classes = ()  # No authentication required for public endpoints
+    """Public sales product listing view"""
+    permission_classes = ()
     serializer_class = SalesProductSerializer
-    filterset_class = SalesProductFilter
+    filterset_class = PublicSalesProductFilter
     
     def get_publicsalesproduct(self, request):
+        """Get public sales products with pagination"""
         try:
-            # Get all instances and apply filters
-            instances = self.serializer_class.Meta.model.objects.all()
+            # Get all non-deleted sales products (BaseView pattern)
+            instances = self.serializer_class.Meta.model.objects.filter(deleted=False)
             filtered_data = self.filterset_class(request.GET, queryset=instances)
             queryset = filtered_data.qs
 
@@ -268,14 +394,14 @@ class PublicSalesProductView(BaseView):
                     page = 1
                 if limit < 1:
                     limit = 12
-                if limit > 100:  # Prevent excessive server load
+                if limit > 100:
                     limit = 100
                 if offset < 0:
                     offset = 0
                     
             except (ValueError, TypeError):
                 return create_response(
-                    {"error": "Invalid pagination parameters. Page, limit and offset must be valid integers."},
+                    {"error": "Invalid pagination parameters"},
                     "BAD_REQUEST",
                     400
                 )
@@ -285,27 +411,18 @@ class PublicSalesProductView(BaseView):
             
             # Apply offset if specified
             if offset > 0:
-                # Ensure offset doesn't exceed total count
                 if offset >= total_count:
-                    return create_response(
-                        {
-                            "count": 0,
-                            "total_count": total_count,
-                            "total_pages": 0,
-                            "current_page": 1,
-                            "limit": limit,
-                            "offset": offset,
-                            "next": False,
-                            "previous": False,
-                            "data": [],
-                            "message": "Offset exceeds total number of records"
-                        },
-                        "SUCCESSFUL",
-                        200
-                    )
+                    return create_response({
+                        "count": 0,
+                        "total_count": total_count,
+                        "total_pages": 0,
+                        "current_page": 1,
+                        "data": [],
+                        "message": "Offset exceeds total number of records"
+                    }, SUCCESSFUL, 200)
                 queryset = queryset[offset:]
 
-            # Get count after offset for pagination calculation
+            # Get count after offset
             remaining_count = queryset.count()
             
             # Create paginator
@@ -314,101 +431,77 @@ class PublicSalesProductView(BaseView):
             try:
                 paginated_data = paginator.page(page)
             except PageNotAnInteger:
-                # If page is not an integer, deliver first page
                 paginated_data = paginator.page(1)
                 page = 1
             except EmptyPage:
-                # If page is out of range, deliver last page or return empty if no pages
                 if paginator.num_pages > 0:
                     paginated_data = paginator.page(paginator.num_pages)
                     page = paginator.num_pages
                 else:
-                    return create_response(
-                        {
-                            "count": 0,
-                            "total_count": total_count,
-                            "total_pages": 0,
-                            "current_page": 1,
-                            "limit": limit,
-                            "offset": offset,
-                            "next": False,
-                            "previous": False,
-                            "data": [],
-                            "message": "No data available"
-                        },
-                        "SUCCESSFUL",
-                        200
-                    )
+                    return create_response({
+                        "count": 0,
+                        "total_count": total_count,
+                        "data": [],
+                        "message": "No data available"
+                    }, SUCCESSFUL, 200)
 
             # Serialize the paginated data
             serialized_data = self.serializer_class(paginated_data, many=True).data
 
-            # Calculate actual start and end indices for display
-            start_index = ((page - 1) * limit) + 1 + offset
-            end_index = min(page * limit + offset, total_count)
-
-            # Prepare comprehensive response data
             response_data = {
-                "count": remaining_count,  # Count after offset
-                "total_count": total_count,  # Original total count
+                "count": remaining_count,
+                "total_count": total_count,
                 "total_pages": paginator.num_pages,
                 "current_page": page,
                 "limit": limit,
                 "offset": offset,
                 "next": paginated_data.has_next(),
                 "previous": paginated_data.has_previous(),
-                "start_index": start_index,
-                "end_index": end_index,
                 "data": serialized_data,
-                "pagination_info": {
-                    "has_data": len(serialized_data) > 0,
-                    "items_in_current_page": len(serialized_data),
-                    "is_first_page": page == 1,
-                    "is_last_page": page == paginator.num_pages,
-                }
             }
 
-            return create_response(response_data, "SUCCESSFUL", 200)
+            return create_response(response_data, SUCCESSFUL, 200)
 
         except Exception as e:
-            # Log the error for debugging
             logger.error(f"Error in get_publicsalesproduct: {str(e)}", exc_info=True)
-            
             return create_response(
-                {
-                    "error": "An error occurred while fetching products",
-                    "details": str(e) if hasattr(settings, 'DEBUG') and settings.DEBUG else None
-                },
-                "INTERNAL_SERVER_ERROR",
+                {"error": "Failed to fetch sales products"},
+                UNSUCCESSFUL,
                 500
             )
 
-class DropDownListSalesProductView(BaseView):
+
+class SalesProductDropdownView(BaseView):
+    """Sales product dropdown list for forms"""
     permission_classes = (IsAuthenticated,)
     serializer_class = SalesProductSerializer
-    filterset_class = SalesProductFilter
+    filterset_class = SalesProductDropdownFilter
     
-    def get_dropdownlistsalesproduct(self, request):
+    def get_dropdown(self, request):
+        """Get sales products for dropdown"""
         try:
-
-            instances = self.serializer_class.Meta.model.objects.all()
-
+            instances = self.serializer_class.Meta.model.objects.filter(deleted=False)
             filtered_data = self.filterset_class(request.GET, queryset=instances)
             data = filtered_data.qs
 
             paginated_data, count = paginate_data(data, request)
-
             serialized_data = self.serializer_class(paginated_data, many=True).data
-            response_data = {
+            
+            return create_response({
                 "count": count,
                 "data": serialized_data,
-            }
-            return create_response(response_data, "SUCCESSFUL", 200)
+            }, SUCCESSFUL, 200)
         except Exception as e:
-            return Response({'error': str(e)}, 500)
+            logger.error(f"Error in SalesProductDropdownView: {str(e)}")
+            return create_response({"error": str(e)}, UNSUCCESSFUL, 500)
 
-# Category View
+
+# ============================================================================
+# CATEGORY VIEWS
+# ============================================================================
+
 class CategoryView(BaseView):
+    """Admin category management view - uses BaseView CRUD"""
     permission_classes = (IsAuthenticated,)
     serializer_class = CategorySerializer
     filterset_class = CategoryFilter
@@ -429,8 +522,174 @@ class CategoryView(BaseView):
     def delete(self, request):
         return super().delete_(request)
 
-# Product Tag View
+
+class PublicCategoryView(BaseView):
+    """Public category listing view"""
+    permission_classes = ()
+    serializer_class = CategorySerializer
+    filterset_class = PublicCategoryFilter
+    
+    def get_publiccategory(self, request):
+        """Get public categories with pagination"""
+        try:
+            # Get all non-deleted categories (BaseView pattern)
+            instances = self.serializer_class.Meta.model.objects.filter(deleted=False)
+            
+            # Apply filters
+            filtered_data = self.filterset_class(request.GET, queryset=instances)
+            queryset = filtered_data.qs
+            
+            # Get and validate pagination parameters
+            page = request.GET.get('page', 1)
+            limit = request.GET.get('limit', 24)
+            offset = request.GET.get('offset', 0)
+            
+            try:
+                page = int(page)
+                limit = int(limit)
+                offset = int(offset)
+                
+                if page < 1:
+                    page = 1
+                if limit < 1:
+                    limit = 24
+                if limit > 100:
+                    limit = 100
+                if offset < 0:
+                    offset = 0
+            except (ValueError, TypeError):
+                return create_response(
+                    {"error": "Invalid pagination parameters"},
+                    "BAD_REQUEST",
+                    400
+                )
+            
+            # Get total count
+            total_count = queryset.count()
+            
+            # Apply offset
+            if offset > 0:
+                if offset >= total_count:
+                    return create_response({
+                        "count": 0,
+                        "total_count": total_count,
+                        "data": []
+                    }, SUCCESSFUL, 200)
+                queryset = queryset[offset:]
+            
+            # Paginate
+            paginator = Paginator(queryset, limit)
+            
+            try:
+                paginated_data = paginator.page(page)
+            except EmptyPage:
+                return create_response({
+                    "error": "Page not found"
+                }, "NOT_FOUND", 404)
+            
+            serialized_data = self.serializer_class(paginated_data, many=True).data
+            
+            response_data = {
+                "count": total_count,
+                "total_pages": paginator.num_pages,
+                "current_page": page,
+                "limit": limit,
+                "offset": offset,
+                "next": paginated_data.has_next(),
+                "previous": paginated_data.has_previous(),
+                "data": serialized_data,
+            }
+            
+            return create_response(response_data, SUCCESSFUL, 200)
+
+        except Exception as e:
+            logger.error(f"Error in get_publiccategory: {str(e)}", exc_info=True)
+            return create_response(
+                {"error": "Failed to fetch categories"},
+                UNSUCCESSFUL,
+                500
+            )
+
+
+class PublicCategoryDetailView(BaseView):
+    """Public category detail view - single category or list"""
+    permission_classes = ()
+    serializer_class = CategorySerializer
+    filterset_class = PublicCategoryFilter
+    
+    def get_category_detail(self, request, pk=None):
+        """Get single category or paginated list"""
+        try:
+            if pk is not None:
+                # Fetch single category by ID (BaseView pattern)
+                instance = self.serializer_class.Meta.model.objects.filter(
+                    pk=pk,
+                    deleted=False
+                ).first()
+                
+                if not instance:
+                    return create_response(
+                        {"error": "Category not found"},
+                        "NOT_FOUND",
+                        404
+                    )
+
+                serialized_data = self.serializer_class(instance).data
+                return create_response(serialized_data, SUCCESSFUL, 200)
+
+            # Fetch all categories (paginated, BaseView pattern)
+            instances = self.serializer_class.Meta.model.objects.filter(deleted=False)
+            filtered_data = self.filterset_class(request.GET, queryset=instances)
+            data = filtered_data.qs
+
+            paginated_data, count = paginate_data(data, request)
+            serialized_data = self.serializer_class(paginated_data, many=True).data
+
+            return create_response({
+                "count": count,
+                "data": serialized_data,
+            }, SUCCESSFUL, 200)
+
+        except Exception as e:
+            logger.error(f"Error in get_category_detail: {str(e)}", exc_info=True)
+            return create_response(
+                {"error": "Failed to fetch category"},
+                UNSUCCESSFUL,
+                500
+            )
+
+
+class CategoryDropdownView(BaseView):
+    """Category dropdown list for forms"""
+    permission_classes = (IsAuthenticated,)
+    serializer_class = CategorySerializer
+    filterset_class = CategoryDropdownFilter
+    
+    def get_dropdown(self, request):
+        """Get categories for dropdown"""
+        try:
+            instances = self.serializer_class.Meta.model.objects.filter(deleted=False)
+            filtered_data = self.filterset_class(request.GET, queryset=instances)
+            data = filtered_data.qs
+
+            paginated_data, count = paginate_data(data, request)
+            serialized_data = self.serializer_class(paginated_data, many=True).data
+            
+            return create_response({
+                "count": count,
+                "data": serialized_data,
+            }, SUCCESSFUL, 200)
+        except Exception as e:
+            logger.error(f"Error in CategoryDropdownView: {str(e)}")
+            return create_response({"error": str(e)}, UNSUCCESSFUL, 500)
+
+
+# ============================================================================
+# PRODUCT TAG VIEWS
+# ============================================================================
+
 class ProductTagView(BaseView):
+    """Product tag management view - uses BaseView CRUD"""
     permission_classes = (IsAuthenticated,)
     serializer_class = ProductTagSerializer
     filterset_class = ProductTagFilter
@@ -447,163 +706,19 @@ class ProductTagView(BaseView):
     def delete(self, request):
         return super().delete_(request)
 
-class PublicCategoryView(BaseView):
-    permission_classes = ()  # No authentication required for public endpoints
-    serializer_class = CategorySerializer
-    filterset_class = CategoryFilter
-    
-    def get_publiccategory(self, request):
-        try:
-            # Get all instances
-            instances = self.serializer_class.Meta.model.objects.all()
-            
-            # Apply filters
-            filtered_data = self.filterset_class(request.GET, queryset=instances)
-            data = filtered_data.qs
-            
-            # Get pagination parameters from request
-            page = request.GET.get('page', 1)
-            limit = request.GET.get('limit', 24)  # Default limit 16 items per page
-            offset = request.GET.get('offset', 0)  # Default offset 0
-            
-            try:
-                page = int(page)
-                limit = int(limit)
-                offset = int(offset)
-            except ValueError:
-                return create_response(
-                    {"error": "Invalid pagination parameters. Page, limit and offset must be integers."},
-                    "BAD_REQUEST",
-                    400
-                )
-            
-            # Apply offset and limit
-            if offset > 0:
-                data = data[offset:]
-            
-            paginator = Paginator(data, limit)
-            
-            try:
-                paginated_data = paginator.page(page)
-            except EmptyPage:
-                return create_response(
-                    {"error": "Page not found"},
-                    "NOT_FOUND",
-                    404
-                )
-            
-            serialized_data = self.serializer_class(paginated_data, many=True).data
-            
-            response_data = {
-                "count": paginator.count,
-                "total_pages": paginator.num_pages,
-                "current_page": page,
-                "limit": limit,
-                "offset": offset,
-                "next": paginated_data.has_next(),
-                "previous": paginated_data.has_previous(),
-                "data": serialized_data,
-            }
-            
-            return create_response(response_data, "SUCCESSFUL", 200)
 
-        except Exception as e:
-            return Response({'error': str(e)}, status=500)
+# ============================================================================
+# ORDER VIEWS
+# ============================================================================
 
-class PublicCategoryWiseView(BaseView):
-    permission_classes = ()  # No authentication required for public endpoints
-    serializer_class = CategorySerializer
-    filterset_class = CategoryFilter
-    
-    def get_publiccategorywise(self, request, pk=None):
-        try:
-            if pk is not None:
-                # Fetch single category by ID
-                instance = self.serializer_class.Meta.model.objects.filter(pk=pk).first()
-                if not instance:
-                    return Response({'error': 'Category not found'}, status=404)
-
-                serialized_data = self.serializer_class(instance).data
-                return create_response(serialized_data, "SUCCESSFUL", 200)
-
-            # Fetch all categories (paginated)
-            instances = self.serializer_class.Meta.model.objects.all()
-            filtered_data = self.filterset_class(request.GET, queryset=instances)
-            data = filtered_data.qs
-
-            paginated_data, count = paginate_data(data, request)
-            serialized_data = self.serializer_class(paginated_data, many=True).data
-
-            response_data = {
-                "count": count,
-                "data": serialized_data,
-            }
-            return create_response(response_data, "SUCCESSFUL", 200)
-
-        except Exception as e:
-            import traceback
-            print("Error in get_publiccategory:", str(e))
-            traceback.print_exc()
-            return Response({'error': str(e)}, status=500)
-
-class DropDownListCategoryView(BaseView):
-    permission_classes = (IsAuthenticated,)
-    serializer_class = CategorySerializer
-    filterset_class = CategoryFilter
-    
-    def get_dropdownlistcategory(self, request):
-        try:
-
-            instances = self.serializer_class.Meta.model.objects.all()
-
-            filtered_data = self.filterset_class(request.GET, queryset=instances)
-            data = filtered_data.qs
-
-            paginated_data, count = paginate_data(data, request)
-
-            serialized_data = self.serializer_class(paginated_data, many=True).data
-            response_data = {
-                "count": count,
-                "data": serialized_data,
-            }
-            return create_response(response_data, "SUCCESSFUL", 200)
-        except Exception as e:
-            return Response({'error': str(e)}, 500)
-
-class SliderCategoryView(BaseView):
-    permission_classes = ()  # No authentication required for public endpoints
-    serializer_class = CategorySerializer
-    filterset_class = CategoryFilter
-    
-    def get_slidercategory(self, request):
-        try:
-
-            instances = self.serializer_class.Meta.model.objects.all()
-
-            filtered_data = self.filterset_class(request.GET, queryset=instances)
-            data = filtered_data.qs
-
-            paginated_data, count = paginate_data(data, request)
-
-            serialized_data = self.serializer_class(paginated_data, many=True).data
-            response_data = {
-                "count": count,
-                "data": serialized_data,
-            }
-            return create_response(response_data, "SUCCESSFUL", 200)
-        except Exception as e:
-            return Response({'error': str(e)}, 500)
-
-# Order View
 class OrderView(BaseView):
+    """Admin order management view - uses BaseView CRUD"""
     permission_classes = (IsAuthenticated,)
     serializer_class = OrderSerializer
     filterset_class = OrderFilter
     
     @permission_required(['create_order'])
     def post(self, request):
-        if 'cart_items' in request.data:
-            return self.controller.checkout(request)
         return super().post_(request)
     
     @permission_required(['read_order'])
@@ -618,26 +733,37 @@ class OrderView(BaseView):
     def delete(self, request):
         return super().delete_(request)
 
-class TextBoxOrderView(BaseView):
+
+class OrderSearchView(BaseView):
+    """Order search view with text-based search"""
     permission_classes = (IsAuthenticated,)
     serializer_class = OrderSerializer
-    filterset_class = OrderFilter
+    filterset_class = OrderSearchFilter
     
-    def get_textboxorder(self, request):
+    def get_search(self, request):
+        """Search orders by ID or other fields"""
         try:
             order_id = request.query_params.get('id')
 
-            # If ID is provided, return a single order
+            # If ID is provided, return a single order (BaseView pattern)
             if order_id:
-                instance = self.serializer_class.Meta.model.objects.filter(id=order_id).first()
+                instance = self.serializer_class.Meta.model.objects.filter(
+                    id=order_id,
+                    deleted=False
+                ).first()
+                
                 if not instance:
-                    return Response({'error': 'Order not found'}, status=404)
+                    return create_response(
+                        {"error": "Order not found"},
+                        "NOT_FOUND",
+                        404
+                    )
                 
                 serialized_data = self.serializer_class(instance).data
-                return create_response(serialized_data, "SUCCESSFUL", 200)
+                return create_response(serialized_data, SUCCESSFUL, 200)
 
-            # Else return paginated list
-            instances = self.serializer_class.Meta.model.objects.all()
+            # Else return paginated list (BaseView pattern)
+            instances = self.serializer_class.Meta.model.objects.filter(deleted=False)
             filtered_data = self.filterset_class(request.query_params, queryset=instances)
             data = filtered_data.qs
 
@@ -647,15 +773,20 @@ class TextBoxOrderView(BaseView):
             return create_response({
                 "count": count,
                 "data": serialized_data,
-            }, "SUCCESSFUL", 200)
+            }, SUCCESSFUL, 200)
 
         except Exception as e:
-            import traceback
-            traceback.print_exc()
-            return Response({'error': str(e)}, status=500)
+            logger.error(f"Error in OrderSearchView: {str(e)}", exc_info=True)
+            return create_response(
+                {"error": "Failed to search orders"},
+                UNSUCCESSFUL,
+                500
+            )
+
 
 class PublicOrderView(BaseView):
-    permission_classes = ()  # No authentication required for public endpoints
+    """Public order creation view"""
+    permission_classes = ()
     serializer_class = OrderSerializer
 
     def _calculate_delivery_date(self):
@@ -673,10 +804,10 @@ class PublicOrderView(BaseView):
         Returns: (price, product) tuple
         """
         if product_type == 'product':
-            product = Product.objects.get(id=product_id)
+            product = Product.objects.get(id=product_id, deleted=False)
             return product.price, product
         elif product_type == 'sales_product':
-            sales_product = SalesProduct.objects.get(id=product_id)
+            sales_product = SalesProduct.objects.get(id=product_id, deleted=False)
             return sales_product.final_price, sales_product
         else:
             raise ValueError(f"Invalid product type: {product_type}")
@@ -684,13 +815,9 @@ class PublicOrderView(BaseView):
     def create_mixed_order(self, request):
         """
         Handles order creation with both regular and sales products
-        - Takes user personal info
-        - Takes list of items with product_type (product/sales_product), product_id, and quantity
-        - Calculates prices from respective tables
-        - Returns order summary with calculated totals
         """
         try:
-            # Extract data from request
+            # Extract personal info
             personal_info = {
                 'customer_name': request.data.get('customer_name'),
                 'customer_email': request.data.get('customer_email'),
@@ -700,14 +827,14 @@ class PublicOrderView(BaseView):
                 'payment_method': request.data.get('payment_method'),
             }
             
-            # Get product selections (list of {product_type, product_id, quantity})
+            # Get product selections
             items = request.data.get('items', [])
             
             # Validate required fields
             if not all(personal_info.values()) or not items:
                 return create_response(
-                    {},
-                    "Missing required fields (personal info or items)",
+                    {"error": "Missing required fields"},
+                    "BAD_REQUEST",
                     400
                 )
             
@@ -723,13 +850,14 @@ class PublicOrderView(BaseView):
             serialized_data = self.serializer_class(data=order_data)
             if not serialized_data.is_valid():
                 return create_response(
-                    {}, 
+                    {"errors": serialized_data.errors}, 
                     get_first_error_message(serialized_data.errors, UNSUCCESSFUL),
                     400
                 )
             
             # Process order with transaction
             with transaction.atomic():
+                # Save order (note: created_by will be None for public orders)
                 order = serialized_data.save()
                 bill = 0
                 order_items = []
@@ -745,7 +873,7 @@ class PublicOrderView(BaseView):
                         unit_price, product = self._get_product_price(product_type, product_id)
                         total_price = unit_price * quantity
                         
-                        # Prepare order detail data based on product type
+                        # Prepare order detail data
                         order_detail_data = {
                             'order': order,
                             'unit_price': unit_price,
@@ -753,14 +881,14 @@ class PublicOrderView(BaseView):
                             'total_price': total_price
                         }
                         
-                        # Set the appropriate product field based on type
+                        # Set the appropriate product field
                         if product_type == 'product':
                             order_detail_data['product'] = product
                         else:
                             order_detail_data['sales_product'] = product
                         
-                        # Create order detail with all fields at once
-                        order_detail = OrderDetail.objects.create(**order_detail_data)
+                        # Create order detail
+                        OrderDetail.objects.create(**order_detail_data)
                         
                         bill += total_price
                         order_items.append({
@@ -774,23 +902,13 @@ class PublicOrderView(BaseView):
                         })
                         
                     except (Product.DoesNotExist, SalesProduct.DoesNotExist):
-                        return create_response(
-                            {},
-                            f"{product_type.replace('_', ' ').title()} with id {product_id} not found",
-                            404
-                        )
-                    except Exception as e:
-                        return create_response(
-                            {},
-                            f"Error processing {product_type} {product_id}: {str(e)}",
-                            400
-                        )
+                        raise ValueError(f"{product_type.title()} with id {product_id} not found")
                 
                 # Update order total
                 order.bill = bill
                 order.save()
 
-                # Prepare detailed response
+                # Prepare response
                 response_data = {
                     'order_id': order.id,
                     'customer_info': {
@@ -800,7 +918,7 @@ class PublicOrderView(BaseView):
                     },
                     'delivery_info': {
                         'address': order.delivery_address,
-                        'city': order.city if hasattr(order, 'city') else None,
+                        'city': order.city,
                         'estimated_date': order.delivery_date.strftime('%Y-%m-%d')
                     },
                     'order_summary': {
@@ -814,25 +932,35 @@ class PublicOrderView(BaseView):
 
                 return create_response(response_data, SUCCESSFUL, 200)
 
-        except Exception as e:
-            import traceback
-            logger.error(f"Order creation failed: {str(e)}\n{traceback.format_exc()}")
+        except ValueError as e:
             return create_response(
-                {'error': str(e)},
+                {"error": str(e)},
+                "BAD_REQUEST",
+                400
+            )
+        except Exception as e:
+            logger.error(f"Order creation failed: {str(e)}", exc_info=True)
+            return create_response(
+                {"error": "Failed to create order"},
                 UNSUCCESSFUL,
                 500
             )
     
     def post(self, request):
-        if 'cart_items' in request.data:
-            return self.controller.checkout(request)
-        elif 'items' in request.data and any(item.get('product_type') for item in request.data.get('items', [])):
-            return self.controller.create_mixed_order(request)
+        """Route to appropriate order creation method"""
+        if 'items' in request.data and any(item.get('product_type') for item in request.data.get('items', [])):
+            return self.create_mixed_order(request)
         else:
-            return self.controller.create_order_with_products(request)
+            # Use BaseView for simple order creation
+            return super().post_(request)
 
-# Contact View
+
+# ============================================================================
+# CONTACT VIEWS
+# ============================================================================
+
 class ContactView(BaseView):
+    """Admin contact management view"""
     permission_classes = (IsAuthenticated,)
     serializer_class = ContactSerializer
     filterset_class = ContactFilter
@@ -845,45 +973,54 @@ class ContactView(BaseView):
     def delete(self, request):
         return super().delete_(request)
 
+
 class PublicContactView(BaseView):
-    permission_classes = ()  # No authentication required for public endpoints
+    """Public contact form submission view"""
+    permission_classes = ()
     serializer_class = ContactSerializer
+    filterset_class = PublicContactFilter
     
     def post(self, request):
+        """Submit contact form (uses BaseView but no created_by for public)"""
         return super().post_(request)
     
     def get_publiccontact(self, request):
+        """Get public contact submissions (if needed)"""
         try:
-
-            instances = self.serializer_class.Meta.model.objects.all()
-
+            instances = self.serializer_class.Meta.model.objects.filter(deleted=False)
             filtered_data = self.filterset_class(request.GET, queryset=instances)
             data = filtered_data.qs
 
             paginated_data, count = paginate_data(data, request)
-
             serialized_data = self.serializer_class(paginated_data, many=True).data
-            response_data = {
+            
+            return create_response({
                 "count": count,
                 "data": serialized_data,
-            }
-            return create_response(response_data, "SUCCESSFUL", 200)
-
+            }, SUCCESSFUL, 200)
 
         except Exception as e:
-            return Response({'error': str(e)}, 500)
+            logger.error(f"Error in get_publiccontact: {str(e)}")
+            return create_response(
+                {"error": "Failed to fetch contacts"},
+                UNSUCCESSFUL,
+                500
+            )
 
 
-class ReviewController:
+# ============================================================================
+# REVIEW VIEWS
+# ============================================================================
+
+class ReviewView(BaseView):
+    """Admin review management view"""
+    permission_classes = (IsAuthenticated,)
     serializer_class = ReviewSerializer
     filterset_class = ReviewFilter
 
-    def create(self, request):
+    def post(self, request):
+        """Create a review"""
         try:
-            # Make request data mutable if needed
-            if hasattr(request.data, '_mutable'):
-                request.data._mutable = True
-            
             # Check if either product or sales_product is provided
             product_id = request.data.get('product')
             sales_product_id = request.data.get('sales_product')
@@ -896,84 +1033,61 @@ class ReviewController:
 
             # Validate product exists if provided
             if product_id:
-                product = get_object_or_404(Product, id=product_id)
+                get_object_or_404(Product, id=product_id, deleted=False)
             if sales_product_id:
-                sales_product = get_object_or_404(SalesProduct, id=sales_product_id)
+                get_object_or_404(SalesProduct, id=sales_product_id, deleted=False)
 
-            # Set created_by if user is authenticated
+            # Set user if authenticated
             if request.user.is_authenticated:
-                request.data["user"] = request.user.guid
+                request.data["user"] = request.user.id
             
-            # Validate and save
+            # Validate and save (uses BaseView pattern)
             serializer = self.serializer_class(data=request.data, context={'request': request})
             if serializer.is_valid():
-                review = serializer.save()
-                
-                # Return enriched response data
-                response_data = self.serializer_class(review).data
-                
-                # Enhance the response with product/sales_product details
-                enhanced_data = {
-                    **response_data,
-                    'product': {
-                        'id': review.product.id if review.product else None,
-                        'name': review.product.name if review.product else None
-                    } if review.product else None,
-                    'sales_product': {
-                        'id': review.sales_product.id if review.sales_product else None,
-                        'name': review.sales_product.name if review.sales_product else None,
-                        'discount_percent': review.sales_product.discount_percent if review.sales_product else None
-                    } if review.sales_product else None
-                }
+                review = serializer.save(created_by=request.user if request.user.is_authenticated else None)
                 
                 return Response({
                     'status': 'SUCCESS',
                     'message': 'Review created successfully',
-                    'data': enhanced_data
+                    'data': self.serializer_class(review).data
                 }, status=status.HTTP_201_CREATED)
             
-            # Handle validation errors
-            error_message = get_first_error_message(serializer.errors, "UNSUCCESSFUL")
             return Response({
                 'status': 'ERROR',
-                'message': error_message,
+                'message': get_first_error_message(serializer.errors, "Validation failed"),
                 'errors': serializer.errors
             }, status=status.HTTP_400_BAD_REQUEST)
 
         except Exception as e:
+            logger.error(f"Error creating review: {str(e)}", exc_info=True)
             return Response({
                 'status': 'ERROR',
                 'message': 'Failed to create review',
                 'error': str(e)
             }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
-    def get_review(self, request):
+    def get(self, request):
+        """Get reviews with filters (BaseView pattern)"""
         try:
-            # Get filtered queryset
-            queryset = Review.objects.all()
+            queryset = Review.objects.filter(deleted=False).order_by('-created_at')
             filtered_queryset = self.filterset_class(request.GET, queryset=queryset).qs
-            
-            # Apply ordering (newest first by default)
-            filtered_queryset = filtered_queryset.order_by('-created_at')
             
             # Pagination
             page = request.GET.get('page', 1)
             limit = request.GET.get('limit', 10)
-            offset = request.GET.get('offset', 0)
             
             try:
                 page = int(page)
                 limit = int(limit)
-                offset = int(offset)
-            except ValueError:
+                if page < 1:
+                    page = 1
+                if limit < 1 or limit > 100:
+                    limit = 10
+            except (ValueError, TypeError):
                 return Response({
                     'status': 'ERROR',
                     'message': 'Invalid pagination parameters'
                 }, status=status.HTTP_400_BAD_REQUEST)
-            
-            # Apply offset and limit
-            if offset > 0:
-                filtered_queryset = filtered_queryset[offset:]
             
             paginator = Paginator(filtered_queryset, limit)
             
@@ -985,7 +1099,6 @@ class ReviewController:
                     'message': 'Page not found'
                 }, status=status.HTTP_404_NOT_FOUND)
             
-            # Serialize data with enriched product/sales product info
             serializer = self.serializer_class(paginated_data, many=True)
             
             return Response({
@@ -997,52 +1110,46 @@ class ReviewController:
                     'pages': paginator.num_pages,
                     'current_page': page,
                     'limit': limit,
-                    'offset': offset,
                     'has_next': paginated_data.has_next(),
                     'has_previous': paginated_data.has_previous()
                 }
             }, status=status.HTTP_200_OK)
 
         except Exception as e:
+            logger.error(f"Error retrieving reviews: {str(e)}", exc_info=True)
             return Response({
                 'status': 'ERROR',
-                'message': 'Failed to retrieve reviews',
-                'error': str(e)
+                'message': 'Failed to retrieve reviews'
             }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
-
-    def update_review(self, request):
+    def patch(self, request):
+        """Update a review (BaseView pattern with ownership check)"""
         try:
-            # Validate required ID field
             if "id" not in request.data:
                 return Response({
                     'status': 'ERROR',
                     'message': 'Review ID not provided'
                 }, status=status.HTTP_400_BAD_REQUEST)
 
-            # Find the review instance
-            instance = Review.objects.filter(id=request.data["id"]).first()
+            instance = Review.objects.filter(id=request.data["id"], deleted=False).first()
             if not instance:
                 return Response({
                     'status': 'ERROR',
                     'message': 'Review not found'
                 }, status=status.HTTP_404_NOT_FOUND)
 
-            # Check ownership (user can only update their own reviews)
-            if request.user.is_authenticated and instance.user != request.user:
+            # Check ownership
+            if request.user.is_authenticated and instance.user and instance.user != request.user:
                 return Response({
                     'status': 'ERROR',
                     'message': 'You can only update your own reviews'
                 }, status=status.HTTP_403_FORBIDDEN)
 
-            # Create a copy of the data to avoid modifying the original request
+            # Don't allow changing product associations
             data = request.data.copy()
-            
-            # Explicitly remove product/sales_product fields
             data.pop('product', None)
             data.pop('sales_product', None)
             
-            # Update the review
             serializer = self.serializer_class(
                 instance,
                 data=data,
@@ -1051,34 +1158,29 @@ class ReviewController:
             )
             
             if serializer.is_valid():
-                updated_review = serializer.save()
-                
-                # Return enriched response
-                response_data = self.serializer_class(updated_review).data
+                updated_review = serializer.save(updated_by=request.user if request.user.is_authenticated else None)
                 return Response({
                     'status': 'SUCCESS',
                     'message': 'Review updated successfully',
-                    'data': response_data
+                    'data': self.serializer_class(updated_review).data
                 }, status=status.HTTP_200_OK)
             
-            # Handle validation errors
-            error_message = get_first_error_message(serializer.errors, "Validation failed")
             return Response({
                 'status': 'ERROR',
-                'message': error_message,
+                'message': get_first_error_message(serializer.errors, "Validation failed"),
                 'errors': serializer.errors
             }, status=status.HTTP_400_BAD_REQUEST)
 
         except Exception as e:
+            logger.error(f"Error updating review: {str(e)}", exc_info=True)
             return Response({
                 'status': 'ERROR',
-                'message': 'Failed to update review',
-                'error': str(e)
+                'message': 'Failed to update review'
             }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
-    def delete_review(self, request):
+    def delete(self, request):
+        """Delete a review (soft delete, BaseView pattern with ownership check)"""
         try:
-            # Validate required ID parameter
             review_id = request.query_params.get('id')
             if not review_id:
                 return Response({
@@ -1086,23 +1188,24 @@ class ReviewController:
                     'message': 'Review ID not provided'
                 }, status=status.HTTP_400_BAD_REQUEST)
 
-            # Find the review instance
-            instance = Review.objects.filter(id=review_id).first()
+            instance = Review.objects.filter(id=review_id, deleted=False).first()
             if not instance:
                 return Response({
                     'status': 'ERROR',
                     'message': 'Review not found'
                 }, status=status.HTTP_404_NOT_FOUND)
 
-            # Check ownership (user can only delete their own reviews)
-            if request.user.is_authenticated and instance.user != request.user:
+            # Check ownership
+            if request.user.is_authenticated and instance.user and instance.user != request.user:
                 return Response({
                     'status': 'ERROR',
                     'message': 'You can only delete your own reviews'
                 }, status=status.HTTP_403_FORBIDDEN)
 
-            # Delete the review
-            instance.delete()
+            # Soft delete (BaseView pattern)
+            instance.deleted = True
+            instance.updated_by = request.user if request.user.is_authenticated else None
+            instance.save()
             
             return Response({
                 'status': 'SUCCESS',
@@ -1111,19 +1214,22 @@ class ReviewController:
             }, status=status.HTTP_200_OK)
 
         except Exception as e:
+            logger.error(f"Error deleting review: {str(e)}", exc_info=True)
             return Response({
                 'status': 'ERROR',
-                'message': 'Failed to delete review',
-                'error': str(e)
+                'message': 'Failed to delete review'
             }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
-class PublicReviewController:
+
+class PublicReviewView(BaseView):
+    """Public review view - read and create only"""
+    permission_classes = ()
     serializer_class = PublicReviewSerializer
     filterset_class = PublicReviewFilter
 
-    def create(self, request):
+    def post(self, request):
+        """Create a public review"""
         try:
-            # Check if either product or sales_product is provided
             product_id = request.data.get('product')
             sales_product_id = request.data.get('sales_product')
 
@@ -1133,18 +1239,17 @@ class PublicReviewController:
                     'message': 'Either product or sales_product ID is required'
                 }, status=status.HTTP_400_BAD_REQUEST)
 
-            # Validate product exists if provided
+            # Validate product exists (BaseView pattern - check deleted)
             if product_id:
-                product = get_object_or_404(Product, id=product_id)
+                get_object_or_404(Product, id=product_id, deleted=False)
             if sales_product_id:
-                sales_product = get_object_or_404(SalesProduct, id=sales_product_id)
+                get_object_or_404(SalesProduct, id=sales_product_id, deleted=False)
 
-            # Validate and save
+            # Use ReviewSerializer for creation
             serializer = ReviewSerializer(data=request.data, context={'request': request})
             if serializer.is_valid():
                 review = serializer.save()
 
-                # Return success response
                 return Response({
                     'status': 'SUCCESS',
                     'message': 'Review created successfully',
@@ -1153,57 +1258,45 @@ class PublicReviewController:
                         'name': review.name,
                         'comment': review.comment,
                         'rating': review.rating,
-                        'product': {
-                            'id': review.product.id if review.product else None,
-                            'name': review.product.name if review.product else None
-                        } if review.product else None,
-                        'sales_product': {
-                            'id': review.sales_product.id if review.sales_product else None,
-                            'name': review.sales_product.name if review.sales_product else None,
-                            'discount_percent': review.sales_product.discount_percent if review.sales_product else None
-                        } if review.sales_product else None
+                        'created_at': review.created_at
                     }
                 }, status=status.HTTP_201_CREATED)
 
-            # Handle validation errors
-            error_message = get_first_error_message(serializer.errors, "UNSUCCESSFUL")
             return Response({
                 'status': 'ERROR',
-                'message': error_message,
+                'message': get_first_error_message(serializer.errors, "Validation failed"),
                 'errors': serializer.errors
             }, status=status.HTTP_400_BAD_REQUEST)
 
         except Exception as e:
+            logger.error(f"Error creating public review: {str(e)}", exc_info=True)
             return Response({
                 'status': 'ERROR',
-                'message': 'Failed to create review',
-                'error': str(e)
+                'message': 'Failed to create review'
             }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-    # mydata = Member.objects.filter(firstname__endswith='s').values()
 
     def get_publicreview(self, request):
+        """Get public reviews for a product (BaseView pattern)"""
         try:
-            # Get product or sales_product ID from query params
+            # Get product or sales_product ID
             product_id = request.GET.get('product_id') or request.GET.get('product')
             sales_product_id = request.GET.get('sales_product_id') or request.GET.get('sales_product')
 
-            # Validate at least one ID is provided
             if not product_id and not sales_product_id:
                 return Response({
                     'status': 'ERROR',
                     'message': 'Either product_id or sales_product_id is required',
-                    'data': None
                 }, status=status.HTTP_400_BAD_REQUEST)
 
-            # Build the query based on provided ID
-            query = Q()
+            # Build the query (BaseView pattern - filter deleted)
+            query = Q(deleted=False)
             if product_id:
-                query |= Q(product_id=product_id)
+                query &= Q(product_id=product_id)
             if sales_product_id:
-                query |= Q(sales_product_id=sales_product_id)
+                query &= Q(sales_product_id=sales_product_id)
 
             # Get filtered reviews
-            instances = self.serializer_class.Meta.model.objects.filter(query)
+            instances = Review.objects.filter(query).order_by('-created_at')
 
             if not instances.exists():
                 return Response({
@@ -1212,138 +1305,67 @@ class PublicReviewController:
                     'data': []
                 }, status=status.HTTP_200_OK)
 
-            # Apply additional filters if needed
+            # Apply additional filters
             filtered_data = self.filterset_class(request.GET, queryset=instances)
             data = filtered_data.qs
 
-            # Paginate and serialize
+            # Paginate
             paginated_data, count = paginate_data(data, request)
             serialized_data = self.serializer_class(paginated_data, many=True).data
 
-            # Format response
-            response_data = {
+            return Response({
                 'status': 'SUCCESS',
                 'message': 'Reviews retrieved successfully',
                 'data': {
                     'count': count,
                     'reviews': serialized_data
                 }
-            }
-
-            return Response(response_data, status=status.HTTP_200_OK)
+            }, status=status.HTTP_200_OK)
 
         except Exception as e:
+            logger.error(f"Error retrieving public reviews: {str(e)}", exc_info=True)
             return Response({
                 'status': 'ERROR',
-                'message': 'Failed to retrieve reviews',
-                'error': str(e),
-                'data': None
+                'message': 'Failed to retrieve reviews'
             }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
-    def get_publicreview_by_id(self, request):
-        try:
-            # Get product or sales_product ID from query params
-            product_id = request.GET.get('product_id') or request.GET.get('product')
-            sales_product_id = request.GET.get('sales_product_id') or request.GET.get('sales_product')
-            review_id = request.GET.get('review_id')
 
-            # Validate at least one ID is provided
-            if not product_id and not sales_product_id and not review_id:
-                return Response({
-                    'status': 'ERROR',
-                    'message': 'Either product_id, sales_product_id, or review_id is required',
-                    'data': None
-                }, status=status.HTTP_400_BAD_REQUEST)
+# ============================================================================
+# SEARCH VIEWS
+# ============================================================================
 
-            # Build the base queryset
-            queryset = self.serializer_class.Meta.model.objects.all()
-
-            # Apply specific filters based on provided IDs
-            if review_id:
-                queryset = queryset.filter(id=review_id)
-            else:
-                query = Q()
-                if product_id:
-                    query |= Q(product_id=product_id)
-                if sales_product_id:
-                    query |= Q(sales_product_id=sales_product_id)
-                queryset = queryset.filter(query)
-
-            if not queryset.exists():
-                return Response({
-                    'status': 'SUCCESS',
-                    'message': 'No reviews found',
-                    'data': []
-                }, status=status.HTTP_200_OK)
-
-            # Apply additional filters if filterset_class is defined
-            if hasattr(self, 'filterset_class') and self.filterset_class:
-                queryset = self.filterset_class(request.GET, queryset=queryset).qs
-
-            # Paginate the results
-            paginated_data, count = paginate_data(queryset, request)
-
-            # Serialize the data
-            serializer = self.serializer_class(paginated_data, many=True)
-
-            # Format the response
-            response_data = {
-                'status': 'SUCCESS',
-                'message': 'Reviews retrieved successfully',
-                'data': {
-                    'count': count,
-                    'reviews': serializer.data
-                }
-            }
-
-            return Response(response_data, status=status.HTTP_200_OK)
-
-        except Exception as e:
-            import traceback
-            traceback.print_exc()
-            return Response({
-                'status': 'ERROR',
-                'message': 'Internal server error',
-                'error': str(e),
-                'data': None
-            }, status=Status.HTTP_500_INTERNAL_SERVER_ERROR)
-        
-from rest_framework.pagination import PageNumberPagination
-class LuxurySearchPagination(PageNumberPagination):
+class SearchPagination(PageNumberPagination):
+    """Pagination for search results"""
     page_size = 10
     page_size_query_param = 'page_size'
     max_page_size = 100
 
 
-# Category Search View
-class CategorySearchController:
-    serializer_class = PubliccategorySerializer
+class CategorySearchView(BaseView):
+    """Category search view"""
+    permission_classes = ()
+    serializer_class = CategorySerializer
     filterset_class = PublicCategoryFilter
-    pagination_class = LuxurySearchPagination
+    pagination_class = SearchPagination
 
-    def get_categorysearch(self, request):
+    def get_search(self, request):
+        """Search categories (BaseView pattern - filter deleted)"""
         search_query = request.GET.get('q', '').strip()
     
         if not search_query:
-            return create_response([], "EMPTY_QUERY", 200)
+            return create_response(
+                {"message": "Search query is empty"},
+                "EMPTY_QUERY",
+                200
+            )
         
         try:
-            # Only search by fields that exist in your model
-            # categories = Category.objects.filter(
-            #     Q(name__icontains=search_query) |
-            #     Q(description__icontains=search_query)
-            # ).annotate(
-            #     search_rank=Case(
-            #         When(name__istartswith=search_query, then=3),
-            #         When(name__icontains=search_query, then=2),
-            #         When(description__icontains=search_query, then=1),
-            #         default=0,
-            #         output_field=IntegerField(),
-            #     )
-            # ).order_by('-search_rank', '-created_at').distinct()
-            
-
-            categories = Category.objects.filter(name__icontains=search_query).order_by('-created_at').distinct()
+            # Search categories (BaseView pattern)
+            categories = Category.objects.filter(
+                Q(name__icontains=search_query) |
+                Q(description__icontains=search_query),
+                deleted=False  # BaseView pattern
+            ).order_by('-created_at').distinct()
 
             # Paginate results
             paginator = self.pagination_class()
@@ -1365,25 +1387,44 @@ class CategorySearchController:
                 }
             }
             
-            return create_response(results, "SUCCESSFUL", 200)
+            return create_response(results, SUCCESSFUL, 200)
             
         except Exception as e:
+            logger.error(f"Error in category search: {str(e)}", exc_info=True)
             return create_response(
-                {"error": str(e)},
-                "SERVER_ERROR",
+                {"error": "Search failed"},
+                UNSUCCESSFUL,
                 500
             )
 
     def get_suggestions(self, request):
+        """Get search suggestions (BaseView pattern - filter deleted)"""
         query = request.GET.get('q', '').strip()
+        
         if not query:
-            return create_response([], "EMPTY_QUERY", 200)
+            return create_response(
+                {"message": "Query is empty"},
+                "EMPTY_QUERY",
+                200
+            )
             
-        # Get category suggestions only
-        suggestions = {
-            'popular_categories': list(Category.objects.filter(
-                Q(name__icontains=query)
-            ).order_by('-views')[:5].values('name', 'slug')),
-            'trending_categories': list(Category.objects.order_by('-views')[:3].values('name', 'slug'))
-        }
-        return create_response(suggestions, "SUCCESSFUL", 200)
+        try:
+            # Get category suggestions (BaseView pattern)
+            suggestions = {
+                'popular_categories': list(
+                    Category.objects.filter(
+                        Q(name__icontains=query),
+                        deleted=False  # BaseView pattern
+                    ).order_by('name')[:5].values('id', 'name')
+                )
+            }
+            
+            return create_response(suggestions, SUCCESSFUL, 200)
+            
+        except Exception as e:
+            logger.error(f"Error getting suggestions: {str(e)}", exc_info=True)
+            return create_response(
+                {"error": "Failed to get suggestions"},
+                UNSUCCESSFUL,
+                500
+            )

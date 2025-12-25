@@ -13,8 +13,6 @@ from django.core.validators import EmailValidator, RegexValidator
 from django.db.models.signals import pre_save
 from django.dispatch import receiver
 from django.contrib.auth import get_user_model
-
-# Local imports
 from apps.users.models import User
 from utils.reusable_classes import TimeStamps, TimeUserStamps
 
