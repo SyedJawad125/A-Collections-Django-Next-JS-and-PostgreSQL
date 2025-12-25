@@ -48,7 +48,7 @@ services:
 
   adminer:
     image: adminer
-    container_name: adminer
+    container_name: Ecommerce adminer
     restart: always
     ports:
       - "8080:8080"

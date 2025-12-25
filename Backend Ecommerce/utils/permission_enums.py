@@ -12,79 +12,63 @@ UPDATE_USER = 'update_user'
 DELETE_USER = 'delete_user'
 TOGGLE_USER = 'toggle_user'
 
+# Product Permissions
+CREATE_PRODUCT = 'create_product'
+READ_PRODUCT = 'read_product'
+UPDATE_PRODUCT = 'update_product'
+DELETE_PRODUCT = 'delete_product'
 
-CREATE_AUCTION = 'create_auction'
-READ_AUCTION = 'read_auction'
-UPDATE_AUCTION = 'update_auction'
-DELETE_AUCTION = 'delete_auction'
+# Color Permissions
+CREATE_COLOR = 'create_color'
+READ_COLOR = 'read_color'
+UPDATE_COLOR = 'update_color'
+DELETE_COLOR = 'delete_color'
 
-CREATE_TAG = 'create_tag'
-READ_TAG = 'read_tag'
-UPDATE_TAG = 'update_tag'
-DELETE_TAG = 'delete_tag'
+# Product Variant Permissions
+CREATE_PRODUCTVARIANT = 'create_productvariant'
+READ_PRODUCTVARIANT = 'read_productvariant'
+UPDATE_PRODUCTVARIANT = 'update_productvariant'
+DELETE_PRODUCTVARIANT = 'delete_productvariant'
 
-CREATE_LOT = 'create_lot'
-READ_LOT = 'read_lot'
-UPDATE_LOT = 'update_lot'
-DELETE_LOT = 'delete_lot'
+# Inventory Permissions
+CREATE_INVENTORY = 'create_inventory'
+READ_INVENTORY = 'read_inventory'
+UPDATE_INVENTORY = 'update_inventory'
+DELETE_INVENTORY = 'delete_inventory'
 
-CREATE_FAQ = 'create_faq'
-READ_FAQ = 'read_faq'
-UPDATE_FAQ = 'update_faq'
-DELETE_FAQ = 'delete_faq'
+# Sales Product Permissions
+CREATE_SALES_PRODUCT = 'create_sales_product'
+READ_SALES_PRODUCT = 'read_sales_product'
+UPDATE_SALES_PRODUCT = 'update_sales_product'
+DELETE_SALES_PRODUCT = 'delete_sales_product'
 
-CREATE_NEWS_CATEGORY =  'create_news_category'
-READ_NEWS_CATEGORY =  'read_news_category'
-UPDATE_NEWS_CATEGORY = 'update_news_category'
-DELETE_NEWS_CATEGORY = 'delete_news_category'
-
-CREATE_NEWS_UPDATE =  'create_news_update'
-READ_NEWS_UPDATE =  'read_news_update'
-UPDATE_NEWS_UPDATE = 'update_news_update'
-DELETE_NEWS_UPDATE = 'delete_news_update'
-
-UPDATE_PROFILE = 'update_profile'
-GET_PROFILE = 'get_profile'
-
-CREATE_BUSINESS =  'create_business'
-READ_BUSINESS =  'read_business'
-UPDATE_BUSINESS = 'update_business'
-DELETE_BUSINESS = 'delete_business'
-
+# Category Permissions
 CREATE_CATEGORY = 'create_category'
 READ_CATEGORY = 'read_category'
 UPDATE_CATEGORY = 'update_category'
 DELETE_CATEGORY = 'delete_category'
 
-CREATE_TAG = 'create_tag'
-READ_TAG = 'read_tag'
-UPDATE_TAG = 'update_tag'
-DELETE_TAG = 'delete_tag'
+# Order Permissions
+CREATE_ORDER = 'create_order'
+READ_ORDER = 'read_order'
+UPDATE_ORDER = 'update_order'
+DELETE_ORDER = 'delete_order'
 
-CREATE_BLOG_POST = 'create_blog_post'
-READ_BLOG_POST = 'read_blog_post'
-UPDATE_BLOG_POST = 'update_blog_post'
-DELETE_BLOG_POST = 'delete_blog_post'
+# Contact Permissions
+READ_CONTACT = 'read_contact'
+DELETE_CONTACT = 'delete_contact'
 
-CREATE_COMMENT = 'create_comment'
-READ_COMMENT = 'read_comment'
-UPDATE_COMMENT = 'update_comment'
-DELETE_COMMENT = 'delete_comment'
+# Employee Permissions
+CREATE_EMPLOYEE = 'create_employee'
+READ_EMPLOYEE = 'read_employee'
+UPDATE_EMPLOYEE = 'update_employee'
+DELETE_EMPLOYEE = 'delete_employee'
 
-CREATE_MEDIA = 'create_media'
-READ_MEDIA = 'read_media'
-UPDATE_MEDIA = 'update_media'
-DELETE_MEDIA = 'delete_media'
-
-CREATE_NEWSLETTER = 'create_newsletter'
-READ_NEWSLETTER = 'read_newsletter'
-UPDATE_NEWSLETTER = 'update_newsletter'
-DELETE_NEWSLETTER = 'delete_newsletter'
-
-CREATE_CAMPAIGN = 'create_campaign'
-READ_CAMPAIGN = 'read_campaign'
-UPDATE_CAMPAIGN = 'update_campaign'
-DELETE_CAMPAIGN = 'delete_campaign'
+# Review Permissions
+CREATE_REVIEWS = 'create_reviews'
+READ_REVIEWS = 'read_reviews'
+UPDATE_REVIEWS = 'update_reviews'
+DELETE_REVIEWS = 'delete_reviews' 
 
 CREATE_IMAGE = 'create_image'
 READ_IMAGE = 'read_image'
