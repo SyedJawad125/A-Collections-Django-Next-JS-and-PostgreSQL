@@ -23,7 +23,7 @@ from utils.reusable_classes import TimeStamps, TimeUserStamps
 
 class Category(TimeUserStamps):
     """Product categories for organizing products"""
-    name = models.CharField(max_length=100, unique=True)
+    name = models.CharField(max_length=100)
     description = models.TextField(blank=True, null=True)
     image = models.FileField(upload_to='ecom/category_images/', blank=True, null=True)
     
@@ -86,7 +86,7 @@ class ProductImage(TimeUserStamps):
 
 class Color(TimeUserStamps):
     """Available colors for product variants"""
-    name = models.CharField(max_length=50, unique=True)
+    name = models.CharField(max_length=50)
 
     def __str__(self):
         return self.name
