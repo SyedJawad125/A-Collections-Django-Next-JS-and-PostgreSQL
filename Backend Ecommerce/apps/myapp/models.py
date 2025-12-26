@@ -36,8 +36,8 @@ class Category(TimeUserStamps):
 
 class ProductTag(TimeUserStamps):
     """Tags for product categorization and filtering"""
-    name = models.CharField(max_length=50, unique=True)
-    slug = models.SlugField(max_length=50, unique=True)
+    name = models.CharField(max_length=50)
+    slug = models.SlugField(max_length=50)
     
     def __str__(self):
         return self.name
