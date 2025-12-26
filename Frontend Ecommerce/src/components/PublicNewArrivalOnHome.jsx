@@ -32,7 +32,7 @@ const NewArrivalOnHome = () => {
                 tags: 'New In'
             });
 
-            const res = await AxiosInstance.get(`/ecommerce/publicproduct?${params}`);
+            const res = await AxiosInstance.get(`/api/myapp/v1/publicproduct/?${params}`);
             if (res && res.data.data) {
                 // Process the products to include proper image URLs
                 const processedProducts = res.data.data.data.map(product => ({

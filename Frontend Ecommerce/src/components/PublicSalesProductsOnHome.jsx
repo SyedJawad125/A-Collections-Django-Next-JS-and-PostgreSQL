@@ -30,7 +30,7 @@ const PublicSalesProductsCom = () => {
             
             // Make API call with page and limit only (remove offset for now)
             const res = await AxiosInstance.get(
-                `/ecommerce/publicsalesproduct?page=${page}&limit=${limit}`
+                `/api/myapp/v1/publicsalesproduct/?page=${page}&limit=${limit}`
             );
             
             const responseData = res?.data?.data;
@@ -78,7 +78,7 @@ const PublicSalesProductsCom = () => {
     // Fetch categories
     const fetchCategories = async () => {
         try {
-            const res = await AxiosInstance.get('/ecommerce/slidercategory');
+            const res = await AxiosInstance.get('/api/myapp/v1/slidercategory/');
             setCategories(Array.isArray(res?.data?.data?.data) ? res.data.data.data : []);
         } catch (error) {
             console.error('Error fetching categories:', error);

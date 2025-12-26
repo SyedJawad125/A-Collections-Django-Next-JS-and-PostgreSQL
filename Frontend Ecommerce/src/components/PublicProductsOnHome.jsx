@@ -34,7 +34,7 @@ const PublicProductsOnHome = () => {
                 tags: 'Regular Products'
             });
 
-            const productsRes = await AxiosInstance.get(`/ecommerce/publicproduct?${params}`);
+            const productsRes = await AxiosInstance.get(`/api/myapp/v1/publicproduct/?${params}`);
             if (productsRes && productsRes.data.data) {
                 // Process the products to include proper image URLs
                 const processedProducts = productsRes.data.data.data.map(product => ({
@@ -81,7 +81,7 @@ const PublicProductsOnHome = () => {
             
             // Fetch categories
             try {
-                const categoriesRes = await AxiosInstance.get('/ecommerce/publiccategory');
+                const categoriesRes = await AxiosInstance.get('/api/myapp/v1/publiccategory/');
                 if (categoriesRes && categoriesRes.data) {
                     setCategories(categoriesRes.data.data.data);
                 }
