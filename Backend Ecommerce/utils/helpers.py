@@ -86,6 +86,30 @@ def generate_numeric_otp():
     return obj.generate()
 
 
+# utils/helpers.py - Add this function
+
+def get_first_error_message(errors, default_message="Invalid input"):
+    """
+    Extract the first error message from Django form/ serializer errors
+    """
+    if isinstance(errors, dict):
+        # Handle dictionary of errors
+        for field, field_errors in errors.items():
+            if isinstance(field_errors, list) and field_errors:
+                if isinstance(field_errors[0], dict):
+                    # Nested serializer errors
+                    for nested_field, nested_errors in field_errors[0].items():
+                        if isinstance(nested_errors, list) and nested_errors:
+                            return str(nested_errors[0])
+                else:
+                    return str(field_errors[0])
+            elif isinstance(field_errors, str):
+                return field_errors
+    elif isinstance(errors, list) and errors:
+        # Handle list of errors
+        return str(errors[0])
+    
+    return default_message
 # ============================================
 # ✅ ADDED: Missing Functions for Google Login
 # ============================================
