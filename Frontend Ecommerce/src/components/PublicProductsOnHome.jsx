@@ -34,7 +34,7 @@ const PublicProductsOnHome = () => {
                 tags: 'Regular Products'
             });
 
-            const productsRes = await AxiosInstance.get(`/api/myapp/v1/publicproduct/?${params}`);
+            const productsRes = await AxiosInstance.get(`/api/myapp/v1/public/product/?${params}`);
             if (productsRes && productsRes.data.data) {
                 // Process the products to include proper image URLs
                 const processedProducts = productsRes.data.data.data.map(product => ({

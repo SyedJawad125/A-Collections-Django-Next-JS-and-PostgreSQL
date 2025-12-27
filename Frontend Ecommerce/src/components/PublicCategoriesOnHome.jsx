@@ -32,7 +32,7 @@ const PublicCategoriesOnHome = () => {
         offset: offset.toString()
       });
 
-      const res = await AxiosInstance.get(`/api/myapp/v1/publiccategory/?${params}`);
+      const res = await AxiosInstance.get(`/api/myapp/v1/public/category/?${params}`);
       
       if (res && res.data && res.data.data) {
         console.log('Categories response:', res.data.data); // Debug log
