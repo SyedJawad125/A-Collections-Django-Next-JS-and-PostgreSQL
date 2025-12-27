@@ -445,7 +445,7 @@ const PublicSalesProductsCom = () => {
                     closeOnClick: true,
                     pauseOnHover: true,
                     draggable: true,
-                    theme: "dark",
+                    theme: "light",
                 }
             );
             setRecords([]);
@@ -534,16 +534,16 @@ const PublicSalesProductsCom = () => {
     };
 
     return (
-        <div className="py-16 px-4 sm:px-8 lg:px-20 mb-16 -mt-20 bg-black min-h-screen">
+        <div className="py-16 px-4 sm:px-8 lg:px-20 mb-16 -mt-20 bg-white min-h-screen">
             <div className="max-w-screen-xl mx-auto">
                 {/* Header Section */}
-                <h2 className="text-5xl font-extrabold font-serif text-white tracking-wide text-center mt-12 mb-12">
+                <h2 className="text-5xl font-extrabold font-serif text-black tracking-wide text-center mt-12 mb-12">
                     ✨ Sales Collection ✨
                 </h2> 
                 
                 {/* Items per page selector and count */}
                 <div className="flex justify-between items-center mb-6 flex-wrap gap-4">
-                    <div className="text-white text-sm sm:text-base">
+                    <div className="text-black text-sm sm:text-base">
                         {records.length > 0 ? (
                             <>
                                 Showing <span className="font-semibold">{(pagination.currentPage - 1) * pagination.limit + 1}</span>
@@ -557,11 +557,11 @@ const PublicSalesProductsCom = () => {
                         )}
                     </div>
                     <div className="flex items-center gap-2">
-                        <span className="text-white text-sm">Items per page:</span>
+                        <span className="text-black text-sm">Items per page:</span>
                         <select 
                             value={pagination.limit}
                             onChange={handleLimitChange}
-                            className="px-3 py-1 border border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-white text-white bg-gray-800"
+                            className="px-3 py-1 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-black text-black bg-white"
                             disabled={isLoading}
                         >
                             <option value="12">12</option>
@@ -582,7 +582,7 @@ const PublicSalesProductsCom = () => {
                             <div
                                 key={item.id}
                                 onClick={() => handleProductClick(item)}
-                                className="group cursor-pointer bg-white rounded-2xl overflow-hidden shadow-lg hover:shadow-2xl transition duration-300 flex flex-col relative"
+                                className="group cursor-pointer bg-white rounded-2xl overflow-hidden shadow-lg hover:shadow-2xl transition duration-300 flex flex-col relative border border-gray-200 hover:border-gray-300"
                             >
                                 {/* Discount Badge */}
                                 {item.discount_percent > 0 && (
@@ -592,7 +592,7 @@ const PublicSalesProductsCom = () => {
                                 )}
 
                                 {/* Product Image */}
-                                <div className="relative w-full h-48 overflow-hidden bg-gray-100">
+                                <div className="relative w-full h-48 overflow-hidden bg-gray-50">
                                     <img
                                         src={item.mainImage}
                                         alt={item.name || 'Product'}
@@ -606,15 +606,15 @@ const PublicSalesProductsCom = () => {
                                 {/* Product Details */}
                                 <div className="flex flex-col justify-between flex-grow p-4">
                                     <div>
-                                        <h3 className="text-base font-semibold text-gray-900 truncate mb-1">
+                                        <h3 className="text-base font-semibold text-black truncate mb-1">
                                             {item.name}
                                         </h3>
-                                        <p className="text-sm text-gray-500 line-clamp-2 mb-2">
+                                        <p className="text-sm text-gray-600 line-clamp-2 mb-2">
                                             {item.description}
                                         </p>
                                         <div className="flex items-center gap-2 text-sm">
                                             {item.discount_percent > 0 && item.original_price && (
-                                                <p className="text-gray-400 line-through">
+                                                <p className="text-gray-500 line-through">
                                                     Rs {parseFloat(item.original_price).toLocaleString()}
                                                 </p>
                                             )}
@@ -624,7 +624,7 @@ const PublicSalesProductsCom = () => {
                                         </div>
                                     </div>
 
-                                    <button className="mt-4 w-full py-2 bg-gray-900 text-white text-sm rounded-lg hover:bg-red-600 transition-all duration-300">
+                                    <button className="mt-4 w-full py-2 bg-black text-white text-sm rounded-lg hover:bg-gray-800 transition-all duration-300">
                                         View Details
                                     </button>
                                 </div>
@@ -633,13 +633,13 @@ const PublicSalesProductsCom = () => {
                     ) : isLoading ? (
                         // Loading skeleton
                         Array.from({ length: pagination.limit }).map((_, index) => (
-                            <div key={index} className="bg-gray-800 rounded-2xl overflow-hidden shadow-lg animate-pulse">
-                                <div className="w-full h-48 bg-gray-700"></div>
+                            <div key={index} className="bg-gray-100 rounded-2xl overflow-hidden shadow-lg animate-pulse">
+                                <div className="w-full h-48 bg-gray-200"></div>
                                 <div className="p-4 space-y-2">
-                                    <div className="h-4 bg-gray-700 rounded w-3/4"></div>
-                                    <div className="h-3 bg-gray-700 rounded w-full"></div>
-                                    <div className="h-3 bg-gray-700 rounded w-1/2"></div>
-                                    <div className="h-8 bg-gray-700 rounded w-full mt-4"></div>
+                                    <div className="h-4 bg-gray-200 rounded w-3/4"></div>
+                                    <div className="h-3 bg-gray-200 rounded w-full"></div>
+                                    <div className="h-3 bg-gray-200 rounded w-1/2"></div>
+                                    <div className="h-8 bg-gray-200 rounded w-full mt-4"></div>
                                 </div>
                             </div>
                         ))
@@ -658,8 +658,8 @@ const PublicSalesProductsCom = () => {
                                     d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
                                 />
                             </svg>
-                            <h3 className="mt-4 text-lg font-medium text-white">No sale products found</h3>
-                            <p className="mt-1 text-gray-400">Try checking back later for new deals</p>
+                            <h3 className="mt-4 text-lg font-medium text-black">No sale products found</h3>
+                            <p className="mt-1 text-gray-600">Try checking back later for new deals</p>
                         </div>
                     )}
                 </div>
@@ -674,8 +674,8 @@ const PublicSalesProductsCom = () => {
                                 disabled={!pagination.hasPrevious || isLoading}
                                 className={`px-4 py-2 rounded-lg transition-colors ${
                                     !pagination.hasPrevious || isLoading
-                                        ? 'bg-gray-700 cursor-not-allowed text-gray-500' 
-                                        : 'bg-white hover:bg-gray-200 text-black'
+                                        ? 'bg-gray-100 cursor-not-allowed text-gray-400 border border-gray-200' 
+                                        : 'bg-black hover:bg-gray-800 text-white'
                                 }`}
                             >
                                 Previous
@@ -686,7 +686,7 @@ const PublicSalesProductsCom = () => {
                                 {getPageNumbers().map((pageNum, index) => {
                                     if (pageNum === '...') {
                                         return (
-                                            <span key={`ellipsis-${index}`} className="px-2 text-gray-400">
+                                            <span key={`ellipsis-${index}`} className="px-2 text-gray-500">
                                                 ...
                                             </span>
                                         );
@@ -697,10 +697,10 @@ const PublicSalesProductsCom = () => {
                                             key={pageNum}
                                             onClick={() => handlePageChange(pageNum)}
                                             disabled={isLoading}
-                                            className={`px-3 py-2 rounded-lg transition-colors min-w-[40px] ${
+                                            className={`px-3 py-2 rounded-lg transition-colors min-w-[40px] border ${
                                                 pagination.currentPage === pageNum 
-                                                    ? 'bg-white text-black font-semibold' 
-                                                    : 'bg-gray-800 border border-gray-600 hover:bg-gray-700 text-white'
+                                                    ? 'bg-black text-white font-semibold border-black' 
+                                                    : 'bg-white border-gray-300 hover:bg-gray-50 text-black'
                                             }`}
                                         >
                                             {pageNum}
@@ -715,8 +715,8 @@ const PublicSalesProductsCom = () => {
                                 disabled={!pagination.hasNext || isLoading}
                                 className={`px-4 py-2 rounded-lg transition-colors ${
                                     !pagination.hasNext || isLoading
-                                        ? 'bg-gray-700 cursor-not-allowed text-gray-500' 
-                                        : 'bg-white hover:bg-gray-200 text-black'
+                                        ? 'bg-gray-100 cursor-not-allowed text-gray-400 border border-gray-200' 
+                                        : 'bg-black hover:bg-gray-800 text-white'
                                 }`}
                             >
                                 Next
@@ -724,7 +724,7 @@ const PublicSalesProductsCom = () => {
                         </div>
 
                         {/* Page info */}
-                        <div className="text-white text-sm">
+                        <div className="text-black text-sm">
                             Page {pagination.currentPage} of {pagination.totalPages}
                         </div>
                     </div>
