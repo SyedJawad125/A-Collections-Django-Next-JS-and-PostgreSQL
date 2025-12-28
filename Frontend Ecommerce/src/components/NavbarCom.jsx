@@ -96,8 +96,12 @@ const NavbarCom = ({ isSticky = false }) => {
 
   const navItems = [
     { name: 'Home', path: '/' },
-    { name: 'Blogs', path: '/blogs' },
+    // { name: 'Blogs', path: '/blogs' },
+    { name: 'Kids', path: '/kidspage' },
     { name: 'Shop', path: '/publicproducts' },
+    { name: 'Sale', path: '/publicsalesproduct' },
+    { name: 'New In', path: '/newarrivals' },
+    { name: 'Collections', path: '/publiccategories' },
     { name: 'About', path: '/about' },
     { name: 'Services', path: '/services' },
     { name: 'Contact', path: '/contact' },
