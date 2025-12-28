@@ -456,11 +456,17 @@ const KidsOnHome = () => {
     };
 
     return (
-        <div className="bg-white min-h-screen py-16 px-4 sm:px-8 lg:px-20 mb-28">
+        <div className="py-16 px-4 sm:px-8 lg:px-20 mb-1 -mt-20 bg-white min-h-screen">
             <div className="max-w-screen-xl mx-auto">
-                <h2 className="text-5xl font-extrabold font-serif text-black tracking-wide text-center mb-12">
+                {/* Header Section */}
+                <h2 className="text-5xl font-extrabold font-serif text-black tracking-wide text-center mt-16 mb-12">
                     🧸 Kids Collection
-                </h2>
+                </h2> 
+        {/* // <div className="bg-white min-h-screen mb-2 py-16 px-4 sm:px-8 lg:px-20">
+        //     <div className="max-w-screen-xl mx-auto">
+        //         <h2 className="text-5xl font-extrabold font-serif text-black tracking-wide text-center mb-12">
+        //             🧸 Kids Collection
+        //         </h2> */}
                 
                 {/* Products count and items per page selector */}
                 <div className="flex justify-between items-center mb-6 flex-wrap gap-4">

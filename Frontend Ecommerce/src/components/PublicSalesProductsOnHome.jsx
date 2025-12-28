@@ -534,10 +534,10 @@ const PublicSalesProductsCom = () => {
     };
 
     return (
-        <div className="py-16 px-4 sm:px-8 lg:px-20 mb-16 -mt-20 bg-white min-h-screen">
+        <div className="py-16 px-4 sm:px-8 lg:px-20 mb-1 -mt-20 bg-white min-h-screen">
             <div className="max-w-screen-xl mx-auto">
                 {/* Header Section */}
-                <h2 className="text-5xl font-extrabold font-serif text-black tracking-wide text-center mt-12 mb-12">
+                <h2 className="text-5xl font-extrabold font-serif text-black tracking-wide text-center mt-16 mb-12">
                     ✨ Sales Collection ✨
                 </h2> 
                 
