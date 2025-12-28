@@ -9,10 +9,13 @@ const PublicSalesProductsCom = () => {
     const router = useRouter();
     const [records, setRecords] = useState([]);
     const [isLoading, setIsLoading] = useState(true);
+    const [categories, setCategories] = useState([]);
+    const [sliderHeight, setSliderHeight] = useState('auto');
     const productsRef = useRef(null);
+    const resizeObserverRef = useRef(null);
     const baseURL = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:8000';
     
-    // Pagination state
+    // Simplified pagination state (same as first code)
     const [pagination, setPagination] = useState({
         currentPage: 1,
         limit: 12,
@@ -22,25 +25,24 @@ const PublicSalesProductsCom = () => {
         hasPrevious: false
     });
 
-    // Fetch sales products with pagination
+    // Fetch sales products with pagination (same as first code)
     const fetchSalesProducts = async (page = 1, limit = 12) => {
         try {
             setIsLoading(true);
             
-            // API call matching your backend structure
+            // Use the same API endpoint and params as first code
             const res = await AxiosInstance.get(
                 `/api/myapp/v1/public/sales/product/`,
                 {
                     params: {
                         page: page,
                         limit: limit,
-                        api_type: 'list' // This triggers list_serializer if set in backend
+                        api_type: 'list'
                     }
                 }
             );
             
-            // Parse response according to your create_response structure
-            // Expected: { status: "...", data: { data: [...], count: X, ... } }
+            // Parse response according to create_response structure
             const responseData = res?.data?.data;
             
             if (!responseData) {
@@ -104,22 +106,58 @@ const PublicSalesProductsCom = () => {
         }
     };
 
+    // Fetch categories for slider
+    const fetchCategories = async () => {
+        try {
+            const res = await AxiosInstance.get('/api/myapp/v1/public/category/');
+            const responseData = res?.data?.data;
+            const categoriesArr = Array.isArray(responseData?.data) ? responseData.data : 
+                                 Array.isArray(responseData) ? responseData : [];
+            setCategories(categoriesArr);
+        } catch (error) {
+            console.error('Error fetching categories:', error);
+            setCategories([]);
+        }
+    };
+
     // Initial load
     useEffect(() => {
         fetchSalesProducts(1, 12);
+        fetchCategories();
     }, []);
 
-    // Handle toast messages from router (Next.js 13+ App Router)
+    // Handle toast messages from router
     useEffect(() => {
-        // For App Router, you'd use searchParams instead
         const searchParams = new URLSearchParams(window.location.search);
         const message = searchParams.get('message');
         if (message) {
             toast.success(message);
-            // Clean URL
-            router.replace('/products');
+            router.replace('/sales-products');
         }
     }, []);
+
+    // Update slider height when records change
+    useEffect(() => {
+        const updateSliderHeight = () => {
+            if (productsRef.current) {
+                const productsHeight = productsRef.current.offsetHeight;
+                setSliderHeight(`${productsHeight}px`);
+            }
+        };
+
+        if (!resizeObserverRef.current && productsRef.current) {
+            resizeObserverRef.current = new ResizeObserver(updateSliderHeight);
+            resizeObserverRef.current.observe(productsRef.current);
+        }
+
+        updateSliderHeight();
+
+        return () => {
+            if (resizeObserverRef.current) {
+                resizeObserverRef.current.disconnect();
+            }
+        };
+    }, [records]);
 
     // Event handlers
     const handleProductClick = (product) => {
@@ -130,25 +168,27 @@ const PublicSalesProductsCom = () => {
         router.push(`/salesproductdetailspage?${queryString}`);
     };
 
-    // Pagination handlers
+    const handleCategoryClick = (categoryId) => {
+        router.push(`/categorywiseproductpage?categoryId=${categoryId}`);
+    };
+
+    // Pagination handlers (same as first code)
     const handlePageChange = (newPage) => {
         if (newPage >= 1 && newPage <= pagination.totalPages && newPage !== pagination.currentPage) {
             fetchSalesProducts(newPage, pagination.limit);
             // Scroll to products section
             if (productsRef.current) {
                 productsRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' });
-            } else {
-                window.scrollTo({ top: 0, behavior: 'smooth' });
             }
         }
     };
 
     const handleLimitChange = (e) => {
         const newLimit = parseInt(e.target.value);
-        fetchSalesProducts(1, newLimit); // Reset to page 1 when changing limit
+        fetchSalesProducts(1, newLimit);
     };
 
-    // Generate page numbers for pagination
+    // Generate page numbers for pagination (same as first code)
     const getPageNumbers = () => {
         const { currentPage, totalPages } = pagination;
         const pages = [];
@@ -184,97 +224,126 @@ const PublicSalesProductsCom = () => {
     };
 
     return (
-        <div className="py-16 px-4 sm:px-8 lg:px-20 mb-1 -mt-20 bg-white min-h-screen">
-            <div className="max-w-screen-xl mx-auto">
-                {/* Header Section */}
-                <h2 className="text-5xl font-extrabold font-serif text-black tracking-wide text-center mt-16 mb-12">
-                    ✨ Sales Collection ✨
-                </h2> 
-                
-                {/* Items per page selector and count */}
-                <div className="flex justify-between items-center mb-6 flex-wrap gap-4">
-                    <div className="text-black text-sm sm:text-base">
-                        {records.length > 0 ? (
-                            <>
-                                Showing <span className="font-semibold">{(pagination.currentPage - 1) * pagination.limit + 1}</span>
-                                {' '}-{' '}
-                                <span className="font-semibold">{Math.min(pagination.currentPage * pagination.limit, pagination.totalCount)}</span>
-                                {' '}of{' '}
-                                <span className="font-semibold">{pagination.totalCount}</span> products
-                            </>
-                        ) : (
-                            'No products found'
-                        )}
-                    </div>
-                    <div className="flex items-center gap-2">
-                        <span className="text-black text-sm">Items per page:</span>
-                        <select 
-                            value={pagination.limit}
-                            onChange={handleLimitChange}
-                            className="px-3 py-1 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-black text-black bg-white"
-                            disabled={isLoading}
+        <div className="flex min-h-screen bg-gray-50">
+            {/* Left Side - Categories Slider */}
+            <div className="w-[10%] bg-gray-100 shadow-lg ml-4 relative overflow-hidden" style={{ height: sliderHeight }}>
+                <div className="absolute top-0 left-0 right-0 animate-scrollUp">
+                    {[...categories, ...categories].map((category, index) => (
+                        <div
+                            key={`${category.id}-${index}`}
+                            onClick={() => handleCategoryClick(category.id)}
+                            className="shadow-md cursor-pointer p-2 hover:bg-gray-400 transition duration-300"
                         >
-                            <option value="12">12</option>
-                            <option value="24">24</option>
-                            <option value="36">36</option>
-                            <option value="48">48</option>
-                        </select>
+                            <img
+                                src={`${baseURL}${category.image?.startsWith('/') ? '' : '/'}${category.image || ''}`}
+                                alt={category.name}
+                                className="w-full h-28 object-cover rounded"
+                                onError={(e) => {
+                                    e.target.src = '/default-category-image.jpg';
+                                }}
+                            />
+                        </div>
+                    ))}
+                </div>
+                <div className="absolute top-0 left-0 right-0 h-12 bg-gradient-to-b from-gray-100 to-transparent z-10 pointer-events-none" />
+                <div className="absolute bottom-0 left-0 right-0 h-12 bg-gradient-to-t from-gray-100 to-transparent z-10 pointer-events-none" />
+            </div>
+
+            {/* Right Side - Products */}
+            <div className="w-[85%] p-8" ref={productsRef}>
+                {/* Header Section */}
+                <div className="text-center mb-12">
+                    <h2 className="text-4xl font-serif text-gray-900 font-bold mb-8 mt-10 tracking-wider">
+                        EXCLUSIVE SALES
+                    </h2>
+                    
+                    {/* Items per page selector and count (similar to first code) */}
+                    <div className="flex justify-between items-center mb-6 flex-wrap gap-4 p-4 bg-white rounded-lg shadow-sm">
+                        <div className="text-black">
+                            {records.length > 0 ? (
+                                <>
+                                    Showing <span className="font-semibold">{(pagination.currentPage - 1) * pagination.limit + 1}</span>
+                                    {' '}-{' '}
+                                    <span className="font-semibold">{Math.min(pagination.currentPage * pagination.limit, pagination.totalCount)}</span>
+                                    {' '}of{' '}
+                                    <span className="font-semibold">{pagination.totalCount}</span> products
+                                </>
+                            ) : (
+                                'No products found'
+                            )}
+                        </div>
+                        <div className="flex items-center gap-2">
+                            <span className="text-black text-sm">Items per page:</span>
+                            <select 
+                                value={pagination.limit}
+                                onChange={handleLimitChange}
+                                className="px-3 py-1 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-black text-black bg-white"
+                                disabled={isLoading}
+                            >
+                                <option value="12">12</option>
+                                <option value="24">24</option>
+                                <option value="36">36</option>
+                                <option value="48">48</option>
+                            </select>
+                        </div>
                     </div>
                 </div>
 
                 {/* Products Grid */}
-                <div 
-                    className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 mb-8" 
-                    ref={productsRef}
-                >
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-4 mb-8">
                     {!isLoading && records.length > 0 ? (
                         records.map((item) => (
                             <div
                                 key={item.id}
+                                className="group relative overflow-hidden bg-white shadow-lg hover:shadow-xl transition-all duration-500 rounded-lg cursor-pointer transform hover:-translate-y-1"
                                 onClick={() => handleProductClick(item)}
-                                className="group cursor-pointer bg-white rounded-2xl overflow-hidden shadow-lg hover:shadow-2xl transition duration-300 flex flex-col relative border border-gray-200 hover:border-gray-300"
                             >
-                                {/* Discount Badge */}
+                                {/* Discount Ribbon (same as first code) */}
                                 {item.discount_percent > 0 && (
-                                    <div className="absolute top-3 left-3 bg-red-600 text-white text-xs font-semibold px-2 py-1 rounded-full z-20 shadow-md">
-                                        {item.discount_percent}% OFF
+                                    <div className="absolute top-2 right-0 bg-gradient-to-r from-red-500 to-red-700 text-white text-xs font-bold px-2 py-1 shadow-md z-10 rounded-l-md">
+                                        -{item.discount_percent}%
                                     </div>
                                 )}
-
-                                {/* Product Image */}
-                                <div className="relative w-full h-48 overflow-hidden bg-gray-50">
+                                
+                                {/* Image Container */}
+                                <div className="relative overflow-hidden">
                                     <img
                                         src={item.mainImage}
-                                        alt={item.name || 'Product'}
-                                        className="w-full h-full object-cover transform group-hover:scale-110 transition duration-500"
+                                        className="w-full h-48 object-cover transition-all duration-700 group-hover:scale-110"
+                                        alt={item.name}
                                         onError={(e) => {
                                             e.target.src = '/default-product-image.jpg';
                                         }}
                                     />
+                                    <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
                                 </div>
-
+                                
                                 {/* Product Details */}
-                                <div className="flex flex-col justify-between flex-grow p-4">
-                                    <div>
-                                        <h3 className="text-base font-semibold text-black truncate mb-1">
-                                            {item.name}
-                                        </h3>
-                                        <p className="text-sm text-gray-600 line-clamp-2 mb-2">
-                                            {item.description}
-                                        </p>
-                                        <div className="flex items-center gap-2 text-sm">
-                                            {item.discount_percent > 0 && item.original_price && (
-                                                <p className="text-gray-500 line-through">
-                                                    Rs {parseFloat(item.original_price).toLocaleString()}
-                                                </p>
-                                            )}
-                                            <p className="text-red-600 font-bold">
-                                                Rs {parseFloat(item.final_price || item.price || 0).toLocaleString()}
+                                <div className="p-4">
+                                    <h5 className="text-sm font-semibold text-gray-900 mb-2 group-hover:text-amber-700 transition-colors truncate">
+                                        {item.name}
+                                    </h5>
+                                    <p className="text-xs text-gray-500 mb-3 line-clamp-2 h-8">
+                                        {item.description}
+                                    </p>
+                                    
+                                    <div className="space-y-1">
+                                        {item.discount_percent > 0 && item.original_price && (
+                                            <p className="text-xs text-gray-400 line-through">
+                                                Rs {parseFloat(item.original_price).toLocaleString()}
                                             </p>
-                                        </div>
+                                        )}
+                                        <p className="text-base font-bold text-amber-800">
+                                            Rs {parseFloat(item.final_price || item.price || 0).toLocaleString()}
+                                        </p>
+                                        {item.discount_percent > 0 && item.original_price && (
+                                            <p className="text-xs text-green-600">
+                                                Save Rs {(parseFloat(item.original_price) - parseFloat(item.final_price || item.price || 0)).toLocaleString()}
+                                            </p>
+                                        )}
                                     </div>
-
-                                    <button className="mt-4 w-full py-2 bg-black text-white text-sm rounded-lg hover:bg-gray-800 transition-all duration-300">
+                                    
+                                    <button className="mt-3 w-full py-2 bg-gray-900 text-white text-xs rounded-md hover:bg-amber-600 transition-all duration-300">
                                         View Details
                                     </button>
                                 </div>
@@ -283,7 +352,7 @@ const PublicSalesProductsCom = () => {
                     ) : isLoading ? (
                         // Loading skeleton
                         Array.from({ length: pagination.limit }).map((_, index) => (
-                            <div key={index} className="bg-gray-100 rounded-2xl overflow-hidden shadow-lg animate-pulse">
+                            <div key={index} className="bg-gray-100 rounded overflow-hidden shadow-lg animate-pulse">
                                 <div className="w-full h-48 bg-gray-200"></div>
                                 <div className="p-4 space-y-2">
                                     <div className="h-4 bg-gray-200 rounded w-3/4"></div>
@@ -314,7 +383,7 @@ const PublicSalesProductsCom = () => {
                     )}
                 </div>
 
-                {/* Enhanced Pagination Controls */}
+                {/* Enhanced Pagination Controls (similar to first code) */}
                 {!isLoading && records.length > 0 && pagination.totalPages > 1 && (
                     <div className="flex flex-col sm:flex-row justify-center items-center mt-12 gap-4">
                         <div className="flex items-center gap-2 flex-wrap justify-center">
@@ -395,6 +464,17 @@ const PublicSalesProductsCom = () => {
             />
 
             <style jsx>{`
+                @keyframes scrollUp {
+                    0% {
+                        transform: translateY(0);
+                    }
+                    100% {
+                        transform: translateY(-${categories.length * 120}px);
+                    }
+                }
+                .animate-scrollUp {
+                    animation: scrollUp ${categories.length * 5}s linear infinite;
+                }
                 .line-clamp-2 {
                     display: -webkit-box;
                     -webkit-line-clamp: 2;

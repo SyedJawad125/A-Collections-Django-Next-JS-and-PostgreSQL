@@ -895,7 +895,8 @@
 'use client';
 import { useState, useEffect, useContext, useRef } from 'react';
 import { useRouter, usePathname } from 'next/navigation';
-import { Home, Users, FileText, Settings, LogOut, Lock, Eye, Menu, X, ChevronRight, User, Shield, Zap, Globe, Image, Key, MessageSquare} from 'lucide-react';
+import { Home, Users, FileText, Settings, LogOut, Lock, Eye, Menu, X, ChevronRight, User, Shield, Zap, Globe, Image, Key, 
+  ShoppingBag, Tag, MessageSquare} from 'lucide-react';
 import { AuthContext } from '@/components/AuthContext';
 
 const AdminSideNavbarCom = () => {
@@ -959,6 +960,21 @@ const AdminSideNavbarCom = () => {
       label: 'Employee Records',
       icon: Users,
       path: '/employeepage',
+      roles: ['admin', 'super'],
+      color: 'emerald'
+    },
+    {
+      id: 'adminproducts',
+      label: 'Admin Products',
+      icon: ShoppingBag,
+      path: '/adminproducts',
+      roles: ['admin', 'super'],
+      color: 'red'
+    },{
+      id: 'admincategories',
+      label: 'Admin Categories',
+      icon: Tag,
+      path: '/admincategories',
       roles: ['admin', 'super'],
       color: 'emerald'
     },
