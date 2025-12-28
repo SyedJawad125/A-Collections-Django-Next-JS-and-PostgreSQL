@@ -1,19 +1,24 @@
 'use client'
 import React from 'react'
-import PublicProductsCom from "@/components/PublicProductsCom";
 import NavbarCom from "@/components/NavbarCom";
+import PublicProductsCom from "@/components/PublicProductsCom";
 import TopNavbarCom from "@/components/TopNavbarCom";
 import FooterCom from "@/components/FooterCom";
+import HeaderComponent from '@/components/HeaderComponent';
 
-const page = () => {
+
+const about = () => {
   return (
     <div>
-      <TopNavbarCom/>
-      <NavbarCom/>
+      {/* <TopNavbarCom/>
+      <NavbarCom/> */}
+      <HeaderComponent/>
       <PublicProductsCom/>
-      <FooterCom />
+      <div className="mt-20">
+        <FooterCom />
+      </div>
     </div>
   )
 }
 
-export default page
+export default about
