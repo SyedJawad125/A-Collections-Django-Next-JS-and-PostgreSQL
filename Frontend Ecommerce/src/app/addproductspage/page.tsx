@@ -32,7 +32,7 @@ const AddProduct = () => {
     const fetchCategories = async () => {
       setIsLoadingCategories(true);
       try {
-        const res = await AxiosInstance.get('/api/myapp/v1/category/');
+        const res = await AxiosInstance.get('/api/myapp/v1/dropdown/category/');
         const responseData = res?.data?.data;
         
         if (!responseData) {

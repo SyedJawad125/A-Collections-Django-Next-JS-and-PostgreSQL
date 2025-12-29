@@ -970,13 +970,22 @@ const AdminSideNavbarCom = () => {
       path: '/adminproducts',
       roles: ['admin', 'super'],
       color: 'red'
-    },{
+    },
+    {
       id: 'admincategories',
       label: 'Admin Categories',
       icon: Tag,
       path: '/admincategories',
       roles: ['admin', 'super'],
       color: 'emerald'
+    },
+    {
+      id: 'adminsales',
+      label: 'Admin Sales',
+      icon: Tag,
+      path: '/adminsales',
+      roles: ['admin', 'super'],
+      color: 'red'
     },
     {
       id: 'roles',
