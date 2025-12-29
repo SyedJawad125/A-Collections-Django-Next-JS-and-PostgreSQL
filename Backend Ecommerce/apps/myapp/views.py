@@ -1438,6 +1438,7 @@ Everything else uses BaseView directly - NO DUPLICATION
 
 import logging
 from datetime import date, timedelta
+import traceback
 
 from django.db import transaction
 from django.db.models import Q
@@ -1453,8 +1454,8 @@ from utils.helpers import create_response, paginate_data, get_first_error_messag
 from utils.response_messages import SUCCESSFUL, UNSUCCESSFUL
 
 from .models import (
-    Category, Product, ProductTag, Color, ProductVariant,
-    Inventory, SalesProduct, Order, OrderDetail, Contact, Review
+    Category, Product, ProductImage, ProductTag, Color, ProductVariant,
+    Inventory, SalesProduct, Order, OrderDetail, Contact, Review, SalesProductImage
 )
 
 from .serializers import (
@@ -1487,9 +1488,41 @@ class ProductView(BaseView):
     serializer_class = ProductSerializer
     filterset_class = ProductFilter
     
+    # In your ProductView class, modify the post method:
+
     @permission_required(['create_product'])
     def post(self, request):
-        return super().post_(request)
+        try:
+            # Attach created_by user
+            data = request.data.copy()
+            data["created_by"] = request.user.id  # use guid if needed
+
+            # Validate and save product
+            serializer = ProductSerializer(data=data)
+            if serializer.is_valid():
+                product = serializer.save()
+
+                # Handle MULTIPLE image uploads
+                images = request.FILES.getlist('images')
+                if len(images) > 5:
+                    return Response({'error': 'You can upload a maximum of 5 images.'}, status=400)
+                
+                # Check if at least one image is provided
+                if len(images) == 0:
+                    return Response({'error': 'At least one image is required.'}, status=400)
+
+                for img in images:
+                    ProductImage.objects.create(product=product, images=img)
+
+                response_data = ProductSerializer(product).data
+                return Response({'data': response_data}, status=201)
+            else:
+                error_message = get_first_error_message(serializer.errors, "UNSUCCESSFUL")
+                return Response({'error': error_message}, status=400)
+
+        except Exception as e:
+            return Response({'error': str(e)}, status=500)
+    
     
     @permission_required(['read_product'])
     def get(self, request):
@@ -1497,7 +1530,59 @@ class ProductView(BaseView):
     
     @permission_required(['update_product'])
     def patch(self, request):
-        return super().patch_(request)
+        try:
+            data = request.data.copy()
+
+            # Validate required fields
+            if "id" not in data:
+                return Response({"data": "ID NOT PROVIDED"}, status=400)
+
+            product = Product.objects.filter(id=data["id"]).first()
+            if not product:
+                return Response({"data": "NOT FOUND"}, status=404)
+
+            # Add updated_by info
+            data["updated_by"] = request.user.guid
+
+            # Update product
+            serializer = ProductSerializer(product, data=data, partial=True)
+            if not serializer.is_valid():
+                error_message = get_first_error_message(serializer.errors, "UNSUCCESSFUL")
+                return Response({'data': error_message}, status=400)
+
+            product_instance = serializer.save()
+
+            # Handle deleted images
+            deleted_ids = []
+            if "deleted_images" in data:
+                try:
+                    deleted_ids = [int(i.strip()) for i in data["deleted_images"].split(",") if i.strip().isdigit()]
+                    ProductImage.objects.filter(id__in=deleted_ids, product=product_instance).delete()
+                except Exception as e:
+                    print(f"Error deleting images: {str(e)}")
+
+            # Handle uploaded images - THIS IS CORRECT FOR MULTIPLE IMAGES
+            uploaded_images = request.FILES.getlist('images')  # This should get all images
+            if len(uploaded_images) > 6:
+                return Response({'error': 'You can upload a maximum of 5 images.'}, status=400)
+
+            for img in uploaded_images:
+                ProductImage.objects.create(product=product_instance, images=img, created_by=request.user)
+
+            response_data = ProductSerializer(product_instance).data
+            response_data.update({
+                'message': 'Product updated successfully',
+                'images_uploaded': len(uploaded_images),
+                'images_deleted': len(deleted_ids),
+                'total_images': ProductImage.objects.filter(product=product_instance).count()
+            })
+
+            return Response({"data": response_data}, status=200)
+
+        except Exception as e:
+            print(f"\n!!! ERROR in update_product: {str(e)}")
+            print(traceback.format_exc())
+            return Response({'error': str(e)}, status=500)
     
     @permission_required(['delete_product'])
     def delete(self, request):
@@ -1628,7 +1713,55 @@ class SalesProductView(BaseView):
     
     @permission_required(['create_sales_product'])
     def post(self, request):
-        return super().post_(request)
+        try:
+            # Ensure required fields are present
+            if 'original_price' not in request.data:
+                return Response(
+                    {"error": "original_price field is required"},
+                    status=status.HTTP_400_BAD_REQUEST
+                )
+
+            # Attach created_by user
+            data = request.data.copy()
+            data["created_by"] = request.user.guid  # use guid if needed
+
+            # Validate and save product
+            serializer = SalesProductSerializer(data=data)
+            if serializer.is_valid():
+                product = serializer.save()
+
+                # Handle image uploads
+                images = request.FILES.getlist('images')
+                if len(images) > 5:
+                    return Response(
+                        {'error': 'You can upload a maximum of 5 images.'}, 
+                        status=status.HTTP_400_BAD_REQUEST
+                    )
+
+                for img in images:
+                    # Assuming you have a SalesProductImage model similar to ProductImage
+                    SalesProductImage.objects.create(sale_product=product, images=img)
+
+                response_data = SalesProductSerializer(product).data
+                return Response(
+                    {
+                        "success": True,
+                        "data": response_data
+                    },
+                    status=status.HTTP_201_CREATED
+                )
+            return Response(
+                {
+                    "error": "Validation failed",
+                    "details": serializer.errors
+                },
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        except Exception as e:
+            return Response(
+                {"error": str(e)},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR
+        )
     
     @permission_required(['read_sales_product'])
     def get(self, request):
@@ -1636,7 +1769,73 @@ class SalesProductView(BaseView):
     
     @permission_required(['update_sales_product'])
     def patch(self, request):
-        return super().patch_(request)
+        try:
+            data = request.data.copy()
+
+            # Validate required fields
+            if "id" not in data:
+                return Response({"data": "ID NOT PROVIDED"}, status=400)
+
+            # Find product instance
+            product = SalesProduct.objects.filter(id=data["id"]).first()
+            if not product:
+                return Response({"data": "NOT FOUND"}, status=404)
+
+            # Add updated_by info
+            data["updated_by"] = request.user.guid
+
+            # Update product
+            serializer = SalesProductSerializer(product, data=data, partial=True)
+            if not serializer.is_valid():
+                error_message = get_first_error_message(serializer.errors, "UNSUCCESSFUL")
+                return Response({'data': error_message}, status=400)
+
+            product_instance = serializer.save()
+
+            # Handle deleted images - changed 'product' to 'sale_product'
+            deleted_ids = []
+            if "deleted_images" in data:
+                try:
+                    deleted_ids = [int(i.strip()) for i in data["deleted_images"].split(",") if i.strip().isdigit()]
+                    SalesProductImage.objects.filter(id__in=deleted_ids, sale_product=product_instance).delete()
+                except Exception as e:
+                    print(f"Error deleting images: {str(e)}")
+
+            # Handle uploaded images - maximum 5 images
+            uploaded_images = request.FILES.getlist('images')
+            
+            # Check total images won't exceed 5 after upload
+            existing_images_count = SalesProductImage.objects.filter(sale_product=product_instance).count()
+            if existing_images_count - len(deleted_ids) + len(uploaded_images) > 5:
+                return Response(
+                    {'error': 'Total images cannot exceed 5. Please delete some images first.'}, 
+                    status=400
+                )
+
+            if len(uploaded_images) > 5:
+                return Response({'error': 'You can upload a maximum of 5 images at once.'}, status=400)
+
+            for img in uploaded_images:
+                SalesProductImage.objects.create(
+                    sale_product=product_instance,  # changed from 'product' to 'sale_product'
+                    images=img,
+                    created_by=request.user
+                )
+
+            response_data = SalesProductSerializer(product_instance).data
+            response_data.update({
+                'message': 'Sales Product updated successfully',
+                'images_uploaded': len(uploaded_images),
+                'images_deleted': len(deleted_ids),
+                'total_images': SalesProductImage.objects.filter(sale_product=product_instance).count()
+            })
+
+            return Response({"data": response_data}, status=200)
+
+        except Exception as e:
+            print(f"\n!!! ERROR in update_salesproduct: {str(e)}")
+            print(traceback.format_exc())
+            return Response({'error': str(e)}, status=500)
     
     @permission_required(['delete_sales_product'])
     def delete(self, request):
