@@ -38,24 +38,23 @@ const PublicCategoriesOnHome = () => {
         }
       );
       
-      // Parse response according to your create_response structure
-      const responseData = res?.data?.data;
+      // Parse response according to backend structure
+      const responseData = res?.data;
       
-      if (!responseData) {
+      if (!responseData || !responseData.data) {
         console.error('Invalid response structure:', res?.data);
         toast.error('Invalid response from server');
         setRecords([]);
         return;
       }
       
-      // Handle both possible response structures
-      const dataArr = Array.isArray(responseData.data) ? responseData.data : 
-                     Array.isArray(responseData) ? responseData : [];
+      // Get the data array directly
+      const dataArr = Array.isArray(responseData.data) ? responseData.data : [];
       
       console.log('Categories fetched:', dataArr.length);
       setRecords(dataArr);
       
-      // Calculate pagination values
+      // Calculate pagination values using count from response
       const totalCount = responseData.count || dataArr.length;
       const totalPages = Math.ceil(totalCount / limit);
       
@@ -159,18 +158,27 @@ const PublicCategoriesOnHome = () => {
     return pages;
   };
 
+  // Helper function to get proper image URL
+  const getImageUrl = (imageUrl) => {
+    if (!imageUrl) return null;
+    
+    // If image URL already starts with http:// or https://, use it directly
+    if (imageUrl.startsWith('http://') || imageUrl.startsWith('https://')) {
+      return imageUrl;
+    }
+    
+    // Otherwise, prepend baseURL
+    const separator = imageUrl.startsWith('/') ? '' : '/';
+    return `${baseURL}${separator}${imageUrl}`;
+  };
+
   return (
     <div className="py-16 px-4 sm:px-8 lg:px-20 mb-1 -mt-20 bg-white min-h-screen">
-            <div className="max-w-screen-xl mx-auto">
-                {/* Header Section */}
-                <h2 className="text-5xl font-extrabold font-serif text-black tracking-wide text-center mt-16 mb-12">
-                    🧺 Browse Our Collections
-                </h2> 
-    {/* // <div className="bg-white min-h-screen mb-1 py-16 px-4 sm:px-8 lg:px-20">
-    //   <div className="max-w-screen-xl mx-auto">
-    //     <h2 className="text-5xl font-extrabold font-serif text-black tracking-wide text-center mb-12">
-    //       🧺 Browse Our Collections
-    //     </h2> */}
+      <div className="max-w-screen-xl mx-auto">
+        {/* Header Section */}
+        <h2 className="text-5xl font-extrabold font-serif text-black tracking-wide text-center mt-16 mb-12">
+          🧺 Browse Our Collections
+        </h2>
         
         {/* Results info and limit selector */}
         <div className="flex justify-between items-center mb-6 flex-wrap gap-4">
@@ -231,10 +239,7 @@ const PublicCategoriesOnHome = () => {
                     {/* Image */}
                     <div className="relative w-full h-44 overflow-hidden bg-gray-50">
                       <img
-                        src={item.image 
-                          ? `${baseURL}${item.image.startsWith('/') ? '' : '/'}${item.image}`
-                          : 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSIjZmFmYWZhIi8+PHRleHQgeD0iNTAlIiB5PSI1MCUiIGZvbnQtZmFtaWx5PSJBcmlhbCIgZm9udC1zaXplPSIxNCIgZmlsbD0iIzY2NiIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZHk9Ii4zZW0iPk5vIEltYWdlPC90ZXh0Pjwvc3ZnPg=='
-                        }
+                        src={getImageUrl(item.image) || 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSIjZmFmYWZhIi8+PHRleHQgeD0iNTAlIiB5PSI1MCUiIGZvbnQtZmFtaWx5PSJBcmlhbCIgZm9udC1zaXplPSIxNCIgZmlsbD0iIzY2NiIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZHk9Ii4zZW0iPk5vIEltYWdlPC90ZXh0Pjwvc3ZnPg=='}
                         alt={item.name || 'Category'}
                         className="w-full h-full object-cover transform group-hover:scale-110 transition duration-500"
                         onError={(e) => {

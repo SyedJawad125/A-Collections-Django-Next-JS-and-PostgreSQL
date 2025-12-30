@@ -22,54 +22,55 @@ const PublicSalesProductsCom = () => {
         hasPrevious: false
     });
 
+    // Helper function to process image URL
+    const processImageUrl = (url) => {
+        if (!url) return '/default-product-image.jpg';
+        if (url.startsWith('http://') || url.startsWith('https://')) {
+            return url;
+        }
+        return `${baseURL}${url.startsWith('/') ? '' : '/'}${url}`;
+    };
+
     // Fetch sales products with pagination
     const fetchSalesProducts = async (page = 1, limit = 12) => {
         try {
             setIsLoading(true);
             
-            // API call matching your backend structure
             const res = await AxiosInstance.get(
                 `/api/myapp/v1/public/sales/product/`,
                 {
                     params: {
                         page: page,
                         limit: limit,
-                        api_type: 'list' // This triggers list_serializer if set in backend
+                        api_type: 'list'
                     }
                 }
             );
             
-            // Parse response according to your create_response structure
-            // Expected: { status: "...", data: { data: [...], count: X, ... } }
-            const responseData = res?.data?.data;
+            const responseData = res?.data;
             
-            if (!responseData) {
+            if (!responseData || !responseData.data) {
                 console.error('Invalid response structure:', res?.data);
                 toast.error('Invalid response from server');
                 setRecords([]);
                 return;
             }
             
-            const dataArr = Array.isArray(responseData.data) ? responseData.data : 
-                           Array.isArray(responseData) ? responseData : [];
+            const dataArr = Array.isArray(responseData.data) ? responseData.data : [];
             
-            // Process images for each product
             const processedProducts = dataArr.map(product => {
                 const imageUrls = product.image_urls || [];
                 return {
                     ...product,
                     mainImage: imageUrls.length > 0
-                        ? `${baseURL}${imageUrls[0].startsWith('/') ? '' : '/'}${imageUrls[0]}`
+                        ? processImageUrl(imageUrls[0])
                         : '/default-product-image.jpg',
-                    remainingImages: imageUrls.slice(1).map(url => 
-                        `${baseURL}${url.startsWith('/') ? '' : '/'}${url}`
-                    )
+                    remainingImages: imageUrls.slice(1).map(url => processImageUrl(url))
                 };
             });
             
             setRecords(processedProducts);
             
-            // Calculate pagination values
             const totalCount = responseData.count || dataArr.length;
             const totalPages = Math.ceil(totalCount / limit);
             
@@ -109,15 +110,16 @@ const PublicSalesProductsCom = () => {
         fetchSalesProducts(1, 12);
     }, []);
 
-    // Handle toast messages from router (Next.js 13+ App Router)
+    // Handle toast messages from router
     useEffect(() => {
-        // For App Router, you'd use searchParams instead
-        const searchParams = new URLSearchParams(window.location.search);
-        const message = searchParams.get('message');
-        if (message) {
-            toast.success(message);
-            // Clean URL
-            router.replace('/products');
+        if (typeof window !== 'undefined') {
+            const searchParams = new URLSearchParams(window.location.search);
+            const message = searchParams.get('message');
+            if (message) {
+                toast.success(message);
+                const newUrl = window.location.pathname;
+                window.history.replaceState({}, '', newUrl);
+            }
         }
     }, []);
 
@@ -134,7 +136,6 @@ const PublicSalesProductsCom = () => {
     const handlePageChange = (newPage) => {
         if (newPage >= 1 && newPage <= pagination.totalPages && newPage !== pagination.currentPage) {
             fetchSalesProducts(newPage, pagination.limit);
-            // Scroll to products section
             if (productsRef.current) {
                 productsRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' });
             } else {
@@ -145,7 +146,7 @@ const PublicSalesProductsCom = () => {
 
     const handleLimitChange = (e) => {
         const newLimit = parseInt(e.target.value);
-        fetchSalesProducts(1, newLimit); // Reset to page 1 when changing limit
+        fetchSalesProducts(1, newLimit);
     };
 
     // Generate page numbers for pagination
@@ -154,25 +155,20 @@ const PublicSalesProductsCom = () => {
         const pages = [];
         
         if (totalPages <= 7) {
-            // Show all pages if total is 7 or less
             for (let i = 1; i <= totalPages; i++) {
                 pages.push(i);
             }
         } else {
-            // Always show first page
             pages.push(1);
             
             if (currentPage <= 3) {
-                // Near the start
                 pages.push(2, 3, 4, 5);
                 pages.push('...');
                 pages.push(totalPages);
             } else if (currentPage >= totalPages - 2) {
-                // Near the end
                 pages.push('...');
                 pages.push(totalPages - 4, totalPages - 3, totalPages - 2, totalPages - 1, totalPages);
             } else {
-                // In the middle
                 pages.push('...');
                 pages.push(currentPage - 1, currentPage, currentPage + 1);
                 pages.push('...');
@@ -184,47 +180,60 @@ const PublicSalesProductsCom = () => {
     };
 
     return (
-        <div className="py-16 px-4 sm:px-8 lg:px-20 mb-1 -mt-20 bg-white min-h-screen">
-            <div className="max-w-screen-xl mx-auto">
+        <div className="min-h-screen bg-gradient-to-br from-slate-50 to-gray-100 py-8 md:py-12 px-4 sm:px-6 lg:px-8">
+            <div className="max-w-screen-2xl mx-auto px-4 sm:px-6 lg:px-8">
                 {/* Header Section */}
-                <h2 className="text-5xl font-extrabold font-serif text-black tracking-wide text-center mt-16 mb-12">
-                    ✨ Sales Collection ✨
-                </h2> 
-                
-                {/* Items per page selector and count */}
-                <div className="flex justify-between items-center mb-6 flex-wrap gap-4">
-                    <div className="text-black text-sm sm:text-base">
-                        {records.length > 0 ? (
-                            <>
-                                Showing <span className="font-semibold">{(pagination.currentPage - 1) * pagination.limit + 1}</span>
-                                {' '}-{' '}
-                                <span className="font-semibold">{Math.min(pagination.currentPage * pagination.limit, pagination.totalCount)}</span>
-                                {' '}of{' '}
-                                <span className="font-semibold">{pagination.totalCount}</span> products
-                            </>
-                        ) : (
-                            'No products found'
-                        )}
-                    </div>
-                    <div className="flex items-center gap-2">
-                        <span className="text-black text-sm">Items per page:</span>
-                        <select 
-                            value={pagination.limit}
-                            onChange={handleLimitChange}
-                            className="px-3 py-1 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-black text-black bg-white"
-                            disabled={isLoading}
-                        >
-                            <option value="12">12</option>
-                            <option value="24">24</option>
-                            <option value="36">36</option>
-                            <option value="48">48</option>
-                        </select>
-                    </div>
+                <div className="max-w-screen-xl mx-auto">
+                    <h1 className="text-5xl font-extrabold font-serif text-black tracking-wide text-center mt-16 mb-12">
+                        ✨ Exclusive Sales ✨
+                    </h1>
+                    {/* <p className="text-gray-600 text-sm md:text-base">
+                        Discover premium products at unbeatable prices
+                    </p> */}
                 </div>
 
-                {/* Products Grid */}
+                {/* Stats and Filter Bar */}
+               <div className="bg-white border border-gray-200 rounded-md px-3 py-2 mb-4 shadow-sm mx-4 sm:mx-0">
+  <div className="flex flex-row justify-between items-center">
+
+    {/* Left Text */}
+    <div className="text-gray-700 text-xs sm:text-sm leading-tight">
+      {records.length > 0 ? (
+        <span className="font-medium">
+          Showing {((pagination.currentPage - 1) * pagination.limit) + 1}–
+          {Math.min(pagination.currentPage * pagination.limit, pagination.totalCount)}
+          {" "}of {pagination.totalCount} products
+        </span>
+      ) : (
+        !isLoading && <span className="text-gray-500">No products found</span>
+      )}
+    </div>
+
+    {/* Right Control */}
+    <div className="flex items-center gap-2">
+      <span className="text-gray-600 text-xs">Show</span>
+
+      <select
+        value={pagination.limit}
+        onChange={handleLimitChange}
+        disabled={isLoading}
+        className="px-2 py-1 text-xs bg-white text-gray-600 border border-gray-300 rounded
+                   focus:outline-none focus:ring-1 focus:ring-blue-500"
+      >
+        <option value="12">12</option>
+        <option value="24">24</option>
+        <option value="36">36</option>
+        <option value="48">48</option>
+      </select>
+    </div>
+
+  </div>
+</div>
+
+
+                {/* Products Grid - 6 CARDS IN A ROW */}
                 <div 
-                    className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 mb-8" 
+                    className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4 sm:gap-2 mx-4 sm:mx-0"
                     ref={productsRef}
                 >
                     {!isLoading && records.length > 0 ? (
@@ -232,21 +241,21 @@ const PublicSalesProductsCom = () => {
                             <div
                                 key={item.id}
                                 onClick={() => handleProductClick(item)}
-                                className="group cursor-pointer bg-white rounded-2xl overflow-hidden shadow-lg hover:shadow-2xl transition duration-300 flex flex-col relative border border-gray-200 hover:border-gray-300"
+                                className="group bg-white rounded-lg overflow-hidden shadow-sm hover:shadow-lg transition-all duration-300 cursor-pointer border border-gray-100 hover:border-blue-200 flex flex-col h-full"
                             >
                                 {/* Discount Badge */}
                                 {item.discount_percent > 0 && (
-                                    <div className="absolute top-3 left-3 bg-red-600 text-white text-xs font-semibold px-2 py-1 rounded-full z-20 shadow-md">
-                                        {item.discount_percent}% OFF
+                                    <div className="absolute top-2 left-2 z-10 bg-red-600 text-white text-xs font-bold px-2 py-1 rounded shadow-sm">
+                                        -{item.discount_percent}%
                                     </div>
                                 )}
 
                                 {/* Product Image */}
-                                <div className="relative w-full h-48 overflow-hidden bg-gray-50">
+                                <div className="relative pt-[100%] overflow-hidden bg-gray-50">
                                     <img
                                         src={item.mainImage}
-                                        alt={item.name || 'Product'}
-                                        className="w-full h-full object-cover transform group-hover:scale-110 transition duration-500"
+                                        alt={item.name}
+                                        className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-500 p-1"
                                         onError={(e) => {
                                             e.target.src = '/default-product-image.jpg';
                                         }}
@@ -254,128 +263,134 @@ const PublicSalesProductsCom = () => {
                                 </div>
 
                                 {/* Product Details */}
-                                <div className="flex flex-col justify-between flex-grow p-4">
-                                    <div>
-                                        <h3 className="text-base font-semibold text-black truncate mb-1">
-                                            {item.name}
-                                        </h3>
-                                        <p className="text-sm text-gray-600 line-clamp-2 mb-2">
-                                            {item.description}
-                                        </p>
-                                        <div className="flex items-center gap-2 text-sm">
-                                            {item.discount_percent > 0 && item.original_price && (
-                                                <p className="text-gray-500 line-through">
-                                                    Rs {parseFloat(item.original_price).toLocaleString()}
-                                                </p>
-                                            )}
-                                            <p className="text-red-600 font-bold">
-                                                Rs {parseFloat(item.final_price || item.price || 0).toLocaleString()}
-                                            </p>
+                                <div className="p-3 sm:p-4 flex flex-col flex-grow">
+                                    <h3 className="text-sm sm:text-base font-medium text-gray-900 truncate mb-1 group-hover:text-blue-600">
+                                        {item.name}
+                                    </h3>
+                                    
+                                    <div className="mb-2">
+                                        {item.discount_percent > 0 && item.original_price && (
+                                            <div className="text-xs text-gray-500 line-through">
+                                                PKR {parseFloat(item.original_price || 0).toLocaleString()}
+                                            </div>
+                                        )}
+                                        <div className="text-base sm:text-lg font-bold text-gray-900">
+                                            PKR {parseFloat(item.final_price || 0).toLocaleString()}
                                         </div>
                                     </div>
-
-                                    <button className="mt-4 w-full py-2 bg-black text-white text-sm rounded-lg hover:bg-gray-800 transition-all duration-300">
-                                        View Details
-                                    </button>
+                                    
+                                    {item.discount_percent > 0 && item.original_price && (
+                                        <div className="text-xs text-green-600 font-medium mb-3">
+                                            Save PKR {(parseFloat(item.original_price || 0) - parseFloat(item.final_price || 0)).toLocaleString()}
+                                        </div>
+                                    )}
+                                    
+                                    <div className="mt-auto">
+                                        <div className="flex items-center justify-between mb-3">
+                                            <span className="text-xs text-gray-500 bg-gray-100 px-2 py-1 rounded">
+                                                {item.category_data?.name || 'Uncategorized'}
+                                            </span>
+                                        </div>
+                                        <button className="w-full py-2 bg-gray-900 text-white text-xs sm:text-sm rounded hover:bg-blue-700 transition-colors font-medium">
+                                            View Details
+                                        </button>
+                                    </div>
                                 </div>
                             </div>
                         ))
                     ) : isLoading ? (
-                        // Loading skeleton
+                        // Loading Skeleton for 6 columns
                         Array.from({ length: pagination.limit }).map((_, index) => (
-                            <div key={index} className="bg-gray-100 rounded-2xl overflow-hidden shadow-lg animate-pulse">
-                                <div className="w-full h-48 bg-gray-200"></div>
+                            <div key={index} className="bg-white rounded-lg overflow-hidden shadow-sm animate-pulse">
+                                <div className="pt-[100%] bg-gray-200"></div>
                                 <div className="p-4 space-y-2">
                                     <div className="h-4 bg-gray-200 rounded w-3/4"></div>
-                                    <div className="h-3 bg-gray-200 rounded w-full"></div>
-                                    <div className="h-3 bg-gray-200 rounded w-1/2"></div>
-                                    <div className="h-8 bg-gray-200 rounded w-full mt-4"></div>
+                                    <div className="h-4 bg-gray-200 rounded w-1/2"></div>
+                                    <div className="h-8 bg-gray-200 rounded w-full mt-2"></div>
                                 </div>
                             </div>
                         ))
                     ) : (
-                        <div className="col-span-full text-center py-16">
-                            <svg
-                                className="mx-auto h-12 w-12 text-gray-400"
-                                fill="none"
-                                stroke="currentColor"
-                                viewBox="0 0 24 24"
-                            >
-                                <path
-                                    strokeLinecap="round"
-                                    strokeLinejoin="round"
-                                    strokeWidth={1}
-                                    d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-                                />
-                            </svg>
-                            <h3 className="mt-4 text-lg font-medium text-black">No sale products found</h3>
-                            <p className="mt-1 text-gray-600">Try checking back later for new deals</p>
+                        // Empty State - spans all 6 columns
+                        <div className="col-span-2 sm:col-span-3 md:col-span-4 lg:col-span-5 xl:col-span-6 py-16 text-center mx-4 sm:mx-0">
+                            <div className="inline-flex items-center justify-center w-16 h-16 bg-gray-100 rounded-full mb-4">
+                                <svg className="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                </svg>
+                            </div>
+                            <h3 className="text-lg sm:text-xl font-semibold text-gray-900 mb-2">No sale products found</h3>
+                            <p className="text-gray-600 text-sm sm:text-base">
+                                Check back soon for exciting new deals!
+                            </p>
                         </div>
                     )}
                 </div>
 
-                {/* Enhanced Pagination Controls */}
+                {/* Pagination */}
                 {!isLoading && records.length > 0 && pagination.totalPages > 1 && (
-                    <div className="flex flex-col sm:flex-row justify-center items-center mt-12 gap-4">
-                        <div className="flex items-center gap-2 flex-wrap justify-center">
-                            {/* Previous Button */}
-                            <button
-                                onClick={() => handlePageChange(pagination.currentPage - 1)}
-                                disabled={!pagination.hasPrevious || isLoading}
-                                className={`px-4 py-2 rounded-lg transition-colors ${
-                                    !pagination.hasPrevious || isLoading
-                                        ? 'bg-gray-100 cursor-not-allowed text-gray-400 border border-gray-200' 
-                                        : 'bg-black hover:bg-gray-800 text-white'
-                                }`}
-                            >
-                                Previous
-                            </button>
-                            
-                            {/* Page Numbers */}
-                            <div className="flex items-center gap-1">
-                                {getPageNumbers().map((pageNum, index) => {
-                                    if (pageNum === '...') {
-                                        return (
-                                            <span key={`ellipsis-${index}`} className="px-2 text-gray-500">
-                                                ...
-                                            </span>
-                                        );
-                                    }
+                    <div className="mt-10 md:mt-12 mx-4 sm:mx-0">
+                        <div className="bg-white rounded-lg p-4 sm:p-6 shadow-sm border border-gray-200">
+                            <div className="flex flex-col md:flex-row justify-between items-center gap-4">
+                                <div className="text-gray-700 text-sm sm:text-base">
+                                    Page <span className="font-bold text-blue-600">{pagination.currentPage}</span> of <span className="font-bold">{pagination.totalPages}</span>
+                                </div>
+                                
+                                <div className="flex items-center gap-2">
+                                    {/* Previous Button */}
+                                    <button
+                                        onClick={() => handlePageChange(pagination.currentPage - 1)}
+                                        disabled={!pagination.hasPrevious || isLoading}
+                                        className={`px-4 py-2 rounded-lg text-sm sm:text-base ${
+                                            !pagination.hasPrevious || isLoading
+                                                ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
+                                                : 'bg-gray-800 text-white hover:bg-gray-900 hover:shadow-md transition-all'
+                                        }`}
+                                    >
+                                        ← Previous
+                                    </button>
                                     
-                                    return (
-                                        <button
-                                            key={pageNum}
-                                            onClick={() => handlePageChange(pageNum)}
-                                            disabled={isLoading}
-                                            className={`px-3 py-2 rounded-lg transition-colors min-w-[40px] border ${
-                                                pagination.currentPage === pageNum 
-                                                    ? 'bg-black text-white font-semibold border-black' 
-                                                    : 'bg-white border-gray-300 hover:bg-gray-50 text-black'
-                                            }`}
-                                        >
-                                            {pageNum}
-                                        </button>
-                                    );
-                                })}
+                                    {/* Page Numbers */}
+                                    <div className="flex items-center gap-1">
+                                        {getPageNumbers().map((pageNum, index) => {
+                                            if (pageNum === '...') {
+                                                return (
+                                                    <span key={`ellipsis-${index}`} className="px-2 text-gray-500">
+                                                        ...
+                                                    </span>
+                                                );
+                                            }
+                                            
+                                            return (
+                                                <button
+                                                    key={pageNum}
+                                                    onClick={() => handlePageChange(pageNum)}
+                                                    disabled={isLoading}
+                                                    className={`px-3 py-2 rounded-lg text-sm sm:text-base min-w-[36px] sm:min-w-[40px] ${
+                                                        pagination.currentPage === pageNum
+                                                            ? 'bg-blue-600 text-white font-semibold shadow-sm'
+                                                            : 'bg-white text-gray-700 hover:bg-gray-100 border border-gray-300'
+                                                    }`}
+                                                >
+                                                    {pageNum}
+                                                </button>
+                                            );
+                                        })}
+                                    </div>
+                                    
+                                    {/* Next Button */}
+                                    <button
+                                        onClick={() => handlePageChange(pagination.currentPage + 1)}
+                                        disabled={!pagination.hasNext || isLoading}
+                                        className={`px-4 py-2 rounded-lg text-sm sm:text-base ${
+                                            !pagination.hasNext || isLoading
+                                                ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
+                                                : 'bg-gray-800 text-white hover:bg-gray-900 hover:shadow-md transition-all'
+                                        }`}
+                                    >
+                                        Next →
+                                    </button>
+                                </div>
                             </div>
-                            
-                            {/* Next Button */}
-                            <button
-                                onClick={() => handlePageChange(pagination.currentPage + 1)}
-                                disabled={!pagination.hasNext || isLoading}
-                                className={`px-4 py-2 rounded-lg transition-colors ${
-                                    !pagination.hasNext || isLoading
-                                        ? 'bg-gray-100 cursor-not-allowed text-gray-400 border border-gray-200' 
-                                        : 'bg-black hover:bg-gray-800 text-white'
-                                }`}
-                            >
-                                Next
-                            </button>
-                        </div>
-
-                        {/* Page info */}
-                        <div className="text-black text-sm">
-                            Page {pagination.currentPage} of {pagination.totalPages}
                         </div>
                     </div>
                 )}
@@ -393,15 +408,6 @@ const PublicSalesProductsCom = () => {
                 pauseOnHover
                 theme="light"
             />
-
-            <style jsx>{`
-                .line-clamp-2 {
-                    display: -webkit-box;
-                    -webkit-line-clamp: 2;
-                    -webkit-box-orient: vertical;
-                    overflow: hidden;
-                }
-            `}</style>
         </div>
     );
 };
