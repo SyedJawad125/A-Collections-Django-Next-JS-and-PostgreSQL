@@ -493,81 +493,106 @@ const PublicKids = () => {
         hasPrevious: false
     });
 
-    const fetchKidsProducts = async (page = 1, limit = 16) => {
-        setLoading(true);
-        try {
-            const res = await AxiosInstance.get(
-                `/api/myapp/v1/public/product/`,
-                {
-                    params: {
-                        page: page,
-                        limit: limit,
-                        tags: 'Kids',
-                        api_type: 'list'
-                    }
+    // Fetch kids products with pagination
+const fetchKidsProducts = async (page = 1, limit = 16) => {
+    setLoading(true);
+    try {
+        // Use params object for proper URL encoding
+        const res = await AxiosInstance.get(
+            `/api/myapp/v1/public/product/`,
+            {
+                params: {
+                    page: page,
+                    limit: limit,
+                    tags: 'Kids', // Filter for Kids products
+                    api_type: 'list' // Triggers list_serializer if set
                 }
-            );
-            
-            const responseData = res?.data?.data;
-            
-            if (!responseData) {
-                console.error('Invalid response structure:', res?.data);
-                toast.error('Invalid response from server');
-                setRecords([]);
-                return;
             }
-            
-            const dataArr = Array.isArray(responseData.data) ? responseData.data : 
-                           Array.isArray(responseData) ? responseData : [];
-            
-            const processedProducts = dataArr.map(product => {
-                const imageUrls = product.image_urls || [];
-                return {
-                    ...product,
-                    mainImage: imageUrls.length > 0
-                        ? `${baseURL}${imageUrls[0].startsWith('/') ? '' : '/'}${imageUrls[0]}`
-                        : '/default-product-image.jpg',
-                    remainingImages: imageUrls.slice(1).map(url => 
-                        `${baseURL}${url.startsWith('/') ? '' : '/'}${url}`
-                    )
-                };
-            });
-            
-            setRecords(processedProducts);
-            
-            const totalCount = responseData.count || dataArr.length;
-            const totalPages = Math.ceil(totalCount / limit);
-            
-            setPagination({
-                currentPage: page,
-                limit: limit,
-                totalPages: totalPages,
-                totalCount: totalCount,
-                hasNext: page < totalPages,
-                hasPrevious: page > 1
-            });
-            
-        } catch (error) {
-            console.error('Error fetching kids products:', error);
-            console.error('Error details:', error.response?.data);
-            
-            toast.error(
-                error.response?.data?.message || 'Failed to load kids products',
-                {
-                    position: "top-center",
-                    autoClose: 3000,
-                    hideProgressBar: true,
-                    closeOnClick: true,
-                    pauseOnHover: true,
-                    draggable: true,
-                    theme: "light",
-                }
-            );
+        );
+        
+        // Parse response according to create_response structure
+        const responseData = res?.data;
+        
+        if (!responseData) {
+            console.error('Invalid response structure:', res?.data);
+            toast.error('Invalid response from server');
             setRecords([]);
-        } finally {
-            setLoading(false);
+            return;
         }
-    };
+        
+        // Handle both possible response structures
+        const dataArr = Array.isArray(responseData.data) ? responseData.data : [];
+        
+        // Process the products to include proper image URLs
+        const processedProducts = dataArr.map(product => {
+            // image_urls is already an array of full URLs in your response
+            const imageUrls = product.image_urls || [];
+            
+            // Get the main image (first URL) or use default
+            const mainImage = imageUrls.length > 0 ? imageUrls[0] : '/default-product-image.jpg';
+            
+            // If the URL doesn't start with http, prepend baseURL
+            const processedMainImage = mainImage.startsWith('http') 
+                ? mainImage 
+                : `${baseURL}${mainImage.startsWith('/') ? '' : '/'}${mainImage}`;
+            
+            // Process remaining images
+            const processedRemainingImages = imageUrls.slice(1).map(url => 
+                url.startsWith('http') 
+                    ? url 
+                    : `${baseURL}${url.startsWith('/') ? '' : '/'}${url}`
+            );
+            
+            return {
+                ...product,
+                mainImage: processedMainImage,
+                remainingImages: processedRemainingImages,
+                // Also process the images array if needed elsewhere
+                processedImages: (product.images || []).map(img => ({
+                    ...img,
+                    image_url: img.image_url?.startsWith('http') 
+                        ? img.image_url 
+                        : `${baseURL}${img.image_url?.startsWith('/') ? '' : '/'}${img.image_url}`
+                }))
+            };
+        });
+        
+        setRecords(processedProducts);
+        
+        // Calculate pagination values
+        const totalCount = responseData.count || dataArr.length;
+        const totalPages = Math.ceil(totalCount / limit);
+        
+        setPagination({
+            currentPage: page,
+            limit: limit,
+            totalPages: totalPages,
+            totalCount: totalCount,
+            hasNext: page < totalPages,
+            hasPrevious: page > 1
+        });
+        
+    } catch (error) {
+        console.error('Error fetching kids products:', error);
+        console.error('Error details:', error.response?.data);
+        
+        toast.error(
+            error.response?.data?.message || 'Failed to load kids products',
+            {
+                position: "top-center",
+                autoClose: 3000,
+                hideProgressBar: true,
+                closeOnClick: true,
+                pauseOnHover: true,
+                draggable: true,
+                theme: "light",
+            }
+        );
+        setRecords([]);
+    } finally {
+        setLoading(false);
+    }
+};
 
     const fetchCategories = async () => {
         try {
