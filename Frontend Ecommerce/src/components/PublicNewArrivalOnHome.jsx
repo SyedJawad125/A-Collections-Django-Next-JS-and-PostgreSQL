@@ -26,7 +26,6 @@ const NewArrivalOnHome = () => {
     const fetchNewArrivals = async (page = 1, limit = 16) => {
         setLoading(true);
         try {
-            // Use params object for proper URL encoding
             const res = await AxiosInstance.get(
                 `/api/myapp/v1/public/product/`,
                 {
@@ -39,8 +38,8 @@ const NewArrivalOnHome = () => {
                 }
             );
             
-            // Parse response according to create_response structure
-            const responseData = res?.data?.data;
+            // FIXED: Response structure: { message, count, data }
+            const responseData = res?.data; // ✅ Correct - don't go to res?.data?.data
             
             if (!responseData) {
                 console.error('Invalid response structure:', res?.data);
@@ -49,21 +48,42 @@ const NewArrivalOnHome = () => {
                 return;
             }
             
-            // Handle both possible response structures
-            const dataArr = Array.isArray(responseData.data) ? responseData.data : 
-                           Array.isArray(responseData) ? responseData : [];
+            // responseData.data is the array of products
+            const dataArr = Array.isArray(responseData.data) ? responseData.data : [];
             
-            // Process the products to include proper image URLs
+            // FIXED: Process the products with proper image URL handling
             const processedProducts = dataArr.map(product => {
+                // image_urls is already an array of full URLs
                 const imageUrls = product.image_urls || [];
+                
+                // Get the first image URL
+                const firstImage = imageUrls.length > 0 ? imageUrls[0] : null;
+                
+                // Process the image URL
+                let mainImage = '/default-product-image.jpg';
+                if (firstImage) {
+                    // If it's already a full URL, use it as is
+                    if (firstImage.startsWith('http')) {
+                        mainImage = firstImage;
+                    } else {
+                        // Otherwise, prepend baseURL
+                        mainImage = `${baseURL}${firstImage.startsWith('/') ? '' : '/'}${firstImage}`;
+                    }
+                }
+                
+                // Process remaining images if needed
+                const remainingImages = imageUrls.slice(1).map(url => {
+                    if (url.startsWith('http')) {
+                        return url;
+                    } else {
+                        return `${baseURL}${url.startsWith('/') ? '' : '/'}${url}`;
+                    }
+                });
+                
                 return {
                     ...product,
-                    mainImage: imageUrls.length > 0
-                        ? `${baseURL}${imageUrls[0].startsWith('/') ? '' : '/'}${imageUrls[0]}`
-                        : '/default-product-image.jpg',
-                    remainingImages: imageUrls.slice(1).map(url => 
-                        `${baseURL}${url.startsWith('/') ? '' : '/'}${url}`
-                    )
+                    mainImage: mainImage,
+                    remainingImages: remainingImages
                 };
             });
             
@@ -187,12 +207,7 @@ const NewArrivalOnHome = () => {
                 {/* Header Section */}
                 <h2 className="text-5xl font-extrabold font-serif text-black tracking-wide text-center mt-16 mb-12">
                     🆕 New Arrivals
-                </h2> 
-        {/* // <div className="bg-white min-h-screen mb-1 py-16 px-4 sm:px-8 lg:px-20 mb-16 -mt-20">
-        //     <div className="max-w-screen-xl mx-auto">
-        //         <h2 className="text-5xl font-extrabold font-serif text-black tracking-wide text-center mb-12">
-        //             🆕 New Arrivals
-        //         </h2> */}
+                </h2>
                 
                 {/* Products count and items per page selector */}
                 <div className="flex justify-between items-center mb-6 flex-wrap gap-4">
@@ -226,7 +241,7 @@ const NewArrivalOnHome = () => {
                 </div>
 
                 <div 
-                    className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4"
+                    className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-8"
                     ref={productsRef}
                 >
                     {loading ? (
@@ -257,6 +272,7 @@ const NewArrivalOnHome = () => {
                                         className="w-full h-full object-cover transform group-hover:scale-110 transition duration-500"
                                         onError={(e) => {
                                             e.target.src = '/default-product-image.jpg';
+                                            e.target.onerror = null;
                                         }}
                                     />
                                     {/* NEW Badge */}
