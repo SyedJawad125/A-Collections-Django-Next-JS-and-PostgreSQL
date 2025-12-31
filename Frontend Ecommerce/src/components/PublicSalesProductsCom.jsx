@@ -211,7 +211,7 @@ const PublicSalesProductsCom = () => {
             ProductId: product.id.toString(),
             productData: JSON.stringify(product)
         }).toString();
-        router.push(`/salesproductdetailspage?${queryString}`);
+        router.push(`/SalesDetail?${queryString}`);
     };
 
     const handleCategoryClick = (categoryId) => {
