@@ -472,7 +472,7 @@ const AddToCartPage = () => {
             toast.error('Your cart is empty');
             return;
         }
-        router.push('/checkoutpage');
+        router.push('/checkout');
     };
 
     const handleContinueShopping = () => {
@@ -650,7 +650,7 @@ const AddToCartPage = () => {
                                                         >
                                                             <FaMinus className="w-3 h-3" />
                                                         </button>
-                                                        <span className="px-6 py-2 text-lg font-medium border-x-2 border-gray-200 bg-gray-50">
+                                                        <span className="px-6 py-2 text-lg font-medium border-x-2 border-gray-200 bg-gray-500">
                                                             {item.quantity}
                                                         </span>
                                                         <button
