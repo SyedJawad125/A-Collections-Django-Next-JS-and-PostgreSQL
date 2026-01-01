@@ -256,7 +256,7 @@ const SalesDetail = () => {
 
       addToCart(cartProduct, quantity);
       toast.success('Product added to cart!');
-      router.push('/addtocartpage');
+      router.push('/addtocart');
     } else {
       console.error('No product to add to cart');
       toast.error('Failed to add product to cart');
