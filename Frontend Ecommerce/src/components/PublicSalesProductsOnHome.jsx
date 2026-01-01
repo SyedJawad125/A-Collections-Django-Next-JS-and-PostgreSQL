@@ -24,12 +24,24 @@ const PublicSalesProductsCom = () => {
 
     // Helper function to process image URL
     const processImageUrl = (url) => {
-        if (!url) return '/default-product-image.jpg';
-        if (url.startsWith('http://') || url.startsWith('https://')) {
-            return url;
-        }
-        return `${baseURL}${url.startsWith('/') ? '' : '/'}${url}`;
-    };
+  // First, check if it's an empty URL
+  if (!url || url.trim() === '') {
+    // Return a reliable fallback - either a local file or external URL
+    return '/images/default-product.jpg'; // Create this in public/images/
+    // OR use an external placeholder
+    // return 'https://via.placeholder.com/300x200/cccccc/969696?text=No+Image';
+  }
+  
+  // If URL already starts with http:// or https://, return as is
+  if (url.startsWith('http://') || url.startsWith('https://')) {
+    return url;
+  }
+  
+  // Otherwise, it's a relative path, so add the base URL
+  const baseURL = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:8000';
+  const cleanUrl = url.startsWith('/') ? url : `/${url}`;
+  return `${baseURL}${cleanUrl}`;
+};
 
     // Fetch sales products with pagination
     const fetchSalesProducts = async (page = 1, limit = 12) => {

@@ -78,6 +78,7 @@ from .views import (
     
     # Inventory views
     InventoryView,
+    PubliccategorywiseView,
     
     # Sales product views
     SalesProductView,
@@ -261,6 +262,9 @@ urlpatterns = [
     # Method: POST - Create review (authenticated or guest)
     # Method: GET via get_publicreview - Get reviews for a product/sales_product
     # Query params: ?product_id=N or ?sales_product_id=N
+
+    path('v1/public/category/wise/',PubliccategorywiseView.as_view(), name='category-wise'),
+
 ]
 
 

@@ -28,7 +28,7 @@ from .models import (
 
 from .serializers import (
     ProductSerializer, ColorSerializer, ProductVariantSerializer,
-    InventorySerializer, SalesProductSerializer, CategorySerializer,
+    InventorySerializer, PubliccategorywiseSerializer, SalesProductSerializer, CategorySerializer,
     ProductTagSerializer, OrderSerializer, ContactSerializer,
     ReviewSerializer, PublicReviewSerializer
 )
@@ -36,7 +36,7 @@ from .serializers import (
 from .filters import (
     ProductFilter, PublicProductFilter, ProductDropdownFilter,
     ColorFilter, ProductVariantFilter, PublicProductVariantFilter,
-    InventoryFilter, SalesProductFilter, PublicSalesProductFilter,
+    InventoryFilter, PubliccategorywiseFilter, SalesProductFilter, PublicSalesProductFilter,
     SalesProductDropdownFilter, CategoryFilter, PublicCategoryFilter,
     CategoryDropdownFilter, ProductTagFilter, OrderFilter,
     OrderSearchFilter, ContactFilter, PublicContactFilter,
@@ -1061,3 +1061,41 @@ class CategorySearchView(BaseView):
         except Exception as e:
             logger.error(f"Error in category search: {str(e)}", exc_info=True)
             return create_response({"error": "Search failed"}, UNSUCCESSFUL, 500)
+        
+
+class PubliccategorywiseView(BaseView):
+    permission_classes = ()
+    serializer_class = PubliccategorywiseSerializer
+    filterset_class = PubliccategorywiseFilter
+
+
+    def get(self, request, pk=None):
+        try:
+            if pk is not None:
+                # Fetch single category by ID
+                instance = self.serializer_class.Meta.model.objects.filter(pk=pk).first()
+                if not instance:
+                    return Response({'error': 'Category not found'}, status=404)
+
+                serialized_data = self.serializer_class(instance).data
+                return create_response(serialized_data, "SUCCESSFUL", 200)
+
+            # Fetch all categories (paginated)
+            instances = self.serializer_class.Meta.model.objects.all()
+            filtered_data = self.filterset_class(request.GET, queryset=instances)
+            data = filtered_data.qs
+
+            paginated_data, count = paginate_data(data, request)
+            serialized_data = self.serializer_class(paginated_data, many=True).data
+
+            response_data = {
+                "count": count,
+                "data": serialized_data,
+            }
+            return create_response(response_data, "SUCCESSFUL", 200)
+
+        except Exception as e:
+            import traceback
+            print("Error in get_publiccategory:", str(e))
+            traceback.print_exc()
+            return Response({'error': str(e)}, status=500)

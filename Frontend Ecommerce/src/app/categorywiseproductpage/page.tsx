@@ -1,14 +1,13 @@
 import React from 'react'
 import CategoryWiseProductCom from "@/components/CategoryWiseProductCom";
-import NavbarCom from "@/components/NavbarCom";
-import TopNavbarCom from "@/components/TopNavbarCom";
+import HeaderComponent from '@/components/HeaderComponent';
+
 import FooterCom from "@/components/FooterCom";
 
 const page = () => {
   return (
     <div>
-        <TopNavbarCom/>
-        <NavbarCom/>
+        <HeaderComponent />
         <CategoryWiseProductCom/>
         <FooterCom />
     </div>

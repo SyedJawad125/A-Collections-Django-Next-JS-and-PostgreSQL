@@ -1336,3 +1336,15 @@ class PublicReviewSerializer(serializers.ModelSerializer):
         elif obj.sales_product:
             return 'sales_product'
         return None
+    
+
+class PubliccategorywiseSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Category
+        fields = '__all__'
+
+    def to_representation(self, instance):
+        data = super().to_representation(instance)
+        data['created_by'] = UserListingSerializer(instance.created_by).data if instance.created_by else None
+        data['updated_by'] = UserListingSerializer(instance.updated_by).data if instance.updated_by else None
+        return data

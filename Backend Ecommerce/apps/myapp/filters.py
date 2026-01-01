@@ -616,3 +616,15 @@ class PublicReviewFilter(FilterSet):
         return queryset.filter(
             Q(product__id=value) | Q(sales_product__id=value)
         )
+    
+
+class PubliccategorywiseFilter(FilterSet):
+    id = CharFilter(field_name='id')
+    date_from = DateFilter(field_name='created_at', lookup_expr='gte' )
+    date_to = DateFilter(field_name='created_at', lookup_expr='lte' )
+    name = CharFilter(field_name='name', lookup_expr='icontains')
+
+    class Meta:
+        model = Category
+        # fields ='__all__'
+        exclude = ['image']
