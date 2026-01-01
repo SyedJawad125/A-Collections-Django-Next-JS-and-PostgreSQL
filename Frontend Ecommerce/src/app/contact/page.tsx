@@ -1,6 +1,6 @@
 import React from 'react'
 import NavbarCom from "@/components/NavbarCom";
-import ContactPageCom from "@/components/ContactPageCom";
+import Contact from "@/components/Contact";
 import TopNavbarCom from "@/components/TopNavbarCom";
 import FooterCom from "@/components/FooterCom";
 import HeaderComponent from '@/components/HeaderComponent';
@@ -12,7 +12,7 @@ const page = () => {
       {/* <TopNavbarCom/>
       <NavbarCom/> */}
       <HeaderComponent/>
-      <ContactPageCom/>
+      <Contact/>
       {/* <FooterCom/> */}
     </div>
   )
