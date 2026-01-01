@@ -639,7 +639,7 @@ const ProductDetailsCom = () => {
                   {featuredProducts.map((featuredProduct) => (
                     <div
                       key={featuredProduct.id}
-                      onClick={() => router.push(`/productdetailspage?ProductId=${featuredProduct.id}`)}
+                      onClick={() => router.push(`/productdetailpage?ProductId=${featuredProduct.id}`)}
                       className="flex-shrink-0 w-60 bg-white rounded-xl shadow-sm overflow-hidden cursor-pointer transform transition-all hover:shadow-lg hover:-translate-y-1"
                     >
                       <div className="relative h-64 w-full">
