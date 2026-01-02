@@ -888,7 +888,7 @@ const Checkout = () => {
                 items: items
             };
 
-            const response = await AxiosInstance.post('/ecommerce/publicorder', orderData, {
+            const response = await AxiosInstance.post('/api/myapp/v1/public/order/', orderData, {
                 headers: {
                     'Content-Type': 'application/json',
                     'Authorization': `Bearer ${localStorage.getItem('token') || ''}`

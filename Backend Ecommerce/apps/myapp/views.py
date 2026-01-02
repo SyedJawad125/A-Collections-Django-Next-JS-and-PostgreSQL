@@ -576,6 +576,12 @@ class OrderSearchView(BaseView):
         return super().get_(request)
 
 
+
+import logging
+
+logger = logging.getLogger(__name__)
+
+
 class PublicOrderView(BaseView):
     """
     Public order creation - CUSTOM: Mixed order logic
@@ -586,9 +592,9 @@ class PublicOrderView(BaseView):
     def _calculate_delivery_date(self):
         """Calculate delivery date based on current day"""
         today = date.today()
-        if today.weekday() in [3, 4]:
+        if today.weekday() in [3, 4]:  # Thursday, Friday
             return today + timedelta(days=4)
-        elif today.weekday() == 5:
+        elif today.weekday() == 5:  # Saturday
             return today + timedelta(days=3)
         return today + timedelta(days=2)
 
@@ -608,8 +614,8 @@ class PublicOrderView(BaseView):
         if 'items' in request.data and any(item.get('product_type') for item in request.data.get('items', [])):
             return self._create_mixed_order(request)
         
-        # Simple order - use BaseView
-        return super().post_(request)
+        # Simple order - use BaseView (FIXED TYPO: was post_)
+        return super().post(request)
     
     def _create_mixed_order(self, request):
         """Custom order creation logic"""
@@ -624,11 +630,14 @@ class PublicOrderView(BaseView):
             }
             items = request.data.get('items', [])
             
+            # Validate required fields
             if not all(personal_info.values()) or not items:
-                return create_response(
-                    {"error": "Missing required fields"},
-                    "BAD_REQUEST",
-                    400
+                return Response(
+                    {
+                        "error": "Missing required fields",
+                        "message": "Please provide all customer information and at least one item"
+                    },
+                    status=status.HTTP_400_BAD_REQUEST
                 )
             
             order_data = {
@@ -638,14 +647,18 @@ class PublicOrderView(BaseView):
                 'payment_status': False
             }
             
+            # Validate order data
             serialized_data = self.serializer_class(data=order_data)
             if not serialized_data.is_valid():
-                return create_response(
-                    {"errors": serialized_data.errors}, 
-                    get_first_error_message(serialized_data.errors, UNSUCCESSFUL),
-                    400
+                return Response(
+                    {
+                        "error": "Validation failed",
+                        "details": serialized_data.errors
+                    },
+                    status=status.HTTP_400_BAD_REQUEST
                 )
             
+            # Create order and order details in transaction
             with transaction.atomic():
                 order = serialized_data.save()
                 bill = 0
@@ -655,6 +668,13 @@ class PublicOrderView(BaseView):
                     product_type = item.get('product_type')
                     product_id = item.get('product_id')
                     quantity = item.get('quantity', 1)
+                    
+                    # Validate item data
+                    if not product_type or not product_id:
+                        raise ValueError("Each item must have product_type and product_id")
+                    
+                    if quantity < 1:
+                        raise ValueError(f"Invalid quantity {quantity} for item")
                     
                     try:
                         unit_price, product = self._get_product_price(product_type, product_id)
@@ -685,13 +705,19 @@ class PublicOrderView(BaseView):
                             'is_discounted': getattr(product, 'has_discount', False)
                         })
                         
-                    except (Product.DoesNotExist, SalesProduct.DoesNotExist):
-                        raise ValueError(f"{product_type.title()} with id {product_id} not found")
+                    except Product.DoesNotExist:
+                        raise ValueError(f"Product with id {product_id} not found")
+                    except SalesProduct.DoesNotExist:
+                        raise ValueError(f"Sales product with id {product_id} not found")
                 
+                # Update order with total bill
                 order.bill = bill
                 order.save()
 
+                # Prepare response
                 response_data = {
+                    'success': True,
+                    'message': 'Order created successfully',
                     'order_id': order.id,
                     'customer_info': {
                         'name': order.customer_name,
@@ -705,20 +731,34 @@ class PublicOrderView(BaseView):
                     },
                     'order_summary': {
                         'items': order_items,
+                        'items_count': len(order_items),
                         'subtotal': float(bill),
                         'total': float(bill)
                     },
                     'payment_method': order.payment_method,
+                    'payment_status': order.payment_status,
                     'status': order.status
                 }
 
-                return create_response(response_data, SUCCESSFUL, 200)
+                return Response(response_data, status=status.HTTP_201_CREATED)
 
         except ValueError as e:
-            return create_response({"error": str(e)}, "BAD_REQUEST", 400)
+            return Response(
+                {
+                    "error": "Validation error",
+                    "message": str(e)
+                },
+                status=status.HTTP_400_BAD_REQUEST
+            )
         except Exception as e:
             logger.error(f"Order creation failed: {str(e)}", exc_info=True)
-            return create_response({"error": "Failed to create order"}, UNSUCCESSFUL, 500)
+            return Response(
+                {
+                    "error": "Internal server error",
+                    "message": "Failed to create order. Please try again later."
+                },
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )
 
 
 # ============================================================================
