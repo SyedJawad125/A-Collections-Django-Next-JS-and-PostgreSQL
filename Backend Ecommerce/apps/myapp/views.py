@@ -1533,7 +1533,73 @@ class PublicReviewView(BaseView):
                 'message': 'Failed to retrieve reviews'
             }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
+    def get_publicreview_by_id(self, request):
+        try:
+            # Get product or sales_product ID from query params
+            product_id = request.GET.get('product_id') or request.GET.get('product')
+            sales_product_id = request.GET.get('sales_product_id') or request.GET.get('sales_product')
+            review_id = request.GET.get('review_id')
 
+            # Validate at least one ID is provided
+            if not product_id and not sales_product_id and not review_id:
+                return Response({
+                    'status': 'ERROR',
+                    'message': 'Either product_id, sales_product_id, or review_id is required',
+                    'data': None
+                }, status=status.HTTP_400_BAD_REQUEST)
+
+            # Build the base queryset
+            queryset = self.serializer_class.Meta.model.objects.all()
+
+            # Apply specific filters based on provided IDs
+            if review_id:
+                queryset = queryset.filter(id=review_id)
+            else:
+                query = Q()
+                if product_id:
+                    query |= Q(product_id=product_id)
+                if sales_product_id:
+                    query |= Q(sales_product_id=sales_product_id)
+                queryset = queryset.filter(query)
+
+            if not queryset.exists():
+                return Response({
+                    'status': 'SUCCESS',
+                    'message': 'No reviews found',
+                    'data': []
+                }, status=status.HTTP_200_OK)
+
+            # Apply additional filters if filterset_class is defined
+            if hasattr(self, 'filterset_class') and self.filterset_class:
+                queryset = self.filterset_class(request.GET, queryset=queryset).qs
+
+            # Paginate the results
+            paginated_data, count = paginate_data(queryset, request)
+
+            # Serialize the data
+            serializer = self.serializer_class(paginated_data, many=True)
+
+            # Format the response
+            response_data = {
+                'status': 'SUCCESS',
+                'message': 'Reviews retrieved successfully',
+                'data': {
+                    'count': count,
+                    'reviews': serializer.data
+                }
+            }
+
+            return Response(response_data, status=status.HTTP_200_OK)
+
+        except Exception as e:
+            import traceback
+            traceback.print_exc()
+            return Response({
+                'status': 'ERROR',
+                'message': 'Internal server error',
+                'error': str(e),
+                'data': None
+            }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 # ============================================================================
 # SEARCH VIEWS
 # ============================================================================
