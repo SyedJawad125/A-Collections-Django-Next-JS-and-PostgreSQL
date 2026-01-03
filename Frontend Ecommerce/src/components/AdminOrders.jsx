@@ -106,7 +106,7 @@ const Orders = () => {
   };
 
   const updateOrder = (orderId) => {
-    router.push(`/updateorderpage?orderid=${orderId}`);
+    router.push(`/adminupdateorder?orderid=${orderId}`);
   };
 
   const formatDate = (dateString) => {
