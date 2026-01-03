@@ -1012,10 +1012,10 @@ const AdminSideNavbarCom = () => {
       color: 'emerald'
     },
     {
-      id: 'comments',
-      label: 'comments',
+      id: 'reviews',
+      label: 'reviews',
       icon: MessageSquare,
-      path: '/comments',
+      path: '/adminreviews',
       roles: ['admin', 'super'],
       color: 'purple'
     },

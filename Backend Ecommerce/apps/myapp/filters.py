@@ -628,3 +628,27 @@ class PubliccategorywiseFilter(FilterSet):
         model = Category
         # fields ='__all__'
         exclude = ['image']
+
+
+class DropDownListProductFilter(FilterSet):
+    id = CharFilter(field_name='id')
+    date_from = DateFilter(field_name='created_at', lookup_expr='gte' )
+    date_to = DateFilter(field_name='created_at', lookup_expr='lte' )
+    name = CharFilter(field_name='name', lookup_expr='icontains')
+
+    class Meta:
+        model = Product
+        # fields ='__all__'
+        exclude = ['image']
+
+
+class DropDownListSalesProductFilter(FilterSet):
+    id = CharFilter(field_name='id')
+    date_from = DateFilter(field_name='created_at', lookup_expr='gte' )
+    date_to = DateFilter(field_name='created_at', lookup_expr='lte' )
+    name = CharFilter(field_name='name', lookup_expr='icontains')
+
+    class Meta:
+        model = SalesProduct
+        # fields ='__all__'
+        exclude = ['image']

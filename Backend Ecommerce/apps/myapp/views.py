@@ -16,6 +16,7 @@ from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
 
+from apps.users.models import User
 from utils.decorator import permission_required
 from utils.base_api import BaseView
 from utils.helpers import create_response, get_first_error, paginate_data, get_first_error_message
@@ -27,14 +28,14 @@ from .models import (
 )
 
 from .serializers import (
-    ProductSerializer, ColorSerializer, ProductVariantSerializer,
+    DropDownListProductSerializer, DropDownListSalesProductSerializer, ProductSerializer, ColorSerializer, ProductVariantSerializer,
     InventorySerializer, PubliccategorywiseSerializer, SalesProductSerializer, CategorySerializer,
     ProductTagSerializer, OrderSerializer, ContactSerializer,
     ReviewSerializer, PublicReviewSerializer
 )
 
 from .filters import (
-    ProductFilter, PublicProductFilter, ProductDropdownFilter,
+    DropDownListProductFilter, DropDownListSalesProductFilter, ProductFilter, PublicProductFilter, ProductDropdownFilter,
     ColorFilter, ProductVariantFilter, PublicProductVariantFilter,
     InventoryFilter, PubliccategorywiseFilter, SalesProductFilter, PublicSalesProductFilter,
     SalesProductDropdownFilter, CategoryFilter, PublicCategoryFilter,
@@ -543,15 +544,262 @@ class ProductTagView(BaseView):
 # ORDER VIEWS
 # ============================================================================
 
+# class OrderView(BaseView):
+#     """Admin order management - full BaseView CRUD"""
+#     permission_classes = (IsAuthenticated,)
+#     serializer_class = OrderSerializer
+#     filterset_class = OrderFilter
+    
+#     @permission_required(['create_order'])
+#     def post(self, request):
+#         return super().post_(request)
+    
+#     @permission_required(['read_order'])
+#     def get(self, request):
+#         return super().get_(request)
+    
+#     @permission_required(['update_order'])
+#     def patch(self, request):
+#         return super().patch_(request)
+    
+#     @permission_required(['delete_order'])
+#     def delete(self, request):
+#         return super().delete_(request)
+
+
+
+import logging
+from django.db import transaction
+
+logger = logging.getLogger(__name__)
+
+
 class OrderView(BaseView):
     """Admin order management - full BaseView CRUD"""
     permission_classes = (IsAuthenticated,)
     serializer_class = OrderSerializer
     filterset_class = OrderFilter
     
+    def _calculate_delivery_date(self):
+        """Calculate delivery date based on current day"""
+        today = date.today()
+        if today.weekday() in [3, 4]:  # Thursday, Friday
+            return today + timedelta(days=4)
+        elif today.weekday() == 5:  # Saturday
+            return today + timedelta(days=3)
+        return today + timedelta(days=2)
+
+    def _get_product_price(self, product_type, product_id):
+        """Get price based on product type"""
+        if product_type == 'product':
+            product = Product.objects.get(id=product_id, deleted=False)
+            return product.price, product
+        elif product_type == 'sales_product':
+            sales_product = SalesProduct.objects.get(id=product_id, deleted=False)
+            return sales_product.final_price, sales_product
+        else:
+            raise ValueError(f"Invalid product type: {product_type}")
+    
     @permission_required(['create_order'])
     def post(self, request):
+        """
+        Create order - Admin version with mixed order support
+        Supports both simple orders and orders with mixed product types
+        """
+        # Check if this is a mixed order (has items with product_type)
+        if 'items' in request.data and any(item.get('product_type') for item in request.data.get('items', [])):
+            return self._create_mixed_order(request)
+        
+        # Simple order - use BaseView
         return super().post_(request)
+    
+    def _create_mixed_order(self, request):
+        """
+        Create order with mixed product types (products and sales_products)
+        Admin can optionally assign customer and rider
+        """
+        try:
+            # Extract order information
+            personal_info = {
+                'customer_name': request.data.get('customer_name'),
+                'customer_email': request.data.get('customer_email'),
+                'customer_phone': request.data.get('customer_phone'),
+                'delivery_address': request.data.get('delivery_address'),
+                'city': request.data.get('city'),
+                'payment_method': request.data.get('payment_method'),
+            }
+            
+            # Optional fields for admin
+            customer_id = request.data.get('customer')  # Optional: Link to customer account
+            rider_id = request.data.get('rider')  # Optional: Assign rider
+            delivery_date = request.data.get('delivery_date')  # Optional: Custom delivery date
+            order_status = request.data.get('status', 'pending')  # Optional: Custom status
+            payment_status = request.data.get('payment_status', False)  # Optional: Payment status
+            
+            items = request.data.get('items', [])
+            
+            # Validate required fields
+            if not all(personal_info.values()) or not items:
+                return Response(
+                    {
+                        "error": "Missing required fields",
+                        "message": "Please provide all customer information and at least one item"
+                    },
+                    status=status.HTTP_400_BAD_REQUEST
+                )
+            
+            # Prepare order data
+            order_data = {
+                **personal_info,
+                'delivery_date': delivery_date if delivery_date else self._calculate_delivery_date(),
+                'status': order_status,
+                'payment_status': payment_status
+            }
+            
+            # Add optional customer and rider if provided
+            if customer_id:
+                try:
+                    customer = User.objects.get(id=customer_id, deleted=False)
+                    order_data['customer'] = customer.id
+                except User.DoesNotExist:
+                    return Response(
+                        {
+                            "error": "Invalid customer",
+                            "message": f"Customer with id {customer_id} not found"
+                        },
+                        status=status.HTTP_400_BAD_REQUEST
+                    )
+            
+            if rider_id:
+                try:
+                    rider = User.objects.get(id=rider_id, deleted=False)
+                    order_data['rider'] = rider.id
+                except User.DoesNotExist:
+                    return Response(
+                        {
+                            "error": "Invalid rider",
+                            "message": f"Rider with id {rider_id} not found"
+                        },
+                        status=status.HTTP_400_BAD_REQUEST
+                    )
+            
+            # Validate order data
+            serialized_data = self.serializer_class(data=order_data)
+            if not serialized_data.is_valid():
+                return Response(
+                    {
+                        "error": "Validation failed",
+                        "details": serialized_data.errors
+                    },
+                    status=status.HTTP_400_BAD_REQUEST
+                )
+            
+            # Create order and order details in transaction
+            with transaction.atomic():
+                order = serialized_data.save()
+                bill = 0
+                order_items = []
+                
+                for item in items:
+                    product_type = item.get('product_type')
+                    product_id = item.get('product_id')
+                    quantity = item.get('quantity', 1)
+                    
+                    # Validate item data
+                    if not product_type or not product_id:
+                        raise ValueError("Each item must have product_type and product_id")
+                    
+                    if quantity < 1:
+                        raise ValueError(f"Invalid quantity {quantity} for item")
+                    
+                    try:
+                        unit_price, product = self._get_product_price(product_type, product_id)
+                        total_price = unit_price * quantity
+                        
+                        order_detail_data = {
+                            'order': order,
+                            'unit_price': unit_price,
+                            'quantity': quantity,
+                            'total_price': total_price
+                        }
+                        
+                        if product_type == 'product':
+                            order_detail_data['product'] = product
+                        else:
+                            order_detail_data['sales_product'] = product
+                        
+                        OrderDetail.objects.create(**order_detail_data)
+                        
+                        bill += total_price
+                        order_items.append({
+                            'product_type': product_type,
+                            'product_id': product.id,
+                            'product_name': product.name,
+                            'quantity': quantity,
+                            'unit_price': float(unit_price),
+                            'total_price': float(total_price),
+                            'is_discounted': getattr(product, 'has_discount', False)
+                        })
+                        
+                    except Product.DoesNotExist:
+                        raise ValueError(f"Product with id {product_id} not found")
+                    except SalesProduct.DoesNotExist:
+                        raise ValueError(f"Sales product with id {product_id} not found")
+                
+                # Update order with total bill
+                order.bill = bill
+                order.save()
+
+                # Prepare response
+                response_data = {
+                    'success': True,
+                    'message': 'Order created successfully',
+                    'order_id': order.id,
+                    'customer_info': {
+                        'id': order.customer.id if order.customer else None,
+                        'name': order.customer_name,
+                        'email': order.customer_email,
+                        'phone': order.customer_phone
+                    },
+                    'delivery_info': {
+                        'address': order.delivery_address,
+                        'city': order.city,
+                        'estimated_date': order.delivery_date.strftime('%Y-%m-%d')
+                    },
+                    'order_summary': {
+                        'items': order_items,
+                        'items_count': len(order_items),
+                        'subtotal': float(bill),
+                        'total': float(bill)
+                    },
+                    'payment_method': order.payment_method,
+                    'payment_status': order.payment_status,
+                    'status': order.status,
+                    'rider': {
+                        'id': order.rider.id if order.rider else None,
+                        'name': order.rider.get_full_name() if order.rider else None
+                    }
+                }
+
+                return Response(response_data, status=status.HTTP_201_CREATED)
+
+        except ValueError as e:
+            return Response(
+                {
+                    "error": "Validation error",
+                    "message": str(e)
+                },
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        except Exception as e:
+            logger.error(f"Order creation failed: {str(e)}", exc_info=True)
+            return Response(
+                {
+                    "error": "Internal server error",
+                    "message": "Failed to create order. Please try again later."
+                },
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )
     
     @permission_required(['read_order'])
     def get(self, request):
@@ -559,13 +807,240 @@ class OrderView(BaseView):
     
     @permission_required(['update_order'])
     def patch(self, request):
+        """
+        Update order - Admin version with mixed order support
+        Can update order info, items, customer, rider, status, etc.
+        """
+        order_id = request.query_params.get('id') or request.data.get('id')
+        
+        if not order_id:
+            return Response(
+                {
+                    "error": "Missing order ID",
+                    "message": "Please provide order ID to update"
+                },
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        
+        try:
+            order = Order.objects.get(id=order_id, deleted=False)
+        except Order.DoesNotExist:
+            return Response(
+                {
+                    "error": "Order not found",
+                    "message": f"Order with id {order_id} does not exist"
+                },
+                status=status.HTTP_404_NOT_FOUND
+            )
+        
+        # Check if this is an item update (has items array)
+        if 'items' in request.data:
+            return self._update_order_with_items(request, order)
+        
+        # Simple field update - use BaseView
         return super().patch_(request)
+    
+    def _update_order_with_items(self, request, order):
+        """
+        Update order including order items
+        Recalculates bill based on new items
+        """
+        try:
+            update_data = {}
+            
+            # Update customer information if provided
+            if 'customer_name' in request.data:
+                update_data['customer_name'] = request.data['customer_name']
+            if 'customer_email' in request.data:
+                update_data['customer_email'] = request.data['customer_email']
+            if 'customer_phone' in request.data:
+                update_data['customer_phone'] = request.data['customer_phone']
+            if 'delivery_address' in request.data:
+                update_data['delivery_address'] = request.data['delivery_address']
+            if 'city' in request.data:
+                update_data['city'] = request.data['city']
+            if 'payment_method' in request.data:
+                update_data['payment_method'] = request.data['payment_method']
+            if 'delivery_date' in request.data:
+                update_data['delivery_date'] = request.data['delivery_date']
+            if 'status' in request.data:
+                update_data['status'] = request.data['status']
+            if 'payment_status' in request.data:
+                update_data['payment_status'] = request.data['payment_status']
+            
+            # Handle customer assignment
+            if 'customer' in request.data:
+                customer_id = request.data['customer']
+                if customer_id:
+                    try:
+                        customer = User.objects.get(id=customer_id, deleted=False)
+                        update_data['customer'] = customer.id
+                    except User.DoesNotExist:
+                        return Response(
+                            {
+                                "error": "Invalid customer",
+                                "message": f"Customer with id {customer_id} not found"
+                            },
+                            status=status.HTTP_400_BAD_REQUEST
+                        )
+                else:
+                    update_data['customer'] = None
+            
+            # Handle rider assignment
+            if 'rider' in request.data:
+                rider_id = request.data['rider']
+                if rider_id:
+                    try:
+                        rider = User.objects.get(id=rider_id, deleted=False)
+                        update_data['rider'] = rider.id
+                    except User.DoesNotExist:
+                        return Response(
+                            {
+                                "error": "Invalid rider",
+                                "message": f"Rider with id {rider_id} not found"
+                            },
+                            status=status.HTTP_400_BAD_REQUEST
+                        )
+                else:
+                    update_data['rider'] = None
+            
+            # Validate update data
+            if update_data:
+                serialized_data = self.serializer_class(order, data=update_data, partial=True)
+                if not serialized_data.is_valid():
+                    return Response(
+                        {
+                            "error": "Validation failed",
+                            "details": serialized_data.errors
+                        },
+                        status=status.HTTP_400_BAD_REQUEST
+                    )
+            
+            items = request.data.get('items', [])
+            
+            # Update order and items in transaction
+            with transaction.atomic():
+                # Update order fields
+                if update_data:
+                    for key, value in update_data.items():
+                        setattr(order, key, value)
+                
+                # If items are provided, update order items
+                if items:
+                    # Delete existing order details
+                    OrderDetail.objects.filter(order=order).update(deleted=True)
+                    
+                    bill = 0
+                    order_items = []
+                    
+                    for item in items:
+                        product_type = item.get('product_type')
+                        product_id = item.get('product_id')
+                        quantity = item.get('quantity', 1)
+                        
+                        # Validate item data
+                        if not product_type or not product_id:
+                            raise ValueError("Each item must have product_type and product_id")
+                        
+                        if quantity < 1:
+                            raise ValueError(f"Invalid quantity {quantity} for item")
+                        
+                        try:
+                            unit_price, product = self._get_product_price(product_type, product_id)
+                            total_price = unit_price * quantity
+                            
+                            order_detail_data = {
+                                'order': order,
+                                'unit_price': unit_price,
+                                'quantity': quantity,
+                                'total_price': total_price
+                            }
+                            
+                            if product_type == 'product':
+                                order_detail_data['product'] = product
+                            else:
+                                order_detail_data['sales_product'] = product
+                            
+                            OrderDetail.objects.create(**order_detail_data)
+                            
+                            bill += total_price
+                            order_items.append({
+                                'product_type': product_type,
+                                'product_id': product.id,
+                                'product_name': product.name,
+                                'quantity': quantity,
+                                'unit_price': float(unit_price),
+                                'total_price': float(total_price),
+                                'is_discounted': getattr(product, 'has_discount', False)
+                            })
+                            
+                        except Product.DoesNotExist:
+                            raise ValueError(f"Product with id {product_id} not found")
+                        except SalesProduct.DoesNotExist:
+                            raise ValueError(f"Sales product with id {product_id} not found")
+                    
+                    # Update order bill
+                    order.bill = bill
+                
+                order.save()
+                
+                # Prepare response
+                response_data = {
+                    'success': True,
+                    'message': 'Order updated successfully',
+                    'order_id': order.id,
+                    'customer_info': {
+                        'id': order.customer.id if order.customer else None,
+                        'name': order.customer_name,
+                        'email': order.customer_email,
+                        'phone': order.customer_phone
+                    },
+                    'delivery_info': {
+                        'address': order.delivery_address,
+                        'city': order.city,
+                        'estimated_date': order.delivery_date.strftime('%Y-%m-%d')
+                    },
+                    'payment_method': order.payment_method,
+                    'payment_status': order.payment_status,
+                    'status': order.status,
+                    'rider': {
+                        'id': order.rider.id if order.rider else None,
+                        'name': order.rider.get_full_name() if order.rider else None
+                    },
+                    'bill': float(order.bill) if order.bill else 0
+                }
+                
+                if items:
+                    response_data['order_summary'] = {
+                        'items': order_items,
+                        'items_count': len(order_items),
+                        'total': float(order.bill) if order.bill else 0
+                    }
+                
+                return Response(response_data, status=status.HTTP_200_OK)
+        
+        except ValueError as e:
+            return Response(
+                {
+                    "error": "Validation error",
+                    "message": str(e)
+                },
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        except Exception as e:
+            logger.error(f"Order update failed: {str(e)}", exc_info=True)
+            return Response(
+                {
+                    "error": "Internal server error",
+                    "message": "Failed to update order. Please try again later."
+                },
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )
     
     @permission_required(['delete_order'])
     def delete(self, request):
         return super().delete_(request)
-
-
+    
 class OrderSearchView(BaseView):
     """Order search - BaseView handles ?id=N and filters"""
     permission_classes = (IsAuthenticated,)
@@ -805,6 +1280,7 @@ class ReviewView(BaseView):
     serializer_class = ReviewSerializer
     filterset_class = ReviewFilter
 
+    @permission_required(['create_reviews'])
     def post(self, request):
         """CUSTOM: Product validation"""
         try:
@@ -847,21 +1323,27 @@ class ReviewView(BaseView):
                 'status': 'ERROR',
                 'message': 'Failed to create review'
             }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-
+        
+    @permission_required(['read_reviews'])
     def get(self, request):
         """Use BaseView but with custom response format"""
         return super().get_(request)
-
+    
+    @permission_required(['update_reviews'])
     def patch(self, request):
         """CUSTOM: Ownership check"""
         try:
-            if "id" not in request.data:
+            # Get ID from query parameters
+            review_id = request.query_params.get('id')
+            
+            if not review_id:
                 return Response({
                     'status': 'ERROR',
-                    'message': 'Review ID not provided'
+                    'message': 'Review ID not provided in query parameters'
                 }, status=status.HTTP_400_BAD_REQUEST)
 
-            instance = Review.objects.filter(id=request.data["id"], deleted=False).first()
+            instance = Review.objects.filter(id=review_id, deleted=False).first()
+            # ... rest of your code remains the same ...
             if not instance:
                 return Response({
                     'status': 'ERROR',
@@ -905,7 +1387,8 @@ class ReviewView(BaseView):
                 'status': 'ERROR',
                 'message': 'Failed to update review'
             }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-
+        
+    @permission_required(['delete_reviews'])
     def delete(self, request):
         """CUSTOM: Ownership check"""
         try:
@@ -1139,3 +1622,56 @@ class PubliccategorywiseView(BaseView):
             print("Error in get_publiccategory:", str(e))
             traceback.print_exc()
             return Response({'error': str(e)}, status=500)
+
+
+    
+class DropDownListProductViews(BaseView):
+    """Contact management - read & delete only"""
+    permission_classes = (IsAuthenticated,)
+    serializer_class = DropDownListProductSerializer
+    filterset_class = DropDownListProductFilter
+    
+    def get(self, request):
+        try:
+
+            instances = self.serializer_class.Meta.model.objects.all()
+
+            filtered_data = self.filterset_class(request.GET, queryset=instances)
+            data = filtered_data.qs
+
+            paginated_data, count = paginate_data(data, request)
+
+            serialized_data = self.serializer_class(paginated_data, many=True).data
+            response_data = {
+                "count": count,
+                "data": serialized_data,
+            }
+            return create_response(response_data, "SUCCESSFUL", 200)
+        except Exception as e:
+            return Response({'error': str(e)}, 500)
+
+    
+class DropDownListSalesProductView(BaseView):
+    """Contact management - read & delete only"""
+    permission_classes = (IsAuthenticated,)
+    serializer_class = DropDownListSalesProductSerializer
+    filterset_class = DropDownListSalesProductFilter
+    
+    def get(self, request):
+        try:
+
+            instances = self.serializer_class.Meta.model.objects.all()
+
+            filtered_data = self.filterset_class(request.GET, queryset=instances)
+            data = filtered_data.qs
+
+            paginated_data, count = paginate_data(data, request)
+
+            serialized_data = self.serializer_class(paginated_data, many=True).data
+            response_data = {
+                "count": count,
+                "data": serialized_data,
+            }
+            return create_response(response_data, "SUCCESSFUL", 200)
+        except Exception as e:
+            return Response({'error': str(e)}, 500)

@@ -65,6 +65,8 @@ Maps views to endpoints with clean RESTful patterns
 from django.urls import path
 from .views import (
     # Product views
+    DropDownListProductViews,
+    DropDownListSalesProductView,
     ProductView,
     PublicProductView,
     ProductDropdownView,
@@ -264,6 +266,11 @@ urlpatterns = [
     # Query params: ?product_id=N or ?sales_product_id=N
 
     path('v1/public/category/wise/',PubliccategorywiseView.as_view(), name='category-wise'),
+
+    path('v1/dropdown/product/', DropDownListProductViews.as_view()),
+
+    path('v1/dropdown/sales/product/', DropDownListSalesProductView.as_view()),
+
 
 ]
 
