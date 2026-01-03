@@ -438,7 +438,9 @@ const UpdateReview = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [isFetching, setIsFetching] = useState(true);
   const [hoverRating, setHoverRating] = useState(0);
+  const [initialLoadDone, setInitialLoadDone] = useState(false);
 
+  // Fetch review data
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -452,46 +454,104 @@ const UpdateReview = () => {
           return;
         }
 
-        // Backend GET expects ID in query params
+        console.log('Fetching review with ID:', reviewId);
+        
+        // Try different API endpoints if needed
         const res = await AxiosInstance.get(`/api/myapp/v1/review/?id=${reviewId}`);
         const responseData = res?.data;
+        
+        console.log('API Response:', responseData);
 
-        if (responseData?.message === 'Successful' && responseData.data && responseData.data.length > 0) {
-          const reviewData = responseData.data[0];
+        if (responseData?.message === 'Successful' && responseData.data) {
+          // Handle both array and object response
+          let reviewData;
+          if (Array.isArray(responseData.data) && responseData.data.length > 0) {
+            reviewData = responseData.data[0];
+          } else if (typeof responseData.data === 'object') {
+            reviewData = responseData.data;
+          } else {
+            throw new Error('Invalid data format');
+          }
 
-          setFormData({
+          console.log('Review data extracted:', reviewData);
+
+          // Update form data with extracted values
+          const newFormData = {
             name: reviewData.name || reviewData.author_name || '',
             email: reviewData.email || reviewData.author_email || '',
-            comment: reviewData.comment || '',
-            rating: reviewData.rating || 0,
-            productType: reviewData.item_type || '',
-            productName: reviewData.item_name || reviewData.item_data?.name || '',
-            discountPercent: reviewData.item_data?.discount_percent || 0
+            comment: reviewData.comment || reviewData.review_text || '',
+            rating: reviewData.rating || reviewData.star_rating || 0,
+            productType: reviewData.item_type || reviewData.product_type || '',
+            productName: reviewData.item_name || reviewData.product_name || reviewData.item_data?.name || '',
+            discountPercent: reviewData.item_data?.discount_percent || reviewData.discount_percent || 0
+          };
+
+          console.log('Setting form data:', newFormData);
+          setFormData(newFormData);
+          
+          toast.success('Review data loaded successfully!', {
+            position: "top-center",
+            autoClose: 1000,
+            theme: "dark",
           });
         } else {
-          toast.error('Review not found', {
+          console.error('Review not found in response:', responseData);
+          toast.error('Review not found in the system', {
             position: "top-center",
             autoClose: 2000,
             theme: "dark",
           });
         }
-      } catch (error) {
+      } catch (error: any) {
         console.error('Error fetching data:', error);
-        toast.error('Failed to load review data', {
-          position: "top-center",
-          autoClose: 2000,
-          theme: "dark",
-        });
+        console.error('Error response:', error?.response?.data);
+        
+        // Try alternative endpoint
+        try {
+          console.log('Trying alternative endpoint...');
+          const altRes = await AxiosInstance.get(`/api/myapp/v1/review/${reviewId}/`);
+          const altData = altRes?.data;
+          console.log('Alternative response:', altData);
+          
+          if (altData?.data) {
+            const reviewData = altData.data;
+            setFormData({
+              name: reviewData.name || '',
+              email: reviewData.email || '',
+              comment: reviewData.comment || '',
+              rating: reviewData.rating || 0,
+              productType: reviewData.item_type || '',
+              productName: reviewData.item_name || '',
+              discountPercent: reviewData.discount_percent || 0
+            });
+          }
+        } catch (altError) {
+          console.error('Alternative endpoint also failed:', altError);
+          toast.error('Failed to load review data. Please check the review ID.', {
+            position: "top-center",
+            autoClose: 2000,
+            theme: "dark",
+          });
+        }
       } finally {
         setIsFetching(false);
+        setInitialLoadDone(true);
       }
     };
 
     fetchData();
   }, [reviewId]);
 
+  // Log form data changes
+  useEffect(() => {
+    if (initialLoadDone && Object.values(formData).some(value => value)) {
+      console.log('Current form data:', formData);
+    }
+  }, [formData, initialLoadDone]);
+
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
+    console.log(`Changing ${name} to:`, value);
     setFormData(prev => ({
       ...prev,
       [name]: value
@@ -499,6 +559,7 @@ const UpdateReview = () => {
   };
 
   const handleRatingChange = (rating: number) => {
+    console.log('Setting rating to:', rating);
     setFormData(prev => ({
       ...prev,
       rating
@@ -508,6 +569,8 @@ const UpdateReview = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
+
+    console.log('Submitting form data:', formData);
 
     if (formData.rating === 0) {
       toast.error('Please select a rating', {
@@ -520,25 +583,28 @@ const UpdateReview = () => {
     }
 
     try {
-      // Backend PATCH expects ID in query params + data in body
       const payload = {
+        id: parseInt(reviewId || '0'),
         name: formData.name.trim(),
         email: formData.email.trim(),
         comment: formData.comment.trim(),
         rating: formData.rating
       };
 
+      console.log('Update payload:', payload);
+      
+      // Try both endpoint formats
       const response = await AxiosInstance.patch(`/api/myapp/v1/review/?id=${reviewId}`, payload);
+      console.log('Update response:', response.data);
 
-      // Backend returns status: 'SUCCESS' or 'ERROR'
-      if (response?.data?.status === 'SUCCESS') {
-        toast.success(response.data.message || 'Review updated successfully!', {
+      if (response?.data?.status === 'SUCCESS' || response?.data?.message === 'Successful') {
+        toast.success('Review updated successfully!', {
           position: "top-center",
           autoClose: 2000,
           theme: "dark",
         });
         setTimeout(() => {
-          router.push('/adminreview');
+          router.push('/adminreviews');
         }, 2000);
       } else {
         toast.error(response?.data?.message || 'Failed to update review', {
@@ -548,9 +614,13 @@ const UpdateReview = () => {
         });
       }
     } catch (error: any) {
-      console.error('Error:', error);
-      // Backend returns specific error message for ownership check
-      const errorMessage = error?.response?.data?.message || 'Failed to update review. Please try again.';
+      console.error('Update error:', error);
+      console.error('Error response:', error?.response?.data);
+      
+      const errorMessage = error?.response?.data?.message || 
+                          error?.response?.data?.error || 
+                          'Failed to update review. Please try again.';
+      
       toast.error(errorMessage, {
         position: "top-center",
         autoClose: 2000,
@@ -571,7 +641,7 @@ const UpdateReview = () => {
               <div className="h-12 w-12 bg-gradient-to-br from-amber-400 to-amber-600 rounded-full opacity-20 animate-pulse"></div>
             </div>
           </div>
-          <p className="mt-6 text-gray-300 font-light">Loading review data...</p>
+          <p className="mt-6 text-gray-300 font-light">Loading review data... ID: {reviewId}</p>
         </div>
       </div>
     );
@@ -594,13 +664,16 @@ const UpdateReview = () => {
 
       <div className="max-w-4xl mx-auto">
         <div className="bg-gray-800/50 rounded-2xl shadow-xl overflow-hidden border border-gray-700">
+          {/* Header */}
           <div className="bg-gradient-to-r from-amber-600 to-amber-700 px-6 py-6">
             <h2 className="text-3xl font-light text-white">Edit Review</h2>
             <p className="mt-2 text-amber-100">Update your product feedback</p>
+            <p className="text-xs text-amber-200 mt-1">Review ID: {reviewId}</p>
           </div>
 
           <form className="p-8 space-y-6" onSubmit={handleSubmit}>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              {/* Reviewer Name */}
               <div>
                 <label htmlFor="name" className="block text-sm font-medium text-gray-300 mb-2">
                   Your Name <span className="text-amber-400">*</span>
@@ -611,12 +684,16 @@ const UpdateReview = () => {
                   name="name"
                   className="w-full px-4 py-3 rounded-lg border border-gray-600 bg-gray-700 text-white placeholder-gray-400 focus:ring-2 focus:ring-amber-500 focus:border-amber-500 transition"
                   placeholder="Enter your name"
-                  value={formData.name}
+                  value={formData.name || ''}
                   onChange={handleChange}
                   required
                 />
+                {formData.name && (
+                  <p className="text-xs text-green-400 mt-1">Loaded: {formData.name}</p>
+                )}
               </div>
 
+              {/* Email */}
               <div>
                 <label htmlFor="email" className="block text-sm font-medium text-gray-300 mb-2">
                   Email Address <span className="text-amber-400">*</span>
@@ -627,24 +704,32 @@ const UpdateReview = () => {
                   name="email"
                   className="w-full px-4 py-3 rounded-lg border border-gray-600 bg-gray-700 text-white placeholder-gray-400 focus:ring-2 focus:ring-amber-500 focus:border-amber-500 transition"
                   placeholder="your.email@example.com"
-                  value={formData.email}
+                  value={formData.email || ''}
                   onChange={handleChange}
                   required
                 />
+                {formData.email && (
+                  <p className="text-xs text-green-400 mt-1">Loaded: {formData.email}</p>
+                )}
               </div>
 
-              {/* Product Info (readonly) - Backend doesn't allow changing product */}
+              {/* Product Info (readonly) */}
               <div className="md:col-span-2">
                 <div className="bg-gray-700/50 border border-gray-600 rounded-xl p-6 space-y-4">
                   <div className="flex items-center justify-between">
                     <h3 className="text-lg font-medium text-white">Product Information</h3>
-                    <span className={`px-3 py-1 rounded-full text-xs font-medium ${
-                      formData.productType === 'product' 
-                        ? 'bg-blue-500/20 text-blue-400' 
-                        : 'bg-purple-500/20 text-purple-400'
-                    }`}>
-                      {formData.productType === 'product' ? 'Product' : 'Sale'}
-                    </span>
+                    <div className="flex items-center gap-2">
+                      <span className={`px-3 py-1 rounded-full text-xs font-medium ${
+                        formData.productType === 'product' 
+                          ? 'bg-blue-500/20 text-blue-400' 
+                          : 'bg-purple-500/20 text-purple-400'
+                      }`}>
+                        {formData.productType || 'Not specified'}
+                      </span>
+                      {!formData.productType && (
+                        <span className="text-xs text-amber-400">(Type not loaded)</span>
+                      )}
+                    </div>
                   </div>
 
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -659,7 +744,9 @@ const UpdateReview = () => {
                           </svg>
                         </div>
                         <div>
-                          <p className="text-white font-medium">{formData.productName}</p>
+                          <p className="text-white font-medium">
+                            {formData.productName || 'Product name not available'}
+                          </p>
                           <p className="text-gray-400 text-xs">Cannot be changed</p>
                         </div>
                       </div>
@@ -698,6 +785,7 @@ const UpdateReview = () => {
                 </div>
               </div>
 
+              {/* Rating */}
               <div className="md:col-span-2">
                 <label className="block text-sm font-medium text-gray-300 mb-3">
                   Rating <span className="text-amber-400">*</span>
@@ -724,9 +812,15 @@ const UpdateReview = () => {
                       ? `${formData.rating} star${formData.rating !== 1 ? 's' : ''}` 
                       : 'Click to rate'}
                   </span>
+                  {formData.rating > 0 && (
+                    <span className="text-xs text-green-400 ml-2">
+                      (Loaded: {formData.rating})
+                    </span>
+                  )}
                 </div>
               </div>
 
+              {/* Comment */}
               <div className="md:col-span-2">
                 <label htmlFor="comment" className="block text-sm font-medium text-gray-300 mb-2">
                   Review Comment <span className="text-amber-400">*</span>
@@ -737,16 +831,27 @@ const UpdateReview = () => {
                   rows={5}
                   className="w-full px-4 py-3 rounded-lg border border-gray-600 bg-gray-700 text-white placeholder-gray-400 focus:ring-2 focus:ring-amber-500 focus:border-amber-500 transition resize-none"
                   placeholder="Share your experience with this product..."
-                  value={formData.comment}
+                  value={formData.comment || ''}
                   onChange={handleChange}
                   required
                 />
                 <p className="mt-1 text-sm text-gray-400">
-                  {formData.comment.length} characters
+                  {formData.comment.length} characters loaded
                 </p>
               </div>
             </div>
 
+            {/* Debug info (remove in production) */}
+            <div className="bg-gray-900/50 p-4 rounded-lg border border-gray-700">
+              <details className="text-sm">
+                <summary className="cursor-pointer text-gray-400">Debug Information</summary>
+                <pre className="mt-2 text-xs text-gray-300 overflow-auto p-2 bg-gray-800 rounded">
+                  {JSON.stringify(formData, null, 2)}
+                </pre>
+              </details>
+            </div>
+
+            {/* Buttons */}
             <div className="flex justify-end gap-4 pt-6 border-t border-gray-700">
               <button
                 type="button"
@@ -783,6 +888,7 @@ const UpdateReview = () => {
           </form>
         </div>
 
+        {/* Help Text */}
         <div className="mt-6 text-center text-gray-400 text-sm">
           <p>All fields marked with <span className="text-amber-400">*</span> are required</p>
         </div>
