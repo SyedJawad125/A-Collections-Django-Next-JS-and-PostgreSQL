@@ -958,6 +958,10 @@
 // export default UpdateOrder;
 
 
+
+
+
+
 'use client'
 import React, { useState, useEffect, useContext } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
@@ -1044,7 +1048,7 @@ const UpdateOrder = () => {
           autoClose: 2000,
           theme: "dark",
         });
-        router.push('/orderspage');
+        router.push('/adminorder');
         return;
       }
 
@@ -1052,11 +1056,20 @@ const UpdateOrder = () => {
       try {
         console.log('🔍 Fetching data for order ID:', id);
         
-        // Fetch products first and store them
-        console.log('📦 Fetching products...');
-        const productsRes = await AxiosInstance.get('/api/myapp/v1/dropdown/product/');
-        console.log('✅ Products Response:', productsRes.data);
+        // Fetch all data in parallel and store products first
+        const [productsRes, salesProductsRes, customersRes, ridersRes, orderRes] = await Promise.all([
+          AxiosInstance.get('/api/myapp/v1/dropdown/product/'),
+          AxiosInstance.get('/api/myapp/v1/dropdown/sales/product/'),
+          AxiosInstance.get('/api/myapp/v1/user/?role=customer'),
+          AxiosInstance.get('/api/myapp/v1/user/?role=rider'),
+          AxiosInstance.get(`/api/myapp/v1/order/${id}/`)
+        ]);
+
+        console.log('📦 Products Response:', productsRes.data);
+        console.log('🏷️ Sales Products Response:', salesProductsRes.data);
+        console.log('📋 Order Response:', orderRes.data);
         
+        // Process products
         let loadedProducts: Product[] = [];
         if (productsRes.data?.data && Array.isArray(productsRes.data.data)) {
           loadedProducts = productsRes.data.data.map((product: any) => ({
@@ -1066,17 +1079,13 @@ const UpdateOrder = () => {
             has_discount: product.has_discount || false
           }));
           setProducts(loadedProducts);
-          console.log('✅ Products loaded:', loadedProducts.length, loadedProducts);
+          console.log('✅ Products loaded:', loadedProducts.length);
         } else {
           console.warn('⚠️ No products data found');
           setProducts([]);
         }
         
-        // Fetch sales products
-        console.log('🏷️ Fetching sales products...');
-        const salesProductsRes = await AxiosInstance.get('/api/myapp/v1/dropdown/sales/product/');
-        console.log('✅ Sales Products Response:', salesProductsRes.data);
-        
+        // Process sales products
         let loadedSalesProducts: SalesProduct[] = [];
         if (salesProductsRes.data?.data && Array.isArray(salesProductsRes.data.data)) {
           loadedSalesProducts = salesProductsRes.data.data.map((product: any) => ({
@@ -1086,65 +1095,38 @@ const UpdateOrder = () => {
             has_discount: product.has_discount || false
           }));
           setSalesProducts(loadedSalesProducts);
-          console.log('✅ Sales Products loaded:', loadedSalesProducts.length, loadedSalesProducts);
+          console.log('✅ Sales Products loaded:', loadedSalesProducts.length);
         } else {
           console.warn('⚠️ No sales products data found');
           setSalesProducts([]);
         }
         
-        // Fetch customers
-        console.log('👥 Fetching customers...');
-        const customersRes = await AxiosInstance.get('/api/myapp/v1/user/?role=customer');
+        // Process customers
         if (customersRes.data?.data && Array.isArray(customersRes.data.data)) {
           setCustomers(customersRes.data.data);
           console.log('✅ Customers loaded:', customersRes.data.data.length);
         }
         
-        // Fetch riders
-        console.log('🚴 Fetching riders...');
-        const ridersRes = await AxiosInstance.get('/api/myapp/v1/user/?role=rider');
+        // Process riders
         if (ridersRes.data?.data && Array.isArray(ridersRes.data.data)) {
           setRiders(ridersRes.data.data);
           console.log('✅ Riders loaded:', ridersRes.data.data.length);
         }
         
-        // Fetch order details - try different endpoints
-        console.log('📋 Fetching order details...');
+        // Process order data - using technique from old working code
         let orderData = null;
-        let orderRes;
         
-        try {
-          // Try primary endpoint
-          orderRes = await AxiosInstance.get(`/api/myapp/v1/order/${id}/`);
-          console.log('✅ Order Response (primary):', orderRes.data);
-          
-          if (orderRes.data?.data) {
-            orderData = orderRes.data.data;
-          } else if (orderRes.data?.message === 'Successful' && orderRes.data.count > 0) {
-            // Handle array response
-            orderData = Array.isArray(orderRes.data.data) ? orderRes.data.data[0] : orderRes.data.data;
-          }
-        } catch (primaryError) {
-          console.warn('⚠️ Primary endpoint failed, trying alternative...');
-          
-          // Try alternative endpoint with query parameter
-          try {
-            orderRes = await AxiosInstance.get(`/api/myapp/v1/order/?id=${id}`);
-            console.log('✅ Order Response (alternative):', orderRes.data);
-            
-            if (orderRes.data?.data) {
-              orderData = Array.isArray(orderRes.data.data) ? orderRes.data.data[0] : orderRes.data.data;
-            }
-          } catch (altError) {
-            console.error('❌ Both endpoints failed');
-            throw primaryError;
-          }
+        // Extract order data from response
+        if (orderRes.data?.data) {
+          orderData = orderRes.data.data;
+        } else if (orderRes.data) {
+          orderData = orderRes.data;
         }
         
         if (orderData) {
           console.log('📝 Processing order data:', orderData);
           
-          // Extract and set form data with detailed logging
+          // Set form data - map all fields correctly
           const newFormData = {
             customer_name: orderData.customer_name || '',
             customer_email: orderData.customer_email || '',
@@ -1162,46 +1144,85 @@ const UpdateOrder = () => {
           console.log('📝 Setting form data:', newFormData);
           setFormData(newFormData);
           
-          // Process order items
+          // Process order items - using old code technique
           if (orderData.items && Array.isArray(orderData.items)) {
             console.log('📦 Processing', orderData.items.length, 'order items');
             
-            const items = orderData.items.map((item: any, idx: number) => {
-              console.log(`  Item ${idx + 1}:`, item);
+            // Map order items similar to old code
+            const items = orderData.items.map((item: any) => {
+              // Determine product type based on which field is present
+              const isSalesProduct = item.sales_product !== null && item.sales_product !== undefined;
+              const productType = isSalesProduct ? 'sales_product' : 'product';
+              const productId = isSalesProduct ? item.sales_product : item.product;
               
-              // Determine product type and ID with multiple fallbacks
-              const productType = item.product_type || 
-                                (item.sales_product ? 'sales_product' : 'product');
-              const productId = item.product_id || 
-                              item.product || 
-                              item.sales_product || 
-                              null;
-              
-              console.log(`    - Type: ${productType}, ID: ${productId}`);
-              
-              // Calculate prices based on product type using the loaded products
+              // Calculate prices based on product type
               let unitPrice = Number(item.unit_price) || 0;
               let totalPrice = Number(item.total_price) || 0;
               const quantity = Number(item.quantity) || 1;
               
-              if (productId) {
+              // If prices not in response, calculate from loaded products
+              if (unitPrice === 0 && productId) {
                 if (productType === 'product') {
                   const product = loadedProducts.find((p: Product) => p.id === productId);
                   if (product) {
                     unitPrice = product.price;
                     totalPrice = product.price * quantity;
-                    console.log(`    - Found product: ${product.name}, price: ${product.price}`);
-                  } else {
-                    console.warn(`    - Product ID ${productId} not found in loaded products`);
                   }
                 } else {
                   const salesProduct = loadedSalesProducts.find((p: SalesProduct) => p.id === productId);
                   if (salesProduct) {
                     unitPrice = salesProduct.final_price;
                     totalPrice = salesProduct.final_price * quantity;
-                    console.log(`    - Found sales product: ${salesProduct.name}, price: ${salesProduct.final_price}`);
-                  } else {
-                    console.warn(`    - Sales product ID ${productId} not found in loaded products`);
+                  }
+                }
+              }
+              
+              console.log(`  ✓ Item: ${productType} #${productId}, qty: ${quantity}, price: ${totalPrice}`);
+              
+              return {
+                id: item.id,
+                product_type: productType,
+                product_id: productId,
+                quantity: quantity,
+                unit_price: unitPrice,
+                total_price: totalPrice,
+                is_discounted: isSalesProduct
+              };
+            });
+            
+            console.log('✅ Processed order items:', items);
+            setOrderItems(items);
+            
+            toast.success('Order data loaded successfully!', {
+              position: "top-center",
+              autoClose: 1500,
+              theme: "dark",
+            });
+          } else if (orderData.order_details && Array.isArray(orderData.order_details)) {
+            // Alternative field name from old API
+            console.log('📦 Processing order_details:', orderData.order_details.length);
+            
+            const items = orderData.order_details.map((item: any) => {
+              const isSalesProduct = item.sales_product !== null && item.sales_product !== undefined;
+              const productType = isSalesProduct ? 'sales_product' : 'product';
+              const productId = isSalesProduct ? item.sales_product : item.product;
+              
+              let unitPrice = Number(item.unit_price) || 0;
+              let totalPrice = Number(item.total_price) || 0;
+              const quantity = Number(item.quantity) || 1;
+              
+              if (unitPrice === 0 && productId) {
+                if (productType === 'product') {
+                  const product = loadedProducts.find((p: Product) => p.id === productId);
+                  if (product) {
+                    unitPrice = product.price;
+                    totalPrice = product.price * quantity;
+                  }
+                } else {
+                  const salesProduct = loadedSalesProducts.find((p: SalesProduct) => p.id === productId);
+                  if (salesProduct) {
+                    unitPrice = salesProduct.final_price;
+                    totalPrice = salesProduct.final_price * quantity;
                   }
                 }
               }
@@ -1213,7 +1234,7 @@ const UpdateOrder = () => {
                 quantity: quantity,
                 unit_price: unitPrice,
                 total_price: totalPrice,
-                is_discounted: item.is_discounted || item.has_discount || false
+                is_discounted: isSalesProduct
               };
             });
             
@@ -1222,11 +1243,11 @@ const UpdateOrder = () => {
             
             toast.success('Order data loaded successfully!', {
               position: "top-center",
-              autoClose: 1000,
+              autoClose: 1500,
               theme: "dark",
             });
           } else {
-            console.warn('⚠️ No items found in order data');
+            console.warn('⚠️ No items or order_details found in order data');
             setOrderItems([]);
           }
         } else {
@@ -1422,7 +1443,7 @@ const UpdateOrder = () => {
           theme: "dark",
         });
         setTimeout(() => {
-          router.push('/orderspage');
+          router.push('/adminorder');
         }, 2000);
       }
     } catch (error: any) {
@@ -1454,7 +1475,7 @@ const UpdateOrder = () => {
             You don't have permission to update orders.
           </p>
           <button 
-            onClick={() => router.push('/orderspage')}
+            onClick={() => router.push('/adminorder')}
             className="group relative px-8 py-3 bg-gradient-to-r from-amber-500 to-amber-600 rounded-xl font-semibold text-white shadow-lg shadow-amber-500/50 hover:shadow-amber-500/70 transition-all duration-300 hover:scale-105"
           >
             <span className="relative z-10">Return to Orders</span>
@@ -1594,7 +1615,12 @@ const UpdateOrder = () => {
                       required
                     />
                     {formData.customer_name && (
-                      <p className="text-xs text-green-400 mt-1">✓ Loaded: {formData.customer_name}</p>
+                      <p className="text-xs text-green-400 mt-1 flex items-center gap-1">
+                        <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
+                          <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                        </svg>
+                        Loaded: {formData.customer_name}
+                      </p>
                     )}
                   </div>
 
@@ -1611,9 +1637,6 @@ const UpdateOrder = () => {
                       onChange={handleChange}
                       placeholder="customer@example.com"
                     />
-                    {formData.customer_email && (
-                      <p className="text-xs text-green-400 mt-1">✓ Loaded: {formData.customer_email}</p>
-                    )}
                   </div>
 
                   {/* Customer Phone */}
@@ -1630,9 +1653,6 @@ const UpdateOrder = () => {
                       placeholder="+92-300-1234567"
                       required
                     />
-                    {formData.customer_phone && (
-                      <p className="text-xs text-green-400 mt-1">✓ Loaded: {formData.customer_phone}</p>
-                    )}
                   </div>
 
                   {/* Delivery Address */}
@@ -1649,11 +1669,6 @@ const UpdateOrder = () => {
                       placeholder="Enter complete delivery address"
                       required
                     />
-                    {formData.delivery_address && (
-                      <p className="text-xs text-green-400 mt-1">
-                        ✓ Loaded ({formData.delivery_address.length} characters)
-                      </p>
-                    )}
                   </div>
 
                   {/* City */}
@@ -1844,7 +1859,9 @@ const UpdateOrder = () => {
                             <div className="flex items-center gap-3">
                               <span className="text-sm font-semibold text-amber-400">Item #{index + 1}</span>
                               {item.id && (
-                                <span className="text-xs text-gray-500">(ID: {item.id})</span>
+                                <span className="text-xs bg-blue-500/20 text-blue-400 px-2 py-0.5 rounded">
+                                  ID: {item.id}
+                                </span>
                               )}
                             </div>
                             {orderItems.length > 1 && (
@@ -1934,8 +1951,8 @@ const UpdateOrder = () => {
                           {/* Price Display */}
                           {item.total_price !== undefined && item.total_price > 0 && (
                             <div className="md:col-span-12 mt-2">
-                              <div className="flex justify-between text-sm text-gray-400">
-                                <span>Unit Price: PKR {item.unit_price?.toFixed(2)}</span>
+                              <div className="flex justify-between text-sm p-3 bg-gray-900/50 rounded-lg">
+                                <span className="text-gray-400">Unit Price: <span className="text-white">PKR {item.unit_price?.toFixed(2)}</span></span>
                                 <span className="font-semibold text-amber-400">
                                   Total: PKR {item.total_price.toFixed(2)}
                                 </span>
@@ -1971,7 +1988,10 @@ const UpdateOrder = () => {
                     </div>
                     {itemsToDelete.length > 0 && (
                       <div className="mt-4 pt-4 border-t border-white/10">
-                        <p className="text-sm text-red-400">
+                        <p className="text-sm text-red-400 flex items-center gap-2">
+                          <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                            <path fillRule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clipRule="evenodd" />
+                          </svg>
                           {itemsToDelete.length} item(s) will be removed from the order
                         </p>
                       </div>
@@ -1980,63 +2000,11 @@ const UpdateOrder = () => {
                 </div>
               </div>
 
-              {/* Debug Information Section - Remove in production */}
-              <div className="border-t border-white/10 pt-6">
-                <div className="bg-gray-900/50 p-4 rounded-xl border border-gray-700">
-                  <details className="text-sm">
-                    <summary className="cursor-pointer text-gray-400 hover:text-gray-300 transition flex items-center gap-2">
-                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                      </svg>
-                      Debug Information (Click to expand)
-                    </summary>
-                    <div className="mt-4 space-y-3">
-                      <div>
-                        <h4 className="text-xs font-semibold text-gray-400 mb-2">Form Data:</h4>
-                        <pre className="text-xs text-gray-300 overflow-auto p-3 bg-gray-800 rounded">
-{JSON.stringify(formData, null, 2)}
-                        </pre>
-                      </div>
-                      <div>
-                        <h4 className="text-xs font-semibold text-gray-400 mb-2">Order Items ({orderItems.length}):</h4>
-                        <pre className="text-xs text-gray-300 overflow-auto p-3 bg-gray-800 rounded max-h-60">
-{JSON.stringify(orderItems, null, 2)}
-                        </pre>
-                      </div>
-                      <div>
-                        <h4 className="text-xs font-semibold text-gray-400 mb-2">Items to Delete ({itemsToDelete.length}):</h4>
-                        <pre className="text-xs text-gray-300 overflow-auto p-3 bg-gray-800 rounded">
-{JSON.stringify(itemsToDelete, null, 2)}
-                        </pre>
-                      </div>
-                      <div className="grid grid-cols-2 gap-3 text-xs">
-                        <div className="bg-gray-800 p-3 rounded">
-                          <p className="text-gray-400">Products Loaded:</p>
-                          <p className="text-green-400 font-semibold">{products.length}</p>
-                        </div>
-                        <div className="bg-gray-800 p-3 rounded">
-                          <p className="text-gray-400">Sales Products Loaded:</p>
-                          <p className="text-green-400 font-semibold">{salesProducts.length}</p>
-                        </div>
-                        <div className="bg-gray-800 p-3 rounded">
-                          <p className="text-gray-400">Customers Loaded:</p>
-                          <p className="text-green-400 font-semibold">{customers.length}</p>
-                        </div>
-                        <div className="bg-gray-800 p-3 rounded">
-                          <p className="text-gray-400">Riders Loaded:</p>
-                          <p className="text-green-400 font-semibold">{riders.length}</p>
-                        </div>
-                      </div>
-                    </div>
-                  </details>
-                </div>
-              </div>
-
               {/* Submit Buttons */}
               <div className="flex flex-col sm:flex-row justify-end gap-4 pt-6">
                 <button
                   type="button"
-                  onClick={() => router.push('/orderspage')}
+                  onClick={() => router.push('/adminorder')}
                   className="group relative px-8 py-3.5 bg-white/5 border border-white/10 text-gray-300 rounded-xl hover:bg-white/10 transition-all duration-300 flex items-center justify-center"
                 >
                   <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
