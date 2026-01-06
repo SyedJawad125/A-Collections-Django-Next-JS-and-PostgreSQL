@@ -1,25 +1,35 @@
-// ============================================
-// UPDATED: components/Login.jsx
-// This version has BOTH email/password AND Google login
-// ============================================
-
 // 'use client';
-// import { useContext, useState } from 'react';
-// import { useRouter } from 'next/navigation';
+// import { useContext, useState, useEffect } from 'react';
+// import { useRouter, useSearchParams } from 'next/navigation';
 // import { AuthContext } from '@/components/AuthContext';
 // import AxiosInstance from '@/components/AxiosInstance';
-// import GoogleLoginButton from '@/components/GoogleLoginButton'; // ← ADD THIS IMPORT
+// import GoogleLoginButton from '@/components/GoogleLoginButton';
 
 // const Login = () => {
 //   const { login } = useContext(AuthContext);
 //   const router = useRouter();
+//   const searchParams = useSearchParams();
   
 //   const [formData, setFormData] = useState({
 //     username: '',
 //     password: ''
 //   });
 //   const [error, setError] = useState('');
+//   const [success, setSuccess] = useState('');
 //   const [loading, setLoading] = useState(false);
+//   const [rememberMe, setRememberMe] = useState(false);
+
+//   // Check for registration success message
+//   useEffect(() => {
+//     if (searchParams.get('registered') === 'true') {
+//       setSuccess('Registration successful! Please login to continue.');
+//       // Clear the URL parameter after showing the message
+//       setTimeout(() => {
+//         setSuccess('');
+//         router.replace('/login');
+//       }, 5000);
+//     }
+//   }, [searchParams, router]);
 
 //   const handleChange = (e) => {
 //     const { name, value } = e.target;
@@ -27,13 +37,15 @@
 //       ...prev,
 //       [name]: value
 //     }));
-//     // Clear error when user starts typing
+//     // Clear messages when user starts typing
 //     if (error) setError('');
+//     if (success) setSuccess('');
 //   };
 
 //   const handleSubmit = async (e) => {
 //     e.preventDefault();
 //     setError('');
+//     setSuccess('');
 //     setLoading(true);
 
 //     // Basic validation
@@ -46,7 +58,7 @@
 //     // Email format validation
 //     const usernameRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 //     if (!usernameRegex.test(formData.username)) {
-//       setError('Please enter a valid username address');
+//       setError('Please enter a valid email address');
 //       setLoading(false);
 //       return;
 //     }
@@ -63,6 +75,12 @@
 //       if (response.data.message === 'Successful' && response.data.data) {
 //         // Pass the entire response to login function
 //         login(response.data);
+        
+//         // Handle remember me functionality
+//         if (rememberMe && typeof window !== 'undefined') {
+//           localStorage.setItem('rememberMe', 'true');
+//           localStorage.setItem('lastUsername', formData.username);
+//         }
         
 //         // Notify the sidebar about auth change
 //         if (typeof window !== 'undefined') {
@@ -81,12 +99,21 @@
 //       // Handle different error scenarios
 //       if (err.response) {
 //         // Server responded with error status
-//         // Backend returns errors in format: { message: "error message" }
 //         const errorMessage = err.response.data?.message 
 //           || err.response.data?.detail 
 //           || err.response.data?.error
 //           || 'Invalid credentials. Please try again.';
-//         setError(errorMessage);
+        
+//         // Provide user-friendly messages for common errors
+//         if (err.response.status === 401) {
+//           setError('Invalid email or password. Please try again.');
+//         } else if (err.response.status === 404) {
+//           setError('Account not found. Please check your email or sign up.');
+//         } else if (err.response.status === 403) {
+//           setError('Account is inactive. Please contact support.');
+//         } else {
+//           setError(errorMessage);
+//         }
 //       } else if (err.request) {
 //         // Request was made but no response received
 //         setError('Unable to connect to server. Please check your connection.');
@@ -98,6 +125,19 @@
 //       setLoading(false);
 //     }
 //   };
+
+//   // Load remembered username on mount
+//   useEffect(() => {
+//     if (typeof window !== 'undefined') {
+//       const remembered = localStorage.getItem('rememberMe') === 'true';
+//       const lastUsername = localStorage.getItem('lastUsername');
+      
+//       if (remembered && lastUsername) {
+//         setFormData(prev => ({ ...prev, username: lastUsername }));
+//         setRememberMe(true);
+//       }
+//     }
+//   }, []);
 
 //   return (
 //     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900">
@@ -127,14 +167,26 @@
 //             </p>
 //           </div>
           
+//           {/* Success Message */}
+//           {success && (
+//             <div className="mb-6 p-4 bg-emerald-500/20 border border-emerald-500/30 text-white rounded-xl backdrop-blur-sm animate-fade-in">
+//               <div className="flex items-center">
+//                 <svg className="w-5 h-5 mr-2 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+//                   <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+//                 </svg>
+//                 <span className="text-sm">{success}</span>
+//               </div>
+//             </div>
+//           )}
+
 //           {/* Error Message */}
 //           {error && (
-//             <div className="mb-6 p-4 bg-rose-500/20 border border-rose-500/30 text-white rounded-xl backdrop-blur-sm">
+//             <div className="mb-6 p-4 bg-rose-500/20 border border-rose-500/30 text-white rounded-xl backdrop-blur-sm animate-shake">
 //               <div className="flex items-center">
-//                 <svg className="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20">
+//                 <svg className="w-5 h-5 mr-2 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
 //                   <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
 //                 </svg>
-//                 {error}
+//                 <span className="text-sm">{error}</span>
 //               </div>
 //             </div>
 //           )}
@@ -150,15 +202,16 @@
 //               </label>
 //               <div className="relative">
 //                 <input
-//                   type="username"
+//                   type="email"
 //                   id="username"
 //                   name="username"
 //                   value={formData.username}
 //                   onChange={handleChange}
 //                   className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-amber-400/50 focus:border-amber-400/30 transition-all duration-300 backdrop-blur-sm"
-//                   placeholder="Enter your username"
+//                   placeholder="Enter your email"
 //                   required
 //                   disabled={loading}
+//                   autoComplete="email"
 //                 />
 //                 <div className="absolute right-3 top-1/2 transform -translate-y-1/2 text-white/40">
 //                   <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -187,6 +240,7 @@
 //                   placeholder="Enter your password"
 //                   required
 //                   disabled={loading}
+//                   autoComplete="current-password"
 //                 />
 //                 <div className="absolute right-3 top-1/2 transform -translate-y-1/2 text-white/40">
 //                   <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -198,9 +252,14 @@
             
 //             {/* Remember Me & Forgot Password */}
 //             <div className="flex items-center justify-between">
-//               <label className="flex items-center text-white/70 text-sm">
-//                 <input type="checkbox" className="rounded bg-white/10 border-white/20 text-amber-400 focus:ring-amber-400/50" />
-//                 <span className="ml-2">Remember me</span>
+//               <label className="flex items-center text-white/70 text-sm cursor-pointer group">
+//                 <input 
+//                   type="checkbox" 
+//                   checked={rememberMe}
+//                   onChange={(e) => setRememberMe(e.target.checked)}
+//                   className="rounded bg-white/10 border-white/20 text-amber-400 focus:ring-amber-400/50 cursor-pointer transition-all duration-300" 
+//                 />
+//                 <span className="ml-2 group-hover:text-white/90 transition-colors duration-300">Remember me</span>
 //               </label>
 //               <a 
 //                 href="/forgetpassword" 
@@ -261,11 +320,7 @@
 //             </div>
 //           </div>
           
-//           {/* ============================================
-//               UPDATED: Google Login Button
-//               REMOVED: Dummy Google and Twitter buttons
-//               ADDED: Real GoogleLoginButton component
-//               ============================================ */}
+//           {/* Google Login Button */}
 //           <div className="mb-6">
 //             <GoogleLoginButton />
 //           </div>
@@ -292,7 +347,6 @@
 
 
 
-
 'use client';
 import { useContext, useState, useEffect } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
@@ -306,7 +360,7 @@ const Login = () => {
   const searchParams = useSearchParams();
   
   const [formData, setFormData] = useState({
-    username: '',
+    email: '',  // Changed from 'username' to 'email' to match backend
     password: ''
   });
   const [error, setError] = useState('');
@@ -344,37 +398,37 @@ const Login = () => {
     setLoading(true);
 
     // Basic validation
-    if (!formData.username || !formData.password) {
-      setError('Please enter both username and password');
+    if (!formData.email || !formData.password) {
+      setError('Please enter both email and password');
       setLoading(false);
       return;
     }
 
     // Email format validation
-    const usernameRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!usernameRegex.test(formData.username)) {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(formData.email)) {
       setError('Please enter a valid email address');
       setLoading(false);
       return;
     }
 
     try {
-      console.log('Attempting login with:', { username: formData.username });
+      console.log('Attempting login with:', { email: formData.email });
       
-      // Call your login API
+      // Call your login API - backend expects { email, password }
       const response = await AxiosInstance.post('/api/user/v1/login/', formData);
       
       console.log('Login API response:', response.data);
 
-      // Backend returns: { message: "Successful", data: {...}, count: null }
-      if (response.data.message === 'Successful' && response.data.data) {
-        // Pass the entire response to login function
+      // FastAPI backend returns: { message: "Login successful", access_token: "...", ... }
+      if (response.data.message === 'Login successful' && response.data.access_token) {
+        // Pass response.data directly to login function
         login(response.data);
         
         // Handle remember me functionality
         if (rememberMe && typeof window !== 'undefined') {
           localStorage.setItem('rememberMe', 'true');
-          localStorage.setItem('lastUsername', formData.username);
+          localStorage.setItem('lastEmail', formData.email);
         }
         
         // Notify the sidebar about auth change
@@ -406,6 +460,8 @@ const Login = () => {
           setError('Account not found. Please check your email or sign up.');
         } else if (err.response.status === 403) {
           setError('Account is inactive. Please contact support.');
+        } else if (err.response.status === 422) {
+          setError('Invalid input format. Please check your email and password.');
         } else {
           setError(errorMessage);
         }
@@ -421,14 +477,14 @@ const Login = () => {
     }
   };
 
-  // Load remembered username on mount
+  // Load remembered email on mount
   useEffect(() => {
     if (typeof window !== 'undefined') {
       const remembered = localStorage.getItem('rememberMe') === 'true';
-      const lastUsername = localStorage.getItem('lastUsername');
+      const lastEmail = localStorage.getItem('lastEmail');
       
-      if (remembered && lastUsername) {
-        setFormData(prev => ({ ...prev, username: lastUsername }));
+      if (remembered && lastEmail) {
+        setFormData(prev => ({ ...prev, email: lastEmail }));
         setRememberMe(true);
       }
     }
@@ -490,7 +546,7 @@ const Login = () => {
             {/* Email Field */}
             <div className="group">
               <label 
-                htmlFor="username" 
+                htmlFor="email" 
                 className="block text-sm font-medium text-white/80 mb-2 transition-all duration-300 group-focus-within:text-amber-300"
               >
                 Email Address
@@ -498,9 +554,9 @@ const Login = () => {
               <div className="relative">
                 <input
                   type="email"
-                  id="username"
-                  name="username"
-                  value={formData.username}
+                  id="email"
+                  name="email"
+                  value={formData.email}
                   onChange={handleChange}
                   className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-amber-400/50 focus:border-amber-400/30 transition-all duration-300 backdrop-blur-sm"
                   placeholder="Enter your email"
