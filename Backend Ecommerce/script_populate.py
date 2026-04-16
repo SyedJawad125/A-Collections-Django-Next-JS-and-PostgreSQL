@@ -122,6 +122,7 @@
 
 
 
+
 import os
 import json
 
@@ -153,9 +154,12 @@ def populate():
     try:
         s_user = User.objects.get(username='superuser')
     except User.DoesNotExist:
+        # FIXED: Added first_name and last_name parameters
         s_user = User.objects.create_superuser(
             username="superuser",
             password="Admin@1234",
+            first_name="Super",      # Added
+            last_name="User"         # Added
         )
         s_user.name = 'Super User'
         s_user.role = role
@@ -175,6 +179,8 @@ def populate():
             password=make_password("Admin@1234"),
             role=role,
             type='Employee',
+            first_name="Syed",       # Added
+            last_name="Jawad Ali"    # Added
         )
     admin.is_active = True
     admin.is_verified = True
@@ -209,8 +215,6 @@ def email_templates():
         "user_delete": "Delete Employee",
         "user_deactivated": "Deactivate Employee",
         "user_reactivated": "Reactivate Employee",
-        "password_changed_success_email": "Password Changed Success Email",
-        "forget_password_clicklinkcode": "Forget Password Click Link Code",
     }
 
     print("Updating Email Templates...")
