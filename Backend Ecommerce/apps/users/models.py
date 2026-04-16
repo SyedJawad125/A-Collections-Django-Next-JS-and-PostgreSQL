@@ -321,7 +321,7 @@ class Role(TimeUserStamps):
         super().save(*args, **kwargs)
 
 
-class Permission(models.Model):
+class Permission(TimeUserStamps):
     name         = models.CharField(max_length=100, validators=[val_name])
     code_name    = models.CharField(max_length=100, unique=True, validators=[val_code_name])
     module_name  = models.CharField(max_length=100)
