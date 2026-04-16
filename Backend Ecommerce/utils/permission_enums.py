@@ -79,3 +79,38 @@ CREATE_IMAGE_CATEGORY = 'create_image_category'
 READ_IMAGE_CATEGORY = 'read_image_category'
 UPDATE_IMAGE_CATEGORY = 'update_image_category'
 DELETE_IMAGE_CATEGORY = 'delete_image_category'
+
+
+"""
+Add these constants to your existing utils/permission_enums.py file.
+They follow the same pattern as your existing CREATE_USER, READ_USER, etc.
+"""
+
+# ============================================================================
+# PRODUCT PERMISSIONS
+# ============================================================================
+CREATE_PRODUCT  = 'create_product'
+READ_PRODUCT    = 'read_product'
+UPDATE_PRODUCT  = 'update_product'
+DELETE_PRODUCT  = 'delete_product'
+
+# ============================================================================
+# INVENTORY PERMISSIONS
+# ============================================================================
+READ_INVENTORY   = 'read_inventory'
+UPDATE_INVENTORY = 'update_inventory'
+
+# ============================================================================
+# ORDER PERMISSIONS
+# ============================================================================
+READ_ORDER   = 'read_order'
+UPDATE_ORDER = 'update_order'
+DELETE_ORDER = 'delete_order'
+
+# ============================================================================
+# COUPON PERMISSIONS
+# ============================================================================
+CREATE_COUPON = 'create_coupon'
+READ_COUPON   = 'read_coupon'
+UPDATE_COUPON = 'update_coupon'
+DELETE_COUPON = 'delete_coupon'
