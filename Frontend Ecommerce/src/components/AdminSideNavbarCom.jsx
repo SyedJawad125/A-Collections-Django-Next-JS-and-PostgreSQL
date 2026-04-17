@@ -1028,6 +1028,14 @@ const AdminSideNavbarCom = () => {
       color: 'amber'
     },
     {
+      id: 'ecommerce',
+      label: 'Ecommerce',
+      icon: ShoppingBag,
+      path: '/Ecommerce',
+      roles: ['admin', 'super'],
+      color: 'red'
+    },
+    {
       id: 'public',
       label: 'Public Site',
       icon: Globe,
