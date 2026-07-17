@@ -896,7 +896,7 @@
 import { useState, useEffect, useContext, useRef } from 'react';
 import { useRouter, usePathname } from 'next/navigation';
 import { Home, Users, FileText, Settings, LogOut, Lock, Eye, Menu, X, ChevronRight, User, Shield, Zap, Globe, Image, Key, 
-  ShoppingBag, Tag, MessageSquare} from 'lucide-react';
+  ShoppingBag, Tag, MessageSquare, MapPin, RotateCcw, Ticket, Truck} from 'lucide-react';
 import { AuthContext } from '@/components/AuthContext';
 
 const AdminSideNavbarCom = () => {
@@ -1018,6 +1018,38 @@ const AdminSideNavbarCom = () => {
       path: '/adminreviews',
       roles: ['admin', 'super'],
       color: 'purple'
+    },
+    {
+      id: 'addresses',
+      label: 'Addresses',
+      icon: MapPin,
+      path: '/adminaddresses',
+      roles: ['admin', 'super'],
+      color: 'blue'
+    },
+    {
+      id: 'returns',
+      label: 'Return Requests',
+      icon: RotateCcw,
+      path: '/adminreturns',
+      roles: ['admin', 'super'],
+      color: 'orange'
+    },
+    {
+      id: 'coupons',
+      label: 'Coupons',
+      icon: Ticket,
+      path: '/admincoupons',
+      roles: ['admin', 'super'],
+      color: 'green'
+    },
+    {
+      id: 'shipping',
+      label: 'Shipping Methods',
+      icon: Truck,
+      path: '/adminshipping',
+      roles: ['admin', 'super'],
+      color: 'cyan'
     },
     {
       id: 'profile',
@@ -1144,6 +1176,16 @@ const AdminSideNavbarCom = () => {
         active: 'from-cyan-600 to-cyan-500 shadow-cyan-500/30',
         hover: 'hover:bg-cyan-500/10',
         icon: 'group-hover:text-cyan-400'
+      },
+      orange: {
+        active: 'from-orange-600 to-orange-500 shadow-orange-500/30',
+        hover: 'hover:bg-orange-500/10',
+        icon: 'group-hover:text-orange-400'
+      },
+      green: {
+        active: 'from-green-600 to-green-500 shadow-green-500/30',
+        hover: 'hover:bg-green-500/10',
+        icon: 'group-hover:text-green-400'
       }
     };
     

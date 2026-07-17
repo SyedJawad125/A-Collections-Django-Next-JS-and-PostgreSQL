@@ -763,11 +763,11 @@ const CategoryWiseProductCom = () => {
                       {/* Price - Only show crossed price if product is on sale */}
                       <div className="flex items-center">
                         <span className="text-lg font-medium text-amber-700">
-                          Rs. {product.price?.toFixed(2) || '0.00'}
+                          Rs. {parseFloat(product.price || 0).toFixed(2)}
                         </span>
                         {product.isOnSale && product.original_price && (
                           <span className="ml-2 text-sm text-gray-500 line-through">
-                            Rs. {product.original_price?.toFixed(2)}
+                            Rs. {parseFloat(product.original_price || 0).toFixed(2)}
                           </span>
                         )}
                       </div>
