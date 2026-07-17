@@ -607,7 +607,7 @@ const NavbarCom = ({ isSticky = false }) => {
               // Not logged in - Show Login/Signup buttons
               <div className="flex items-center space-x-3">
                 <Link 
-                  href="/Login"
+                  href="/login"
                   className="px-4 py-2 text-sm font-medium text-amber-400 hover:text-amber-300 transition-colors duration-300"
                 >
                   Login
