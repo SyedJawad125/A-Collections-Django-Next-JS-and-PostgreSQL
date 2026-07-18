@@ -116,6 +116,7 @@ const EmployeeCom = () => {
   };
 
   const openEdit = (employee) => {
+    console.log('Employee data for edit:', employee);
     setEditingEmployee(employee);
     setForm({
       first_name: employee.first_name || '',
@@ -457,19 +458,28 @@ const EmployeeCom = () => {
                           </div>
                         </div>
 
-                        <div className="relative">
-                          <button
-                            onClick={() => setActionDropdown(actionDropdown === e.id ? null : e.id)}
-                            className="p-2 bg-slate-700/50 hover:bg-slate-600/50 text-slate-400 hover:text-white border border-slate-600/30 rounded-lg transition-all"
-                          >
-                            <MoreVertical size={16} />
-                          </button>
+                        <div className="flex items-center gap-2">
+                          {canUpdate && (
+                            <button
+                              onClick={() => openEdit(e)}
+                              className="p-2 bg-blue-500/20 hover:bg-blue-500/30 text-blue-400 border border-blue-500/30 rounded-lg transition-all"
+                              title="Edit Employee"
+                            >
+                              <Edit3 size={16} />
+                            </button>
+                          )}
                           
-                          {actionDropdown === e.id && (
-                            <ActionDropdown 
-                              employee={e} 
-                              onClose={() => setActionDropdown(null)} 
-                            />
+                          {canDelete && (
+                            <button
+                              onClick={() => deleteEmployee(e)}
+                              disabled={deletingId === e.id}
+                              className={`p-2 bg-red-500/20 hover:bg-red-500/30 text-red-400 border border-red-500/30 rounded-lg transition-all ${
+                                deletingId === e.id ? 'opacity-50 cursor-not-allowed' : ''
+                              }`}
+                              title="Delete Employee"
+                            >
+                              <Trash2 size={16} />
+                            </button>
                           )}
                         </div>
                       </div>

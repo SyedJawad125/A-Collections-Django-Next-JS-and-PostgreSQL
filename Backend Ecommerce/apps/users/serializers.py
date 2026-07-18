@@ -548,6 +548,9 @@ class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model  = User
         fields = '__all__'
+        extra_kwargs = {
+            'password': {'required': False, 'allow_null': True, 'allow_blank': True}
+        }
 
     def validate(self, attrs):
         email = attrs.get('username', attrs.get('email'))
@@ -559,7 +562,22 @@ class UserSerializer(serializers.ModelSerializer):
         return attrs
 
     def create(self, validated_data):
+        # Remove password if not provided (employee creation case)
+        password = validated_data.pop('password', None)
+        
+        # If no password provided, set a temporary one for employee creation
+        if not password:
+            import secrets
+            temp_password = secrets.token_urlsafe(16)
+            validated_data['password'] = temp_password
+        
         instance = User.objects.create(**validated_data)
+        
+        # Hash the password properly
+        if 'password' in validated_data:
+            instance.set_password(validated_data['password'])
+            instance.save()
+        
         # Generate 6-digit OTP for account activation
         import random, string
         otp = ''.join(random.choices(string.digits, k=6))
@@ -592,13 +610,17 @@ class EmployeeSerializer(serializers.ModelSerializer):
         request = self.context.get('request')
         request.data['type'] = EMPLOYEE
         with transaction.atomic():
-            user_instance = UserSerializer(data=request.data)
-            if user_instance.is_valid():
-                user_instance = user_instance.save()
-            else:
+            try:
+                user_instance = UserSerializer(data=request.data)
+                if user_instance.is_valid():
+                    user_instance = user_instance.save()
+                else:
+                    transaction.set_rollback(True)
+                    raise Exception(get_first_error(user_instance.errors))
+                instance = Employee.objects.create(user=user_instance, **validated_data)
+            except Exception as e:
                 transaction.set_rollback(True)
-                raise Exception(get_first_error(user_instance.errors))
-            instance = Employee.objects.create(user=user_instance, **validated_data)
+                raise e
         return instance
 
     def to_representation(self, instance):

@@ -36,9 +36,7 @@ const PublicProducts = () => {
                 {
                     params: {
                         page: page,
-                        limit: limit,
-                        tags: 'Regular', // Changed to match your backend data
-                        api_type: 'list'
+                        limit: limit
                     }
                 }
             );
