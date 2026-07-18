@@ -592,7 +592,7 @@ class UserListSerializer(serializers.ModelSerializer):
 
     class Meta:
         model  = User
-        fields = ('id', 'first_name', 'last_name', 'full_name', 'email',
+        fields = ('id', 'username', 'first_name', 'last_name', 'full_name', 'email',
                   'mobile', 'profile_image', 'role', 'is_active')
 
     def to_representation(self, instance):

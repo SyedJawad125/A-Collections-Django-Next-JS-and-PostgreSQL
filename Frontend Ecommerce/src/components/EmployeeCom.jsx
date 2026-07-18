@@ -4,10 +4,11 @@ import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import AxiosInstance from "@/components/AxiosInstance";
 import { AuthContext } from '@/components/AuthContext';
-import { Search, Plus, Trash2, X, Users2, Mail, Phone, ShieldCheck, Download, ChevronLeft, ChevronRight, UserRound, Power, ImagePlus, MoreVertical, Edit3, UserX, UserCheck } from 'lucide-react';
+import { Search, Plus, Trash2, X, Users2, Mail, Phone, ShieldCheck, Download, ChevronLeft, ChevronRight, UserRound, Power, ImagePlus, MoreVertical, Edit3, UserX, UserCheck, User } from 'lucide-react';
 
 const EmployeeCom = () => {
   const { permissions = {} } = useContext(AuthContext);
+  const baseURL = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:8000';
 
   const canCreate = permissions?.create_employee || permissions?.CREATE_USER || true;
   const canUpdate = permissions?.update_employee || permissions?.UPDATE_USER || true;
@@ -127,7 +128,13 @@ const EmployeeCom = () => {
       role: employee.role?.id || employee.role || '',
     });
     setImageFile(null);
-    setImagePreview(employee.profile_image || null);
+    // Add base URL to profile image if it's a relative path
+    const profileImage = employee.profile_image;
+    if (profileImage && !profileImage.startsWith('http')) {
+      setImagePreview(`${baseURL}${profileImage.startsWith('/') ? '' : '/'}${profileImage}`);
+    } else {
+      setImagePreview(profileImage || null);
+    }
     setModalOpen(true);
     setActionDropdown(null);
   };
@@ -436,8 +443,13 @@ const EmployeeCom = () => {
 
                             <div className="flex flex-wrap items-center gap-4 text-sm">
                               <div className="flex items-center gap-2 text-slate-400">
+                                <User size={14} />
+                                <span className="font-medium text-slate-300">@{e.username || '—'}</span>
+                              </div>
+
+                              <div className="flex items-center gap-2 text-slate-400">
                                 <Mail size={14} />
-                                <span>{e.email || e.username || '—'}</span>
+                                <span>{e.email || '—'}</span>
                               </div>
 
                               <div className="flex items-center gap-2 text-slate-400">
