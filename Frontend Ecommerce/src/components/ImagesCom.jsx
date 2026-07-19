@@ -939,7 +939,7 @@ const ImagesCom = () => {
 
   const fetchCategories = async () => {
     try {
-      const res = await AxiosInstance.get('/api/images/v1/categories/');
+      const res = await AxiosInstance.get('/api/images/v1/dropdown/categories/');
       console.log('Categories response:', res.data);
       if (res?.data?.data && Array.isArray(res.data.data)) {
         setCategories(res.data.data);

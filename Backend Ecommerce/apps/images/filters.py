@@ -80,3 +80,14 @@ class TextCategoriesFilter(BaseCategoriesFilter):
     
     class Meta(BaseCategoriesFilter.Meta):
         pass
+
+
+import django_filters
+
+
+class CategoryDropdownFilter(django_filters.FilterSet):
+    search = django_filters.CharFilter(field_name='category', lookup_expr='icontains')
+
+    class Meta:
+        model = Categories
+        fields = ['search']

@@ -383,3 +383,25 @@ class TextBoxImagesSerializer(serializers.ModelSerializer):
             data['image'] = f"{BACKEND_BASE_URL}{instance.image.url}"
         
         return data
+
+
+
+class CategoryDropdownSerializer(serializers.ModelSerializer):
+    """Minimal serializer for populating <select>/dropdown components on the frontend.
+    Returns {value, label} pairs — the standard shape most frontend select
+    libraries (react-select, MUI Autocomplete, antd Select, etc.) expect.
+    """
+    value = serializers.IntegerField(source='id', read_only=True)
+    label = serializers.CharField(source='category', read_only=True)
+
+    class Meta:
+        model = Categories
+        fields = ['value', 'label']
+
+    def to_representation(self, instance):
+        # Skip soft-deleted / inactive categories entirely
+        if getattr(instance, 'deleted', False):
+            return None
+        if hasattr(instance, 'is_active') and not instance.is_active:
+            return None
+        return super().to_representation(instance)
