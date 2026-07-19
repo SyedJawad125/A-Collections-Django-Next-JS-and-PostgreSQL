@@ -924,17 +924,22 @@ const ImagesCategoryCom = () => {
     const category = data.categories.find(cat => cat.id === id);
     if (category) {
       console.log('Category data for edit:', category);
-      
+
       // Get the image URL - check multiple possible field names
       const imageUrl = category.image || category.category_image || category.image_url || null;
       console.log('Image URL found:', imageUrl);
-      
+
+      // Construct full URL if relative path
+      const baseURL = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:8000';
+      const fullImageUrl = imageUrl && !imageUrl.startsWith('http') ? `${baseURL}${imageUrl.startsWith('/') ? '' : '/'}${imageUrl}` : imageUrl;
+      console.log('Full image URL:', fullImageUrl);
+
       setEditingCategory(category);
-      setCategoryForm({ 
-        name: category.category || category.name || '', 
-        image: null 
+      setCategoryForm({
+        name: category.category || category.name || '',
+        image: null
       });
-      setExistingImage(imageUrl);
+      setExistingImage(fullImageUrl);
       setCategoryModalOpen(true);
     }
   };
@@ -1436,6 +1441,7 @@ const ImagesCategoryCom = () => {
                   <p className="text-slate-400 text-sm mt-1">
                     {editingCategory ? 'Update category details' : 'Create a new image category'}
                   </p>
+                  {console.log('Modal render - editingCategory:', editingCategory, 'existingImage:', existingImage, 'categoryForm.image:', categoryForm.image)}
                 </div>
                 <button
                   onClick={() => setCategoryModalOpen(false)}
@@ -1469,14 +1475,16 @@ const ImagesCategoryCom = () => {
                   {/* Show current image when editing */}
                   {editingCategory && existingImage && !categoryForm.image && (
                     <div className="w-20 h-20 rounded-xl bg-slate-900/50 border-2 border-slate-700/50 flex items-center justify-center overflow-hidden">
-                      <img 
-                        src={existingImage} 
-                        alt="Current category image" 
-                        className="w-full h-full object-cover" 
+                      <img
+                        src={existingImage}
+                        alt="Current category image"
+                        className="w-full h-full object-cover"
+                        onLoad={() => console.log('Image loaded successfully:', existingImage)}
                         onError={(e) => {
+                          console.error('Image failed to load:', existingImage, e);
                           // If image fails to load, show placeholder
-                          const parent = e.target.parentElement;
-                          parent.innerHTML = '<div className="w-8 h-8 text-slate-600"><Folder className="w-8 h-8" /></div>';
+                          e.target.style.display = 'none';
+                          e.target.parentElement.innerHTML = '<div class="w-8 h-8 text-slate-600 flex items-center justify-center"><svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z"></path></svg></div>';
                         }}
                       />
                     </div>
