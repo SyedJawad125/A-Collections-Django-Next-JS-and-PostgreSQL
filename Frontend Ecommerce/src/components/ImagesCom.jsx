@@ -480,7 +480,7 @@ import AxiosInstance from "@/components/AxiosInstance";
 import { useRouter } from 'next/navigation';
 import { AuthContext } from '@/components/AuthContext';
 import Image from 'next/image';
-import { Search, Plus, Filter, Edit2, Trash2, ImageIcon, Folder, Grid3x3, Eye } from 'lucide-react';
+import { Search, Plus, Filter, Edit2, Trash2, ImageIcon, Folder, Grid3x3, Eye, X } from 'lucide-react';
 
 const ImagesCom = () => {
   const router = useRouter();
@@ -492,6 +492,18 @@ const ImagesCom = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(12);
 
+  // Modal states
+  const [imageModalOpen, setImageModalOpen] = useState(false);
+  const [editingImage, setEditingImage] = useState(null);
+  const [categoryModalOpen, setCategoryModalOpen] = useState(false);
+  const [editingCategory, setEditingCategory] = useState(null);
+  const [categories, setCategories] = useState([]);
+
+  // Form states
+  const [imageForm, setImageForm] = useState({ name: '', description: '', category: '', image: null });
+  const [categoryForm, setCategoryForm] = useState({ name: '', image: null });
+  const [saving, setSaving] = useState(false);
+
   // Check for permissions
   const hasReadPermission = permissions.read_image || permissions.READ_IMAGE;
   const hasCreatePermission = permissions.create_image || permissions.CREATE_IMAGE;
@@ -502,6 +514,7 @@ const ImagesCom = () => {
     if (hasReadPermission) {
       fetchImages();
     }
+    fetchCategories();
   }, [hasReadPermission]);
 
   // Update filtered images when search term or images change
@@ -518,6 +531,21 @@ const ImagesCom = () => {
     }
     setCurrentPage(1); // Reset to first page when filtering
   }, [searchTerm, images]);
+
+  const fetchCategories = async () => {
+    try {
+      const res = await AxiosInstance.get('/api/images/v1/categories/');
+      console.log('Categories response:', res.data);
+      if (res?.data?.data && Array.isArray(res.data.data)) {
+        setCategories(res.data.data);
+      } else if (res?.data && Array.isArray(res.data)) {
+        setCategories(res.data);
+      }
+    } catch (error) {
+      console.error('Error fetching categories:', error);
+      setCategories([]);
+    }
+  };
 
   const fetchImages = async () => {
     if (!hasReadPermission) {
@@ -587,7 +615,17 @@ const ImagesCom = () => {
       toast.error('You do not have permission to update images');
       return;
     }
-    router.push(`/updateimagespage?imgid=${imgid}`);
+    const image = images.find(img => img.id === imgid);
+    if (image) {
+      setEditingImage(image);
+      setImageForm({
+        name: image.name || '',
+        description: image.description || '',
+        category: image.category || image.category_id || '',
+        image: null
+      });
+      setImageModalOpen(true);
+    }
   };
 
   const handleSearch = (e) => {
@@ -599,7 +637,9 @@ const ImagesCom = () => {
       toast.error('You do not have permission to add images');
       return;
     }
-    router.push('/addimagespage');
+    setEditingImage(null);
+    setImageForm({ name: '', description: '', category: '', image: null });
+    setImageModalOpen(true);
   };
 
   const handleLimitChange = (e) => {
@@ -617,6 +657,105 @@ const ImagesCom = () => {
     if (page >= 1 && page <= totalPages) {
       setCurrentPage(page);
     }
+  };
+
+  const saveImage = async (e) => {
+    e.preventDefault();
+    if (!imageForm.name.trim()) {
+      toast.error('Image name is required');
+      return;
+    }
+
+    setSaving(true);
+    try {
+      const formData = new FormData();
+      formData.append('name', imageForm.name.trim());
+      if (imageForm.description) formData.append('description', imageForm.description.trim());
+      if (imageForm.category) formData.append('category', imageForm.category);
+      if (imageForm.image) formData.append('image', imageForm.image);
+
+      if (editingImage) {
+        await AxiosInstance.patch(`/api/images/v1/images/?id=${editingImage.id}`, formData, {
+          headers: { 'Content-Type': 'multipart/form-data' },
+        });
+        toast.success('Image updated successfully');
+      } else {
+        await AxiosInstance.post('/api/images/v1/images/', formData, {
+          headers: { 'Content-Type': 'multipart/form-data' },
+        });
+        toast.success('Image added successfully');
+      }
+
+      setImageModalOpen(false);
+      fetchImages();
+    } catch (error) {
+      console.error('Error saving image:', error);
+      toast.error(error.response?.data?.message || 'Error saving image');
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const saveCategory = async (e) => {
+    e.preventDefault();
+    if (!categoryForm.name.trim()) {
+      toast.error('Category name is required');
+      return;
+    }
+
+    setSaving(true);
+    try {
+      const formData = new FormData();
+      formData.append('name', categoryForm.name.trim());
+      if (categoryForm.image) formData.append('image', categoryForm.image);
+
+      if (editingCategory) {
+        await AxiosInstance.patch(`/api/images/v1/category/?id=${editingCategory.id}`, formData, {
+          headers: { 'Content-Type': 'multipart/form-data' },
+        });
+        toast.success('Category updated successfully');
+      } else {
+        await AxiosInstance.post('/api/images/v1/category/', formData, {
+          headers: { 'Content-Type': 'multipart/form-data' },
+        });
+        toast.success('Category added successfully');
+      }
+
+      setCategoryModalOpen(false);
+      fetchCategories();
+    } catch (error) {
+      console.error('Error saving category:', error);
+      toast.error(error.response?.data?.message || 'Error saving category');
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const deleteCategory = async (id) => {
+    if (!window.confirm('Are you sure you want to delete this category?')) {
+      return;
+    }
+
+    try {
+      await AxiosInstance.delete(`/api/images/v1/category/?id=${id}`);
+      toast.success('Category deleted successfully');
+      fetchCategories();
+    } catch (error) {
+      console.error('Error deleting category:', error);
+      toast.error(error.response?.data?.message || 'Error deleting category');
+    }
+  };
+
+  const handleAddCategory = () => {
+    setEditingCategory(null);
+    setCategoryForm({ name: '', image: null });
+    setCategoryModalOpen(true);
+  };
+
+  const handleEditCategory = (category) => {
+    setEditingCategory(category);
+    setCategoryForm({ name: category.name || '', image: null });
+    setCategoryModalOpen(true);
   };
 
   // Access denied screen
@@ -805,7 +944,11 @@ const ImagesCom = () => {
                       {/* Top section - Category badge */}
                       <div className="flex items-start justify-between opacity-0 group-hover:opacity-100 transition-all duration-500 transform -translate-y-2 group-hover:translate-y-0">
                         <span className="px-4 py-2 bg-gradient-to-r from-amber-600/90 via-amber-500/90 to-yellow-600/90 backdrop-blur-xl text-white text-xs font-bold rounded-full border-2 border-amber-400/30 shadow-[0_4px_20px_rgba(251,191,36,0.4)] uppercase tracking-wider">
-                          {item.category_name || 'Uncategorized'}
+                          {(() => {
+                            const category = categories.find(cat => cat.id === item.category);
+                            console.log('Image category ID:', item.category, 'Found category:', category, 'All categories:', categories);
+                            return category?.category || category?.name || item.category_name || 'Uncategorized';
+                          })()}
                         </span>
                       </div>
 
@@ -941,6 +1084,258 @@ const ImagesCom = () => {
             </div>
           )}
         </>
+      )}
+
+      {/* Image Modal */}
+      {imageModalOpen && (
+        <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+          <div className="bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 border-2 border-slate-700/50 rounded-3xl w-full max-w-2xl max-h-[90vh] overflow-y-auto shadow-[0_25px_50px_-12px_rgba(0,0,0,0.5)]">
+            <div className="sticky top-0 bg-slate-900/95 backdrop-blur-xl border-b-2 border-slate-700/50 p-6 rounded-t-3xl">
+              <div className="flex items-center justify-between">
+                <div>
+                  <h2 className="text-2xl font-bold bg-gradient-to-r from-blue-400 via-purple-400 to-pink-400 bg-clip-text text-transparent">
+                    {editingImage ? 'Edit Image' : 'Add New Image'}
+                  </h2>
+                  <p className="text-slate-400 text-sm mt-1">
+                    {editingImage ? 'Update image details' : 'Upload a new image to your gallery'}
+                  </p>
+                </div>
+                <button
+                  onClick={() => setImageModalOpen(false)}
+                  className="p-2 bg-slate-800/50 hover:bg-slate-700/50 text-slate-400 hover:text-white rounded-xl transition-all border border-slate-700/50 hover:border-slate-600/50"
+                >
+                  <X className="w-6 h-6" />
+                </button>
+              </div>
+            </div>
+
+            <form onSubmit={saveImage} className="p-6 space-y-6">
+              <div>
+                <label className="block text-sm font-medium text-slate-400 mb-2">
+                  Image Name <span className="text-red-400">*</span>
+                </label>
+                <input
+                  type="text"
+                  value={imageForm.name}
+                  onChange={(e) => setImageForm({ ...imageForm, name: e.target.value })}
+                  placeholder="Enter image name"
+                  className="w-full px-4 py-3 bg-slate-900/50 text-white border-2 border-slate-700/50 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500/50 transition-all placeholder:text-slate-500"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-slate-400 mb-2">
+                  Description
+                </label>
+                <textarea
+                  value={imageForm.description}
+                  onChange={(e) => setImageForm({ ...imageForm, description: e.target.value })}
+                  placeholder="Enter image description"
+                  rows={3}
+                  className="w-full px-4 py-3 bg-slate-900/50 text-white border-2 border-slate-700/50 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500/50 transition-all placeholder:text-slate-500 resize-none"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-slate-400 mb-2">
+                  Category
+                </label>
+                <select
+                  value={imageForm.category}
+                  onChange={(e) => setImageForm({ ...imageForm, category: e.target.value })}
+                  className="w-full px-4 py-3 bg-slate-900/50 text-white border-2 border-slate-700/50 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500/50 transition-all cursor-pointer"
+                >
+                  <option value="">No category</option>
+                  {categories.map((cat) => (
+                    <option key={cat.id} value={cat.id}>{cat.category || cat.name}</option>
+                  ))}
+                </select>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-slate-400 mb-2">
+                  Image File
+                </label>
+                <div className="flex items-center gap-4">
+                  <div className="w-20 h-20 rounded-xl bg-slate-900/50 border-2 border-dashed border-slate-700/50 flex items-center justify-center overflow-hidden">
+                    {imageForm.image ? (
+                      <img 
+                        src={URL.createObjectURL(imageForm.image)} 
+                        alt="Preview" 
+                        className="w-full h-full object-cover" 
+                      />
+                    ) : (
+                      <ImageIcon className="w-8 h-8 text-slate-600" />
+                    )}
+                  </div>
+                  <label className="cursor-pointer px-6 py-3 bg-slate-800/50 hover:bg-slate-700/50 text-slate-300 hover:text-white border-2 border-slate-700/50 hover:border-slate-600/50 rounded-xl transition-all">
+                    {imageForm.image ? 'Change Image' : 'Upload Image'}
+                    <input type="file" accept="image/*" onChange={(e) => setImageForm({ ...imageForm, image: e.target.files?.[0] || null })} className="hidden" />
+                  </label>
+                  {imageForm.image && (
+                    <button
+                      type="button"
+                      onClick={() => setImageForm({ ...imageForm, image: null })}
+                      className="text-red-400 hover:text-red-300 text-sm transition-colors"
+                    >
+                      Remove
+                    </button>
+                  )}
+                </div>
+              </div>
+
+              <div className="flex gap-3 pt-4">
+                <button
+                  type="button"
+                  onClick={() => setImageModalOpen(false)}
+                  className="flex-1 px-6 py-3 bg-slate-800/50 hover:bg-slate-700/50 text-white rounded-xl font-semibold border-2 border-slate-700/50 hover:border-slate-600/50 transition-all"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  disabled={saving}
+                  className="flex-1 px-6 py-3 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-500 hover:to-purple-500 text-white rounded-xl font-semibold shadow-lg shadow-blue-500/25 transition-all hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  {saving ? 'Saving...' : (editingImage ? 'Update Image' : 'Add Image')}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* Category Modal */}
+      {categoryModalOpen && (
+        <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+          <div className="bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 border-2 border-slate-700/50 rounded-3xl w-full max-w-lg max-h-[90vh] overflow-y-auto shadow-[0_25px_50px_-12px_rgba(0,0,0,0.5)]">
+            <div className="sticky top-0 bg-slate-900/95 backdrop-blur-xl border-b-2 border-slate-700/50 p-6 rounded-t-3xl">
+              <div className="flex items-center justify-between">
+                <div>
+                  <h2 className="text-2xl font-bold bg-gradient-to-r from-amber-400 via-orange-400 to-red-400 bg-clip-text text-transparent">
+                    {editingCategory ? 'Edit Category' : 'Add New Category'}
+                  </h2>
+                  <p className="text-slate-400 text-sm mt-1">
+                    {editingCategory ? 'Update category details' : 'Create a new image category'}
+                  </p>
+                </div>
+                <button
+                  onClick={() => setCategoryModalOpen(false)}
+                  className="p-2 bg-slate-800/50 hover:bg-slate-700/50 text-slate-400 hover:text-white rounded-xl transition-all border border-slate-700/50 hover:border-slate-600/50"
+                >
+                  <X className="w-6 h-6" />
+                </button>
+              </div>
+            </div>
+
+            <form onSubmit={saveCategory} className="p-6 space-y-6">
+              <div>
+                <label className="block text-sm font-medium text-slate-400 mb-2">
+                  Category Name <span className="text-red-400">*</span>
+                </label>
+                <input
+                  type="text"
+                  value={categoryForm.name}
+                  onChange={(e) => setCategoryForm({ ...categoryForm, name: e.target.value })}
+                  placeholder="Enter category name"
+                  className="w-full px-4 py-3 bg-slate-900/50 text-white border-2 border-slate-700/50 rounded-xl focus:outline-none focus:ring-2 focus:ring-amber-500/50 focus:border-amber-500/50 transition-all placeholder:text-slate-500"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-slate-400 mb-2">
+                  Category Image
+                </label>
+                <div className="flex items-center gap-4">
+                  <div className="w-20 h-20 rounded-xl bg-slate-900/50 border-2 border-dashed border-slate-700/50 flex items-center justify-center overflow-hidden">
+                    {categoryForm.image ? (
+                      <img 
+                        src={URL.createObjectURL(categoryForm.image)} 
+                        alt="Preview" 
+                        className="w-full h-full object-cover" 
+                      />
+                    ) : (
+                      <Folder className="w-8 h-8 text-slate-600" />
+                    )}
+                  </div>
+                  <label className="cursor-pointer px-6 py-3 bg-slate-800/50 hover:bg-slate-700/50 text-slate-300 hover:text-white border-2 border-slate-700/50 hover:border-slate-600/50 rounded-xl transition-all">
+                    {categoryForm.image ? 'Change Image' : 'Upload Image'}
+                    <input type="file" accept="image/*" onChange={(e) => setCategoryForm({ ...categoryForm, image: e.target.files?.[0] || null })} className="hidden" />
+                  </label>
+                  {categoryForm.image && (
+                    <button
+                      type="button"
+                      onClick={() => setCategoryForm({ ...categoryForm, image: null })}
+                      className="text-red-400 hover:text-red-300 text-sm transition-colors"
+                    >
+                      Remove
+                    </button>
+                  )}
+                </div>
+              </div>
+
+              <div className="flex gap-3 pt-4">
+                <button
+                  type="button"
+                  onClick={() => setCategoryModalOpen(false)}
+                  className="flex-1 px-6 py-3 bg-slate-800/50 hover:bg-slate-700/50 text-white rounded-xl font-semibold border-2 border-slate-700/50 hover:border-slate-600/50 transition-all"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  disabled={saving}
+                  className="flex-1 px-6 py-3 bg-gradient-to-r from-amber-600 to-orange-600 hover:from-amber-500 hover:to-orange-500 text-white rounded-xl font-semibold shadow-lg shadow-amber-500/25 transition-all hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  {saving ? 'Saving...' : (editingCategory ? 'Update Category' : 'Add Category')}
+                </button>
+              </div>
+            </form>
+
+            {/* Categories List */}
+            <div className="p-6 pt-0">
+              <h3 className="text-lg font-semibold text-white mb-4">Existing Categories</h3>
+              <div className="space-y-3">
+                {categories.map((cat) => (
+                  <div
+                    key={cat.id}
+                    className="flex items-center justify-between p-4 bg-slate-900/50 border-2 border-slate-700/50 rounded-xl hover:border-slate-600/50 transition-all"
+                  >
+                    <div className="flex items-center gap-3">
+                      {cat.image && (
+                        <img 
+                          src={cat.image} 
+                          alt={cat.name} 
+                          className="w-12 h-12 rounded-lg object-cover"
+                        />
+                      )}
+                      <span className="text-white font-medium">{cat.name}</span>
+                    </div>
+                    <div className="flex gap-2">
+                      <button
+                        onClick={() => handleEditCategory(cat)}
+                        className="p-2 bg-amber-500/20 hover:bg-amber-500/30 text-amber-400 border border-amber-500/30 rounded-lg transition-all"
+                        title="Edit Category"
+                      >
+                        <Edit2 className="w-4 h-4" />
+                      </button>
+                      <button
+                        onClick={() => deleteCategory(cat.id)}
+                        className="p-2 bg-red-500/20 hover:bg-red-500/30 text-red-400 border border-red-500/30 rounded-lg transition-all"
+                        title="Delete Category"
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </button>
+                    </div>
+                  </div>
+                ))}
+                {categories.length === 0 && (
+                  <p className="text-slate-500 text-center py-4">No categories found</p>
+                )}
+              </div>
+            </div>
+          </div>
+        </div>
       )}
     </div>
   );
