@@ -546,6 +546,13 @@ const CategoryCom = () => {
   const [refreshKey, setRefreshKey] = useState(0);
   const baseURL = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:8000';
 
+  // Modal states
+  const [categoryModalOpen, setCategoryModalOpen] = useState(false);
+  const [editingCategory, setEditingCategory] = useState(null);
+  const [categoryForm, setCategoryForm] = useState({ name: '', description: '', image: null });
+  const [existingImage, setExistingImage] = useState(null);
+  const [saving, setSaving] = useState(false);
+
   const [pagination, setPagination] = useState({
     currentPage: 1,
     limit: 12,
@@ -668,7 +675,62 @@ const CategoryCom = () => {
       toast.error('You do not have permission to update categories');
       return;
     }
-    router.push(`/updatecategorypage?categoryid=${categoryId}`);
+    const category = categories.find(cat => cat.id === categoryId);
+    if (category) {
+      const imageUrl = category.image;
+      const fullImageUrl = imageUrl && !imageUrl.startsWith('http') ? `${baseURL}/${imageUrl.replace(/^\/+/, '')}` : imageUrl;
+      setEditingCategory(category);
+      setCategoryForm({ name: category.name || '', description: category.description || '', image: null });
+      setExistingImage(fullImageUrl || null);
+      setCategoryModalOpen(true);
+    }
+  };
+
+  const handleAddCategory = () => {
+    if (!permissions.create_category) {
+      toast.error('You do not have permission to add categories');
+      return;
+    }
+    setEditingCategory(null);
+    setCategoryForm({ name: '', description: '', image: null });
+    setExistingImage(null);
+    setCategoryModalOpen(true);
+  };
+
+  const saveCategory = async (e) => {
+    e.preventDefault();
+    if (!categoryForm.name.trim()) {
+      toast.error('Category name is required');
+      return;
+    }
+
+    setSaving(true);
+    try {
+      const formData = new FormData();
+      formData.append('name', categoryForm.name.trim());
+      formData.append('description', categoryForm.description.trim());
+      if (categoryForm.image) formData.append('image', categoryForm.image);
+
+      if (editingCategory) {
+        await AxiosInstance.patch(`/api/myapp/v1/category/${editingCategory.id}/`, formData, {
+          headers: { 'Content-Type': 'multipart/form-data' },
+        });
+        toast.success('Category updated successfully');
+      } else {
+        await AxiosInstance.post('/api/myapp/v1/category/', formData, {
+          headers: { 'Content-Type': 'multipart/form-data' },
+        });
+        toast.success('Category added successfully');
+      }
+
+      setCategoryModalOpen(false);
+      setRefreshKey(prev => prev + 1);
+    } catch (error) {
+      console.error('Error saving category:', error);
+      toast.error(error.response?.data?.message || 'Error saving category');
+    } finally {
+      setSaving(false);
+    }
   };
 
   const handleSearch = (e) => {
@@ -803,7 +865,7 @@ const CategoryCom = () => {
               {permissions.create_category && (
                 <button
                   className="group relative px-6 py-2.5 bg-gradient-to-r from-amber-600 to-yellow-500 text-slate-900 font-semibold rounded-full shadow-2xl shadow-amber-500/50 hover:shadow-amber-500/70 transform hover:scale-105 transition-all duration-300 mt-4 md:mt-0"
-                  onClick={() => router.push('/addcategories')}
+                  onClick={handleAddCategory}
                 >
                   <div className="absolute inset-0 bg-gradient-to-r from-amber-400 to-yellow-400 opacity-0 group-hover:opacity-100 rounded-full transition-opacity duration-300"></div>
                   <div className="relative flex items-center space-x-2">
@@ -1019,6 +1081,137 @@ const CategoryCom = () => {
             {/* Page info */}
             <div className="text-slate-400 text-xs">
               Page {pagination.currentPage} of {pagination.totalPages}
+            </div>
+          </div>
+        )}
+
+        {/* Category Modal */}
+        {categoryModalOpen && (
+          <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+            <div className="bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 border-2 border-slate-700/50 rounded-3xl w-full max-w-lg max-h-[90vh] overflow-y-auto shadow-[0_25px_50px_-12px_rgba(0,0,0,0.5)]">
+              <div className="sticky top-0 bg-slate-900/95 backdrop-blur-xl border-b-2 border-slate-700/50 p-6 rounded-t-3xl">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <h2 className="text-2xl font-bold bg-gradient-to-r from-amber-400 via-orange-400 to-red-400 bg-clip-text text-transparent">
+                      {editingCategory ? 'Edit Category' : 'Add New Category'}
+                    </h2>
+                    <p className="text-slate-400 text-sm mt-1">
+                      {editingCategory ? 'Update category details' : 'Create a new product category'}
+                    </p>
+                  </div>
+                  <button
+                    onClick={() => setCategoryModalOpen(false)}
+                    className="p-2 bg-slate-800/50 hover:bg-slate-700/50 text-slate-400 hover:text-white rounded-xl transition-all border border-slate-700/50 hover:border-slate-600/50"
+                  >
+                    <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                  </button>
+                </div>
+              </div>
+
+              <form onSubmit={saveCategory} className="p-6 space-y-6">
+                <div>
+                  <label className="block text-sm font-medium text-slate-400 mb-2">
+                    Category Name <span className="text-red-400">*</span>
+                  </label>
+                  <input
+                    type="text"
+                    value={categoryForm.name}
+                    onChange={(e) => setCategoryForm({ ...categoryForm, name: e.target.value })}
+                    placeholder="Enter category name"
+                    className="w-full px-4 py-3 bg-slate-900/50 text-white border-2 border-slate-700/50 rounded-xl focus:outline-none focus:ring-2 focus:ring-amber-500/50 focus:border-amber-500/50 transition-all placeholder:text-slate-500"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-slate-400 mb-2">
+                    Description
+                  </label>
+                  <textarea
+                    value={categoryForm.description}
+                    onChange={(e) => setCategoryForm({ ...categoryForm, description: e.target.value })}
+                    placeholder="Enter category description"
+                    rows={3}
+                    className="w-full px-4 py-3 bg-slate-900/50 text-white border-2 border-slate-700/50 rounded-xl focus:outline-none focus:ring-2 focus:ring-amber-500/50 focus:border-amber-500/50 transition-all placeholder:text-slate-500 resize-none"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-slate-400 mb-2">
+                    Category Image {editingCategory && <span className="text-xs text-slate-500">(Leave empty to keep current image)</span>}
+                  </label>
+                  <div className="flex items-center gap-4">
+                    {/* Show current image when editing */}
+                    {editingCategory && existingImage && !categoryForm.image && (
+                      <div className="w-20 h-20 rounded-xl bg-slate-900/50 border-2 border-slate-700/50 flex items-center justify-center overflow-hidden">
+                        <img
+                          src={existingImage}
+                          alt="Current category image"
+                          className="w-full h-full object-cover"
+                          onError={(e) => {
+                            e.target.style.display = 'none';
+                            e.target.parentElement.innerHTML = '<div class="w-8 h-8 text-slate-600 flex items-center justify-center"><svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg></div>';
+                          }}
+                        />
+                      </div>
+                    )}
+
+                    {/* Show preview of new image */}
+                    {categoryForm.image && (
+                      <div className="w-20 h-20 rounded-xl bg-slate-900/50 border-2 border-slate-700/50 flex items-center justify-center overflow-hidden">
+                        <img
+                          src={URL.createObjectURL(categoryForm.image)}
+                          alt="Preview"
+                          className="w-full h-full object-cover"
+                        />
+                      </div>
+                    )}
+
+                    {/* Show placeholder if no image */}
+                    {!editingCategory && !categoryForm.image && (
+                      <div className="w-20 h-20 rounded-xl bg-slate-900/50 border-2 border-dashed border-slate-700/50 flex items-center justify-center">
+                        <svg className="w-8 h-8 text-slate-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                        </svg>
+                      </div>
+                    )}
+                    <label className="cursor-pointer px-6 py-3 bg-slate-800/50 hover:bg-slate-700/50 text-slate-300 hover:text-white border-2 border-slate-700/50 hover:border-slate-600/50 rounded-xl transition-all">
+                      {categoryForm.image || existingImage ? 'Change Image' : 'Upload Image'}
+                      <input type="file" accept="image/*" onChange={(e) => setCategoryForm({ ...categoryForm, image: e.target.files?.[0] || null })} className="hidden" />
+                    </label>
+                    {(categoryForm.image || existingImage) && (
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setCategoryForm({ ...categoryForm, image: null });
+                          setExistingImage(null);
+                        }}
+                        className="text-red-400 hover:text-red-300 text-sm transition-colors"
+                      >
+                        Remove
+                      </button>
+                    )}
+                  </div>
+                </div>
+
+                <div className="flex gap-3 pt-4">
+                  <button
+                    type="button"
+                    onClick={() => setCategoryModalOpen(false)}
+                    className="flex-1 px-6 py-3 bg-slate-800/50 hover:bg-slate-700/50 text-white rounded-xl font-semibold border-2 border-slate-700/50 hover:border-slate-600/50 transition-all"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="submit"
+                    disabled={saving}
+                    className="flex-1 px-6 py-3 bg-gradient-to-r from-amber-600 to-orange-600 hover:from-amber-500 hover:to-orange-500 text-white rounded-xl font-semibold shadow-lg shadow-amber-500/25 transition-all hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    {saving ? 'Saving...' : (editingCategory ? 'Update Category' : 'Add Category')}
+                  </button>
+                </div>
+              </form>
             </div>
           </div>
         )}
