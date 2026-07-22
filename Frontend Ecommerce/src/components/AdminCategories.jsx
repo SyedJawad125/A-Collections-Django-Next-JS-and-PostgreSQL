@@ -712,7 +712,16 @@ const CategoryCom = () => {
       if (categoryForm.image) formData.append('image', categoryForm.image);
 
       if (editingCategory) {
-        await AxiosInstance.patch(`/api/myapp/v1/category/${editingCategory.id}/`, formData, {
+        console.log('Editing category:', editingCategory);
+        console.log('Category ID:', editingCategory.id);
+        formData.append('id', editingCategory.id);
+        
+        // Log FormData contents
+        for (let [key, value] of formData.entries()) {
+          console.log(`${key}:`, value);
+        }
+        
+        await AxiosInstance.patch(`/api/myapp/v1/category/`, formData, {
           headers: { 'Content-Type': 'multipart/form-data' },
         });
         toast.success('Category updated successfully');
@@ -727,7 +736,9 @@ const CategoryCom = () => {
       setRefreshKey(prev => prev + 1);
     } catch (error) {
       console.error('Error saving category:', error);
-      toast.error(error.response?.data?.message || 'Error saving category');
+      console.error('Error response:', error.response?.data);
+      const errorMessage = error.response?.data?.error || error.response?.data?.message || 'Error saving category';
+      toast.error(errorMessage);
     } finally {
       setSaving(false);
     }
