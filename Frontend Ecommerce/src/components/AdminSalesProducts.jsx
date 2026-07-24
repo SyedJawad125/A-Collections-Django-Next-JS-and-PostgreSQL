@@ -1800,64 +1800,103 @@ const SalesProductsCom = () => {
                   </select>
                 </div>
 
-                <div>
-                  <label className="block text-sm font-medium text-slate-400 mb-2">
-                    Product Images {editingSalesProduct && <span className="text-xs text-slate-500">(Leave empty to keep current images)</span>}
+                {/* Images */}
+                <div className="space-y-3">
+                  <label className="text-amber-300 font-semibold text-sm uppercase tracking-wider flex items-center justify-between">
+                    <span className="flex items-center">
+                      <svg className="w-4 h-4 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                        <path fillRule="evenodd" d="M4 3a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V5a2 2 0 00-2-2H4zm12 12H4l4-8 3 6 2-4 3 6z" clipRule="evenodd" />
+                      </svg>
+                      Product Images {!editingSalesProduct && '*'}
+                    </span>
+                    <span className="text-slate-400 text-xs font-normal">
+                      {existingImages.length + images.length}/5 images
+                    </span>
                   </label>
-                  <div className="space-y-3">
-                    {/* Existing images */}
-                    {existingImages.length > 0 && (
-                      <div className="flex flex-wrap gap-2">
-                        {existingImages.map((img, index) => (
-                          <div key={index} className="relative">
-                            <img
-                              src={typeof img === 'string' ? img : img.url}
-                              alt={`Existing ${index}`}
-                              className="w-20 h-20 object-cover rounded-lg border-2 border-slate-700/50"
-                            />
-                            <button
-                              type="button"
-                              onClick={() => removeExistingImage(index)}
-                              className="absolute -top-2 -right-2 bg-red-600 text-white rounded-full w-6 h-6 flex items-center justify-center text-xs hover:bg-red-700 transition-colors"
-                            >
-                              ×
-                            </button>
+
+                  <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4 mb-2">
+                    {/* Existing images (edit mode) */}
+                    {existingImages.map((img, index) => (
+                      <div key={`existing-${img.id ?? index}`} className="relative group">
+                        <div className="aspect-square rounded-xl overflow-hidden border-2 border-slate-700/50 bg-slate-900/60">
+                          <img
+                            src={typeof img === 'string' ? img : img.url}
+                            alt={`Existing ${index + 1}`}
+                            className="w-full h-full object-cover"
+                          />
+                          <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
+                        </div>
+                        <button
+                          type="button"
+                          onClick={() => removeExistingImage(index)}
+                          className="absolute -top-2 -right-2 w-6 h-6 bg-red-500 text-white rounded-full flex items-center justify-center hover:bg-red-600 transition-colors"
+                        >
+                          <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                            <path fillRule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clipRule="evenodd" />
+                          </svg>
+                        </button>
+                        {index === 0 && (
+                          <div className="absolute top-2 left-2 bg-slate-700 text-slate-200 text-xs px-2 py-1 rounded font-semibold">
+                            Current
                           </div>
-                        ))}
+                        )}
                       </div>
-                    )}
+                    ))}
 
                     {/* New image previews */}
-                    {imagePreviews.length > 0 && (
-                      <div className="flex flex-wrap gap-2">
-                        {imagePreviews.map((preview, index) => (
-                          <div key={index} className="relative">
-                            <img
-                              src={preview}
-                              alt={`Preview ${index}`}
-                              className="w-20 h-20 object-cover rounded-lg border-2 border-slate-700/50"
-                            />
-                            <button
-                              type="button"
-                              onClick={() => removeNewImage(index)}
-                              className="absolute -top-2 -right-2 bg-red-600 text-white rounded-full w-6 h-6 flex items-center justify-center text-xs hover:bg-red-700 transition-colors"
-                            >
-                              ×
-                            </button>
+                    {imagePreviews.map((preview, index) => (
+                      <div key={`new-${index}`} className="relative group">
+                        <div className="aspect-square rounded-xl overflow-hidden border-2 border-amber-400/50 bg-slate-900/60">
+                          <img
+                            src={preview}
+                            alt={`Preview ${index + 1}`}
+                            className="w-full h-full object-cover"
+                          />
+                          <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
+                        </div>
+                        <button
+                          type="button"
+                          onClick={() => removeNewImage(index)}
+                          className="absolute -top-2 -right-2 w-6 h-6 bg-red-500 text-white rounded-full flex items-center justify-center hover:bg-red-600 transition-colors"
+                        >
+                          <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                            <path fillRule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clipRule="evenodd" />
+                          </svg>
+                        </button>
+                        {existingImages.length === 0 && index === 0 && (
+                          <div className="absolute top-2 left-2 bg-amber-500 text-slate-900 text-xs px-2 py-1 rounded font-semibold">
+                            Main
                           </div>
-                        ))}
+                        )}
                       </div>
-                    )}
+                    ))}
 
-                    <label className="cursor-pointer inline-flex items-center px-6 py-3 bg-slate-800/50 hover:bg-slate-700/50 text-slate-300 hover:text-white border-2 border-slate-700/50 hover:border-slate-600/50 rounded-xl transition-all">
-                      <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                      </svg>
-                      {images.length > 0 || existingImages.length > 0 ? 'Add More Images' : 'Upload Images'}
-                      <input type="file" accept="image/*" multiple onChange={handleImageChange} className="hidden" />
-                    </label>
-                    <span className="text-xs text-slate-500 ml-2">Max 5 images, 5MB each</span>
+                    {/* Upload placeholder */}
+                    {existingImages.length + images.length < 5 && (
+                      <label className="cursor-pointer">
+                        <div className="aspect-square rounded-xl border-2 border-dashed border-slate-700/50 bg-slate-900/40 hover:border-amber-400/50 transition-colors flex flex-col items-center justify-center p-4 text-center">
+                          <svg className="w-8 h-8 text-slate-500 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+                          </svg>
+                          <p className="text-slate-400 text-sm">Add Image</p>
+                          <p className="text-slate-500 text-xs mt-1">{existingImages.length + images.length}/5</p>
+                        </div>
+                        <input
+                          type="file"
+                          accept="image/*"
+                          onChange={handleImageChange}
+                          className="sr-only"
+                          multiple
+                        />
+                      </label>
+                    )}
                   </div>
+
+                  <p className="text-slate-500 text-xs">
+                    {editingSalesProduct
+                      ? 'Remove existing images you no longer want, and add new ones. Up to 5 total.'
+                      : 'Upload up to 5 images (PNG, JPG, JPEG). First image will be used as main display.'}
+                  </p>
                 </div>
 
                 <div className="flex gap-3 pt-4">
