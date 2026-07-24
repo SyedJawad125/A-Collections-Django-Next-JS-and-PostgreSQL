@@ -649,7 +649,8 @@ const CategoryCom = () => {
     if (!window.confirm('Are you sure you want to delete this category?')) return;
     
     try {
-      await AxiosInstance.delete(`/api/myapp/v1/category/${id}/`);
+      // await AxiosInstance.delete(`/api/myapp/v1/category/${id}/`);
+      await AxiosInstance.delete(`/api/myapp/v1/category/`, { params: { id } });
       setRefreshKey(prev => prev + 1);
       toast.success('Category deleted successfully', {
         position: "top-center",
@@ -719,7 +720,12 @@ const CategoryCom = () => {
         // CategoryView.patch() reads "id" from the request body, not the URL
         formData.append('id', editingCategory.id);
         
+        // await AxiosInstance.patch(`/api/myapp/v1/category/`, formData, {
+        //   headers: { 'Content-Type': 'multipart/form-data' },
+        // });
+        // Update
         await AxiosInstance.patch(`/api/myapp/v1/category/`, formData, {
+          params: { id: editingCategory.id },
           headers: { 'Content-Type': 'multipart/form-data' },
         });
         toast.success('Category updated successfully');

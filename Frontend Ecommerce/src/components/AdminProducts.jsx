@@ -2424,9 +2424,13 @@ const AdminProducts = () => {
           submitData.append('deleted_images', removedImageIds.join(','));
         }
 
+        // await AxiosInstance.patch(`/api/myapp/v1/product/`, submitData, {
+        //   headers: { 'Content-Type': 'multipart/form-data' },
+        // });
         await AxiosInstance.patch(`/api/myapp/v1/product/`, submitData, {
-          headers: { 'Content-Type': 'multipart/form-data' },
-        });
+                  params: { id: editingProduct.id },
+                  headers: { 'Content-Type': 'multipart/form-data' },
+                });
         toast.success('Product updated successfully', {
           position: "top-center",
           autoClose: 2000,

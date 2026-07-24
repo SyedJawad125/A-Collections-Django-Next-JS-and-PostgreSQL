@@ -758,6 +758,24 @@ const SalesProductsCom = () => {
     hasPrevious: false
   });
 
+  // ---------- Add / Update sales product modal state ----------
+  const [salesProductModalOpen, setSalesProductModalOpen] = useState(false);
+  const [editingSalesProduct, setEditingSalesProduct] = useState(null);
+  const [salesProductForm, setSalesProductForm] = useState({
+    name: '',
+    description: '',
+    original_price: '',
+    discount_percent: '',
+    prod_has_category: '',
+  });
+  const [images, setImages] = useState([]);
+  const [imagePreviews, setImagePreviews] = useState([]);
+  const [existingImages, setExistingImages] = useState([]);
+  const [removedImageIds, setRemovedImageIds] = useState([]);
+  const [categoryRecords, setCategoryRecords] = useState([]);
+  const [isLoadingCategories, setIsLoadingCategories] = useState(true);
+  const [saving, setSaving] = useState(false);
+
   // Handle modal focus
   useEffect(() => {
     if (showDetailsModal && modalRef.current) {
@@ -882,6 +900,43 @@ const SalesProductsCom = () => {
     return () => window.removeEventListener('saleProductUpdated', handleProductUpdate);
   }, []);
 
+  // ---------- Fetch categories (for dropdown) ----------
+  useEffect(() => {
+    const fetchCategories = async () => {
+      setIsLoadingCategories(true);
+      try {
+        const res = await AxiosInstance.get('/api/myapp/v1/dropdown/category/');
+        const responseData = res?.data?.data;
+
+        if (!responseData) {
+          console.error('Invalid response structure:', res?.data);
+          setCategoryRecords([]);
+          return;
+        }
+
+        const dataArr = Array.isArray(responseData.data) ? responseData.data :
+                       Array.isArray(responseData) ? responseData : [];
+
+        setCategoryRecords(dataArr);
+      } catch (error) {
+        console.error('Error fetching categories:', error);
+        toast.error('Failed to load categories', {
+          position: "top-center",
+          autoClose: 3000,
+          hideProgressBar: true,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+          theme: "light",
+        });
+      } finally {
+        setIsLoadingCategories(false);
+      }
+    };
+
+    fetchCategories();
+  }, []);
+
   const openDetailsModal = (product) => {
     if (!permissions.read_sales_product) {
       toast.error('You do not have permission to view sale product details');
@@ -921,7 +976,9 @@ const SalesProductsCom = () => {
     
     try {
       // CORRECT DELETE URL - uses query parameter matching backend BaseView
-      await AxiosInstance.delete(`/api/myapp/v1/sales/product/?id=${id}`);
+      // await AxiosInstance.delete(`/api/myapp/v1/sales/product/?id=${id}`);
+      await AxiosInstance.delete(`/api/myapp/v1/sales/product/`, { params: { id } });
+      
       setRefreshKey(prev => prev + 1);
       
       if (selectedProduct?.id === id) {
@@ -951,12 +1008,186 @@ const SalesProductsCom = () => {
     }
   };
 
-  const updateRecord = async (saleproductid) => {
+  const handleAddSalesProduct = () => {
+    if (!permissions.create_sales_product) {
+      toast.error('You do not have permission to add sale products');
+      return;
+    }
+    resetSalesProductForm();
+    setSalesProductModalOpen(true);
+  };
+
+  const updateRecord = (salesProduct) => {
     if (!permissions.update_sales_product) {
       toast.error('You do not have permission to update sale products');
       return;
     }
-    router.push(`/updatesalesproductpage?saleproductid=${saleproductid}`);
+    
+    setEditingSalesProduct(salesProduct);
+    setSalesProductForm({
+      name: salesProduct.name || '',
+      description: salesProduct.description || '',
+      original_price: salesProduct.original_price ? String(salesProduct.original_price) : '',
+      discount_percent: salesProduct.discount_percent ? String(salesProduct.discount_percent) : '',
+      prod_has_category: salesProduct.category_data?.id ? String(salesProduct.category_data.id) : (salesProduct.prod_has_category || ''),
+    });
+    setImages([]);
+    setImagePreviews([]);
+    setExistingImages(salesProduct.allImages && salesProduct.allImages.length > 0
+      ? salesProduct.allImages.map(url => processImageUrl(url))
+      : (salesProduct.mainImage ? [salesProduct.mainImage] : []));
+    setRemovedImageIds([]);
+    setSalesProductModalOpen(true);
+  };
+
+  const resetSalesProductForm = () => {
+    setSalesProductForm({
+      name: '',
+      description: '',
+      original_price: '',
+      discount_percent: '',
+      prod_has_category: '',
+    });
+    setImages([]);
+    setImagePreviews([]);
+    setExistingImages([]);
+    setRemovedImageIds([]);
+    setEditingSalesProduct(null);
+  };
+
+  const handleSalesProductFormChange = (e) => {
+    setSalesProductForm({ ...salesProductForm, [e.target.name]: e.target.value });
+  };
+
+  const handleImageChange = (e) => {
+    const files = Array.from(e.target.files || []);
+
+    if (images.length + files.length > 5) {
+      toast.error('Maximum 5 images allowed');
+      return;
+    }
+
+    const validFiles = files.filter(file => {
+      if (file.size > 5 * 1024 * 1024) {
+        toast.error(`${file.name} is too large (max 5MB)`);
+        return false;
+      }
+      return true;
+    });
+
+    setImages(prev => [...prev, ...validFiles]);
+
+    validFiles.forEach(file => {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setImagePreviews(prev => [...prev, reader.result]);
+      };
+      reader.readAsDataURL(file);
+    });
+  };
+
+  const removeNewImage = (index) => {
+    setImages(prev => prev.filter((_, i) => i !== index));
+    setImagePreviews(prev => prev.filter((_, i) => i !== index));
+  };
+
+  const removeExistingImage = (index) => {
+    const img = existingImages[index];
+    if (img?.id) {
+      setRemovedImageIds(prev => [...prev, img.id]);
+    }
+    setExistingImages(prev => prev.filter((_, i) => i !== index));
+  };
+
+  const saveSalesProduct = async (e) => {
+    e.preventDefault();
+
+    if (!salesProductForm.name.trim() || !salesProductForm.description.trim() || !String(salesProductForm.original_price).trim() || !String(salesProductForm.discount_percent).trim()) {
+      toast.error('Please fill in all required fields');
+      return;
+    }
+
+    if (!salesProductForm.prod_has_category) {
+      toast.error('Please select a category');
+      return;
+    }
+
+    const hasAnyImage = images.length > 0 || existingImages.length > 0;
+    if (!hasAnyImage) {
+      toast.error('Please upload at least one image');
+      return;
+    }
+
+    setSaving(true);
+    try {
+      const submitData = new FormData();
+      submitData.append('name', salesProductForm.name.trim());
+      submitData.append('description', salesProductForm.description.trim());
+      submitData.append('original_price', String(salesProductForm.original_price).trim());
+      submitData.append('discount_percent', String(salesProductForm.discount_percent).trim());
+      submitData.append('prod_has_category', salesProductForm.prod_has_category);
+
+      images.forEach((image) => {
+        submitData.append('images', image);
+      });
+
+      if (editingSalesProduct) {
+        // SalesProductView.patch() reads "id" from the request body, not the URL
+        submitData.append('id', editingSalesProduct.id);
+        if (removedImageIds.length > 0) {
+          submitData.append('deleted_images', removedImageIds.join(','));
+        }
+
+        // await AxiosInstance.patch(`/api/myapp/v1/sales/product/`, submitData, {
+        //   headers: { 'Content-Type': 'multipart/form-data' },
+        // });
+        await AxiosInstance.patch(`/api/myapp/v1/sales/product/`, submitData, {
+              params: { id: editingSalesProduct.id },
+              headers: { 'Content-Type': 'multipart/form-data' },
+            });
+        toast.success('Sale product updated successfully', {
+          position: "top-center",
+          autoClose: 2000,
+          hideProgressBar: true,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+          theme: "dark",
+        });
+      } else {
+        await AxiosInstance.post('/api/myapp/v1/sales/product/', submitData, {
+          headers: { 'Content-Type': 'multipart/form-data' },
+        });
+        toast.success('Sale product added successfully', {
+          position: "top-center",
+          autoClose: 2000,
+          hideProgressBar: true,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+          theme: "dark",
+        });
+      }
+
+      setSalesProductModalOpen(false);
+      resetSalesProductForm();
+      setRefreshKey(prev => prev + 1);
+    } catch (error) {
+      console.error('Error saving sale product:', error);
+      console.error('Error response:', error.response?.data);
+      const errorMessage = error.response?.data?.error || error.response?.data?.message || 'Error saving sale product';
+      toast.error(errorMessage, {
+        position: "top-center",
+        autoClose: 3000,
+        hideProgressBar: true,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        theme: "light",
+      });
+    } finally {
+      setSaving(false);
+    }
   };
 
   const handlePageChange = (newPage) => {
@@ -1156,9 +1387,9 @@ const SalesProductsCom = () => {
                 
                 <div className="flex mt-8 space-x-4">
                   {permissions.update_sales_product && (
-                    <button 
+                    <button
                       onClick={() => {
-                        updateRecord(selectedProduct.id);
+                        updateRecord(selectedProduct);
                         closeDetailsModal();
                       }}
                       className="px-6 py-2 bg-gradient-to-r from-amber-600 to-yellow-500 text-slate-900 font-semibold rounded-xl hover:shadow-lg hover:shadow-amber-500/50 transition-all"
@@ -1213,7 +1444,7 @@ const SalesProductsCom = () => {
               {permissions.create_sales_product && (
                 <button
                   className="group relative px-8 py-3 bg-gradient-to-r from-amber-600 to-yellow-500 text-slate-900 font-semibold rounded-full shadow-2xl shadow-amber-500/50 hover:shadow-amber-500/70 transform hover:scale-105 transition-all duration-300 mt-4 md:mt-0"
-                  onClick={() => router.push('/adminaddsales')}
+                  onClick={handleAddSalesProduct}
                 >
                   <div className="absolute inset-0 bg-gradient-to-r from-amber-400 to-yellow-400 opacity-0 group-hover:opacity-100 rounded-full transition-opacity duration-300"></div>
                   <div className="relative flex items-center space-x-2">
@@ -1333,7 +1564,7 @@ const SalesProductsCom = () => {
                               <button
                                 onClick={(e) => {
                                   e.stopPropagation();
-                                  updateRecord(item.id);
+                                  updateRecord(item);
                                 }}
                                 className="px-4 py-2 bg-gradient-to-r from-amber-600 to-yellow-500 text-slate-900 font-semibold rounded-xl hover:shadow-lg hover:shadow-amber-500/50 transition-all"
                               >
@@ -1464,6 +1695,190 @@ const SalesProductsCom = () => {
               </div>
             )}
           </>
+        )}
+
+        {/* Sales Product Edit Modal */}
+        {salesProductModalOpen && (
+          <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+            <div className="bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 border-2 border-slate-700/50 rounded-3xl w-full max-w-2xl max-h-[90vh] overflow-y-auto shadow-[0_25px_50px_-12px_rgba(0,0,0,0.5)]">
+              <div className="sticky top-0 bg-slate-900/95 backdrop-blur-xl border-b-2 border-slate-700/50 p-6 rounded-t-3xl">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <h2 className="text-2xl font-bold bg-gradient-to-r from-amber-400 via-orange-400 to-red-400 bg-clip-text text-transparent">
+                      {editingSalesProduct ? 'Edit Sale Product' : 'Add Sale Product'}
+                    </h2>
+                    <p className="text-slate-400 text-sm mt-1">
+                      {editingSalesProduct ? 'Update sale product details' : 'Create a new sale product'}
+                    </p>
+                  </div>
+                  <button
+                    onClick={() => setSalesProductModalOpen(false)}
+                    className="p-2 bg-slate-800/50 hover:bg-slate-700/50 text-slate-400 hover:text-white rounded-xl transition-all border border-slate-700/50 hover:border-slate-600/50"
+                  >
+                    <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                  </button>
+                </div>
+              </div>
+
+              <form onSubmit={saveSalesProduct} className="p-6 space-y-6">
+                <div>
+                  <label className="block text-sm font-medium text-slate-400 mb-2">
+                    Product Name <span className="text-red-400">*</span>
+                  </label>
+                  <input
+                    type="text"
+                    name="name"
+                    value={salesProductForm.name}
+                    onChange={handleSalesProductFormChange}
+                    placeholder="Enter product name"
+                    className="w-full px-4 py-3 bg-slate-900/50 text-white border-2 border-slate-700/50 rounded-xl focus:outline-none focus:ring-2 focus:ring-amber-500/50 focus:border-amber-500/50 transition-all placeholder:text-slate-500"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-slate-400 mb-2">
+                    Description <span className="text-red-400">*</span>
+                  </label>
+                  <textarea
+                    name="description"
+                    value={salesProductForm.description}
+                    onChange={handleSalesProductFormChange}
+                    placeholder="Enter product description"
+                    rows={3}
+                    className="w-full px-4 py-3 bg-slate-900/50 text-white border-2 border-slate-700/50 rounded-xl focus:outline-none focus:ring-2 focus:ring-amber-500/50 focus:border-amber-500/50 transition-all placeholder:text-slate-500 resize-none"
+                  />
+                </div>
+
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm font-medium text-slate-400 mb-2">
+                      Original Price (PKR) <span className="text-red-400">*</span>
+                    </label>
+                    <input
+                      type="number"
+                      name="original_price"
+                      value={salesProductForm.original_price}
+                      onChange={handleSalesProductFormChange}
+                      placeholder="0"
+                      className="w-full px-4 py-3 bg-slate-900/50 text-white border-2 border-slate-700/50 rounded-xl focus:outline-none focus:ring-2 focus:ring-amber-500/50 focus:border-amber-500/50 transition-all placeholder:text-slate-500"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-slate-400 mb-2">
+                      Discount (%) <span className="text-red-400">*</span>
+                    </label>
+                    <input
+                      type="number"
+                      name="discount_percent"
+                      value={salesProductForm.discount_percent}
+                      onChange={handleSalesProductFormChange}
+                      placeholder="0"
+                      min="0"
+                      max="100"
+                      className="w-full px-4 py-3 bg-slate-900/50 text-white border-2 border-slate-700/50 rounded-xl focus:outline-none focus:ring-2 focus:ring-amber-500/50 focus:border-amber-500/50 transition-all placeholder:text-slate-500"
+                    />
+                  </div>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-slate-400 mb-2">
+                    Category <span className="text-red-400">*</span>
+                  </label>
+                  <select
+                    name="prod_has_category"
+                    value={salesProductForm.prod_has_category}
+                    onChange={handleSalesProductFormChange}
+                    disabled={isLoadingCategories}
+                    className="w-full px-4 py-3 bg-slate-900/50 text-white border-2 border-slate-700/50 rounded-xl focus:outline-none focus:ring-2 focus:ring-amber-500/50 focus:border-amber-500/50 transition-all"
+                  >
+                    <option value="">Select a category</option>
+                    {categoryRecords.map(cat => (
+                      <option key={cat.id} value={cat.id}>{cat.name}</option>
+                    ))}
+                  </select>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-slate-400 mb-2">
+                    Product Images {editingSalesProduct && <span className="text-xs text-slate-500">(Leave empty to keep current images)</span>}
+                  </label>
+                  <div className="space-y-3">
+                    {/* Existing images */}
+                    {existingImages.length > 0 && (
+                      <div className="flex flex-wrap gap-2">
+                        {existingImages.map((img, index) => (
+                          <div key={index} className="relative">
+                            <img
+                              src={typeof img === 'string' ? img : img.url}
+                              alt={`Existing ${index}`}
+                              className="w-20 h-20 object-cover rounded-lg border-2 border-slate-700/50"
+                            />
+                            <button
+                              type="button"
+                              onClick={() => removeExistingImage(index)}
+                              className="absolute -top-2 -right-2 bg-red-600 text-white rounded-full w-6 h-6 flex items-center justify-center text-xs hover:bg-red-700 transition-colors"
+                            >
+                              ×
+                            </button>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+
+                    {/* New image previews */}
+                    {imagePreviews.length > 0 && (
+                      <div className="flex flex-wrap gap-2">
+                        {imagePreviews.map((preview, index) => (
+                          <div key={index} className="relative">
+                            <img
+                              src={preview}
+                              alt={`Preview ${index}`}
+                              className="w-20 h-20 object-cover rounded-lg border-2 border-slate-700/50"
+                            />
+                            <button
+                              type="button"
+                              onClick={() => removeNewImage(index)}
+                              className="absolute -top-2 -right-2 bg-red-600 text-white rounded-full w-6 h-6 flex items-center justify-center text-xs hover:bg-red-700 transition-colors"
+                            >
+                              ×
+                            </button>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+
+                    <label className="cursor-pointer inline-flex items-center px-6 py-3 bg-slate-800/50 hover:bg-slate-700/50 text-slate-300 hover:text-white border-2 border-slate-700/50 hover:border-slate-600/50 rounded-xl transition-all">
+                      <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                      </svg>
+                      {images.length > 0 || existingImages.length > 0 ? 'Add More Images' : 'Upload Images'}
+                      <input type="file" accept="image/*" multiple onChange={handleImageChange} className="hidden" />
+                    </label>
+                    <span className="text-xs text-slate-500 ml-2">Max 5 images, 5MB each</span>
+                  </div>
+                </div>
+
+                <div className="flex gap-3 pt-4">
+                  <button
+                    type="button"
+                    onClick={() => setSalesProductModalOpen(false)}
+                    className="flex-1 px-6 py-3 bg-slate-800/50 hover:bg-slate-700/50 text-white rounded-xl font-semibold border-2 border-slate-700/50 hover:border-slate-600/50 transition-all"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="submit"
+                    disabled={saving}
+                    className="flex-1 px-6 py-3 bg-gradient-to-r from-amber-600 to-orange-600 hover:from-amber-500 hover:to-orange-500 text-white rounded-xl font-semibold shadow-lg shadow-amber-500/25 transition-all hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    {saving ? 'Saving...' : (editingSalesProduct ? 'Update Sale Product' : 'Add Sale Product')}
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
         )}
       </div>
     </div>
