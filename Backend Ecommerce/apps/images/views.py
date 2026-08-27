@@ -41,11 +41,29 @@ class ImagesView(BaseView):
         return super().delete_(request)
 
 
+# class PublicImagesView(BaseView):
+#     serializer_class = PublicImagesSerializer
+#     filterset_class = PublicImagesFilter
+#     permission_classes = [AllowAny]  # Allow public access without authentication
+#     authentication_classes = []  # Disable authentication for public endpoint
+    
+#     def get(self, request):
+#         return super().get_(request)
+
+
 class PublicImagesView(BaseView):
     serializer_class = PublicImagesSerializer
     filterset_class = PublicImagesFilter
-    permission_classes = [AllowAny]  # Allow public access without authentication
-    authentication_classes = []  # Disable authentication for public endpoint
+    permission_classes = [AllowAny]
+    authentication_classes = []
+    
+    def get_queryset(self):
+        # Only return active, non-deleted images
+        return Images.objects.filter(
+            deleted=False,
+            is_active=True,
+            is_public=True  # If you have this field
+        )
     
     def get(self, request):
         return super().get_(request)
