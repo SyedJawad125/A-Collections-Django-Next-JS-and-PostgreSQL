@@ -232,12 +232,12 @@ const BlogLuxuryBanner = () => {
       if (res?.data?.data && Array.isArray(res.data.data)) {
         // Filter only Bannerslider category images
         const bannerImages = res.data.data.filter(
-          item => item.category_name === 'Bannerslider'
+          item => item.category_name === 'BannerSlider'
         );
         setBanners(bannerImages);
       } else if (res?.data && Array.isArray(res.data)) {
         const bannerImages = res.data.filter(
-          item => item.category_name === 'Bannerslider'
+          item => item.category_name === 'BannerSlider'
         );
         setBanners(bannerImages);
       } else {
