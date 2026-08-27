@@ -227,24 +227,40 @@ const BlogLuxuryBanner = () => {
     setIsLoading(true);
     try {
       const res = await AxiosInstance.get('/api/images/v1/public/images/');
+      console.log('Public images response:', res.data);
       
       // Handle the response structure from your API
+      let allImages = [];
       if (res?.data?.data && Array.isArray(res.data.data)) {
-        // Filter only Bannerslider category images
-        const bannerImages = res.data.data.filter(
-          item => item.category_name === 'BannerSlider'
-        );
-        setBanners(bannerImages);
+        allImages = res.data.data;
       } else if (res?.data && Array.isArray(res.data)) {
-        const bannerImages = res.data.filter(
-          item => item.category_name === 'BannerSlider'
-        );
-        setBanners(bannerImages);
+        allImages = res.data;
       } else {
         console.error('Unexpected response structure:', res);
         toast.error('Received unexpected data format from server');
         setBanners([]);
+        setIsLoading(false);
+        return;
       }
+
+      // FIXED: Filter only Banner category images
+      // The category can be in different fields depending on API response
+      const bannerImages = allImages.filter(item => {
+        // Check various possible category fields
+        const category = item.category || item.category_name || item.category_details?.category || '';
+        // Also check if imagescategory is 2 (Banner category ID from your data)
+        const categoryId = item.imagescategory || item.category_id || item.category_details?.id;
+        
+        // Match by category name or category ID
+        return category === 'Banner' || 
+               category === 'BannerSlider' ||
+               categoryId === 2 || // Banner category ID from your data
+               categoryId === 1; // BannerSlider category ID
+      });
+
+      console.log('Filtered banner images:', bannerImages);
+      setBanners(bannerImages);
+      
     } catch (error) {
       console.error('Error occurred:', error);
       if (error.response?.status === 403) {
@@ -262,7 +278,6 @@ const BlogLuxuryBanner = () => {
   if (isLoading) {
     return (
       <div className="relative w-full h-[calc(102vh-6rem)] flex items-center justify-center bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950">
-      {/*  <div className="relative w-full h-screen flex items-center justify-center bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950"> */}
         <ToastContainer 
           position="top-right" 
           autoClose={3000}
@@ -297,7 +312,7 @@ const BlogLuxuryBanner = () => {
             </svg>
           </div>
           <h3 className="text-xl font-bold text-white mb-2">No Banner Images Found</h3>
-          <p className="text-slate-400 mb-6">Please add some banner images in the Bannerslider category</p>
+          <p className="text-slate-400 mb-6">Please add some banner images in the Banner category</p>
           <button 
             onClick={fetchBannerImages}
             className="px-6 py-3 bg-gradient-to-r from-amber-600 to-yellow-600 hover:from-amber-500 hover:to-yellow-500 text-white font-semibold rounded-xl transition-all duration-300 hover:scale-105"
@@ -372,7 +387,7 @@ const BlogLuxuryBanner = () => {
             <div className="w-full h-[calc(102vh-6rem)] overflow-hidden">
               <img
                 src={banner.image}
-                alt={banner.name}
+                alt={banner.name || banner.title || 'Banner'}
                 className="w-full h-full object-cover scale-105 group-hover:scale-100 transition-transform duration-[3000ms] ease-out brightness-[0.7]"
                 onError={(e) => {
                   e.target.src = 'https://images.unsplash.com/photo-1497366216548-37526070297c?w=1200&q=80';
@@ -390,20 +405,20 @@ const BlogLuxuryBanner = () => {
             {/* Content container */}
             <div className="absolute inset-0 flex flex-col justify-center items-start px-8 md:px-16 lg:px-24">
               <div className="max-w-3xl space-y-6">
-                {/* Small overline */}
+                {/* Small overline - FIXED: Use category_name or category */}
                 <div className="flex items-center gap-3 animate-fadeIn">
                   <div className="w-12 h-px bg-gradient-to-r from-[#d4af37] to-transparent"></div>
                   <span className="text-[#e8c547] text-xs md:text-sm font-semibold tracking-[0.3em] uppercase">
-                    {banner.category_name || 'Featured'}
+                    {banner.category_name || banner.category || 'Featured'}
                   </span>
                 </div>
 
-                {/* Main title */}
+                {/* Main title - FIXED: Use name or title */}
                 <h2 className="text-3xl md:text-5xl lg:text-6xl font-serif font-bold text-white leading-tight animate-slideUp">
-                  {banner.name}
+                  {banner.name || banner.title || 'Luxury Experience'}
                 </h2>
 
-                {/* Subtitle/Description */}
+                {/* Subtitle/Description - FIXED: Use description */}
                 {banner.description && (
                   <p className="text-base md:text-xl lg:text-2xl text-gray-200 font-light leading-relaxed max-w-2xl animate-fadeInDelay">
                     {banner.description}
@@ -411,7 +426,7 @@ const BlogLuxuryBanner = () => {
                 )}
 
                 {/* Bullets Description (if available) */}
-                {banner.bulletsdescription && banner.bulletsdescription !== banner.name && (
+                {banner.bulletsdescription && banner.bulletsdescription !== (banner.name || banner.title) && (
                   <p className="text-sm md:text-base text-amber-200/90 font-medium leading-relaxed max-w-2xl animate-fadeInDelay">
                     {banner.bulletsdescription}
                   </p>
