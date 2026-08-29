@@ -935,7 +935,7 @@ const AdminSideNavbarCom = () => {
       id: 'dashboard',
       label: 'Dashboard',
       icon: Home,
-      path: '/admindashboard',
+      path: '/admin/admindashboard',
       roles: ['admin', 'editor', 'super'],
       color: 'blue'
     },
@@ -1007,7 +1007,7 @@ const AdminSideNavbarCom = () => {
       id: 'addresses',
       label: 'Addresses',
       icon: MapPin,
-      path: '/adminaddresses',
+      path: '/admin/adminaddresses',
       roles: ['admin', 'super'],
       color: 'blue'
     },
