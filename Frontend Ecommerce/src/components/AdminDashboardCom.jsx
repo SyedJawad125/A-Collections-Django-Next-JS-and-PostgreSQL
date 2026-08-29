@@ -402,7 +402,7 @@ const AdminPage = () => {
   return (
     <div className="w-full min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 p-6 overflow-auto">
       {/* Welcome Banner */}
-      <div className="bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 rounded-2xl p-8 mb-8 shadow-2xl shadow-blue-500/20 relative overflow-hidden">
+      <div className="bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 rounded-2xl p-6 mb-6 -mt-6 shadow-2xl shadow-blue-500/20 relative overflow-hidden">
         <div className="absolute inset-0 bg-black/20"></div>
         <div className="relative z-10">
           <h1 className="text-4xl font-bold text-white mb-3">Welcome to Admin Dashboard</h1>
@@ -418,7 +418,7 @@ const AdminPage = () => {
       </div>
 
       {/* Stats Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
         {statsData.map((stat, index) => {
           const Icon = stat.icon;
           return (
