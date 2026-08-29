@@ -943,7 +943,7 @@ const AdminSideNavbarCom = () => {
       id: 'posts',
       label: 'Blog Posts',
       icon: FileText,
-      path: '/blogpostpage',
+      path: '/admin/blogpostpage',
       roles: ['admin', 'editor', 'super'],
       color: 'purple'
     },
@@ -951,7 +951,7 @@ const AdminSideNavbarCom = () => {
       id: 'images',
       label: 'Images',
       icon: Image,
-      path: '/imagespage',
+      path: '/admin/imagespage',
       roles: ['admin', 'editor', 'guest', 'super'],
       color: 'red'
     },
@@ -1031,7 +1031,7 @@ const AdminSideNavbarCom = () => {
       id: 'shipping',
       label: 'Shipping Methods',
       icon: Truck,
-      path: '/adminshipping',
+      path: '/admin/adminshipping',
       roles: ['admin', 'super'],
       color: 'cyan'
     },
@@ -1039,7 +1039,7 @@ const AdminSideNavbarCom = () => {
       id: 'profile',
       label: 'Profile',
       icon: User,
-      path: '/profile',
+      path: '/admin/profile',
       roles: ['admin', 'editor', 'client', 'guest', 'super'],
       color: 'amber'
     },
