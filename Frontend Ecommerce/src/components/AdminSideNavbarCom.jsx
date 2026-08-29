@@ -967,7 +967,7 @@ const AdminSideNavbarCom = () => {
       id: 'adminproducts',
       label: 'Admin Products',
       icon: ShoppingBag,
-      path: '/adminproducts',
+      path: '/admin/adminproducts',
       roles: ['admin', 'super'],
       color: 'red'
     },
@@ -975,7 +975,7 @@ const AdminSideNavbarCom = () => {
       id: 'admincategories',
       label: 'Admin Categories',
       icon: Tag,
-      path: '/admincategories',
+      path: '/admin/admincategories',
       roles: ['admin', 'super'],
       color: 'emerald'
     },
@@ -983,7 +983,7 @@ const AdminSideNavbarCom = () => {
       id: 'adminsales',
       label: 'Admin Sales',
       icon: Tag,
-      path: '/adminsales',
+      path: '/admin/adminsales',
       roles: ['admin', 'super'],
       color: 'red'
     },
@@ -1015,7 +1015,7 @@ const AdminSideNavbarCom = () => {
       id: 'returns',
       label: 'Return Requests',
       icon: RotateCcw,
-      path: '/adminreturns',
+      path: '/admin/adminreturns',
       roles: ['admin', 'super'],
       color: 'orange'
     },
