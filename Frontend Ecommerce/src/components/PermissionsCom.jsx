@@ -460,7 +460,7 @@ const PermissionsCom = () => {
   }, []);
 
   const updatePermission = (id) => {
-    router.push(`/UpdatePermissionPage?id=${id}`);
+    router.push(`/admin/UpdatePermissionPage?id=${id}`);
   };
 
   const deletePermission = async (id) => {
@@ -548,7 +548,7 @@ const PermissionsCom = () => {
         {permissions.create_permission && (
           <div className="mb-8">
             <button
-              onClick={() => router.push('/AddPermissionPage')}
+              onClick={() => router.push('/admin/AddPermissionPage')}
               className="group relative px-8 py-4 bg-gradient-to-r from-amber-500/20 to-orange-500/20 border border-amber-400/30 text-amber-300 rounded-2xl hover:from-amber-500/30 hover:to-orange-500/30 hover:border-amber-400/50 transition-all duration-300 shadow-lg shadow-amber-500/10 hover:shadow-amber-500/20 backdrop-blur-sm font-semibold"
             >
               <div className="flex items-center space-x-3">
