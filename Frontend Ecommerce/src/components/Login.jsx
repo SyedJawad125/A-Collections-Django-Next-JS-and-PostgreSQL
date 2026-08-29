@@ -367,7 +367,7 @@ const Login = () => {
 
   // Redirect if already authenticated
   useEffect(() => {
-    if (isAuthenticated) router.replace('/admindashboard');
+    if (isAuthenticated) router.replace('/admin/admindashboard');
   }, [isAuthenticated, router]);
 
   // Registration success flash
@@ -431,7 +431,7 @@ const Login = () => {
         // Hydrate AuthContext (stores tokens + user in localStorage + state)
         login(response.data);
 
-        router.push('/admindashboard');
+        router.push('/admin/admindashboard');
       } else {
         setError(message || 'Login failed. Please try again.');
       }
