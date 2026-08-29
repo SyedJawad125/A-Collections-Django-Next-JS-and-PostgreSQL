@@ -959,7 +959,7 @@ const AdminSideNavbarCom = () => {
       id: 'employees',
       label: 'Employee Records',
       icon: Users,
-      path: '/employeepage',
+      path: '/admin/employeepage',
       roles: ['admin', 'super'],
       color: 'emerald'
     },
@@ -992,22 +992,6 @@ const AdminSideNavbarCom = () => {
       label: 'Orders',
       icon: Tag,
       path: '/adminorder',
-      roles: ['admin', 'super'],
-      color: 'emerald'
-    },
-    {
-      id: 'roles',
-      label: 'Roles',
-      icon: Shield,
-      path: '/RolesPage',
-      roles: ['admin', 'super'],
-      color: 'red'
-    },
-    {
-      id: 'permissions',
-      label: 'Permissions',
-      icon: Key,
-      path: '/PermissionsPage',
       roles: ['admin', 'super'],
       color: 'emerald'
     },
@@ -1066,6 +1050,22 @@ const AdminSideNavbarCom = () => {
       path: '/Ecommerce',
       roles: ['admin', 'super'],
       color: 'red'
+    },
+    {
+      id: 'roles',
+      label: 'Roles',
+      icon: Shield,
+      path: '/admin/RolesPage',
+      roles: ['admin', 'super'],
+      color: 'red'
+    },
+    {
+      id: 'permissions',
+      label: 'Permissions',
+      icon: Key,
+      path: '/admin/PermissionsPage',
+      roles: ['admin', 'super'],
+      color: 'emerald'
     },
     {
       id: 'public',

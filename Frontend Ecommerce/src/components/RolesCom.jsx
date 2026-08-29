@@ -57,7 +57,7 @@ const RolesCom = () => {
   };
 
   const updateRole = (id) => {
-    router.push(`/UpdateRolePage?id=${id}`);
+    router.push(`/admin/UpdateRolePage?id=${id}`);
   };
 
   const deleteRole = async (id) => {
@@ -175,7 +175,7 @@ const RolesCom = () => {
 
             {permissions.create_role && (
               <button
-                onClick={() => router.push('/AddRolePage')}
+                onClick={() => router.push('/admin/AddRolePage')}
                 className="group relative px-6 py-3 bg-gradient-to-r from-amber-500 to-yellow-500 text-slate-900 font-semibold rounded-full shadow-lg shadow-amber-500/30 hover:shadow-amber-500/50 transform hover:scale-105 transition-all duration-300 overflow-hidden"
               >
                 <div className="absolute inset-0 bg-gradient-to-r from-amber-400 to-yellow-400 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
