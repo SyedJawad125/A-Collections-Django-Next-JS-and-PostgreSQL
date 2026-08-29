@@ -1023,7 +1023,7 @@ const AdminSideNavbarCom = () => {
       id: 'coupons',
       label: 'Coupons',
       icon: Ticket,
-      path: '/admincoupons',
+      path: '/admin/admincoupons',
       roles: ['admin', 'super'],
       color: 'green'
     },
