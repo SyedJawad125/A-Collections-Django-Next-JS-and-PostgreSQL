@@ -999,7 +999,7 @@ const AdminSideNavbarCom = () => {
       id: 'reviews',
       label: 'reviews',
       icon: MessageSquare,
-      path: '/adminreviews',
+      path: '/admin/adminreviews',
       roles: ['admin', 'super'],
       color: 'purple'
     },
