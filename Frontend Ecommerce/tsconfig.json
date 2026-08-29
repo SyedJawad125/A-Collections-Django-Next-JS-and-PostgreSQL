@@ -21,6 +21,6 @@
       "@/*": ["./src/*"]
     }
   },
-  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts", "src/app/addproductspage", "src/components/SessionProvider.jsx"],
+  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts", "src/app/addproductspage", "src/components/SessionProvider.jsx", "src/types"],
   "exclude": ["node_modules"]
 }

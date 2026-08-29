@@ -106,7 +106,7 @@ const Orders = () => {
   };
 
   const updateOrder = (orderId) => {
-    router.push(`/adminupdateorder?orderid=${orderId}`);
+    router.push(`/admin/adminupdateorder?orderid=${orderId}`);
   };
 
   const formatDate = (dateString) => {
@@ -241,7 +241,7 @@ const Orders = () => {
           {permissions.create_order && (     
             <button
               className="px-6 py-3 bg-transparent border border-amber-500 text-amber-500 font-medium text-sm leading-tight uppercase rounded-full hover:bg-amber-500 hover:text-black focus:outline-none focus:ring-0 transition duration-150 ease-in-out transform hover:scale-105 flex items-center"
-              onClick={() => router.push('/adminaddorder')}
+              onClick={() => router.push('/admin/adminaddorder')}
             >
               <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-1" viewBox="0 0 20 20" fill="currentColor">
                 <path fillRule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clipRule="evenodd" />

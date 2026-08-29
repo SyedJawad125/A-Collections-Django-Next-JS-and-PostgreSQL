@@ -991,7 +991,7 @@ const AdminSideNavbarCom = () => {
       id: 'orders',
       label: 'Orders',
       icon: Tag,
-      path: '/adminorder',
+      path: '/admin/adminorder',
       roles: ['admin', 'super'],
       color: 'emerald'
     },
