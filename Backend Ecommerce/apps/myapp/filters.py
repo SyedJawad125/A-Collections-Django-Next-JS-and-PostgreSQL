@@ -666,8 +666,8 @@ from django_filters import FilterSet, CharFilter, DateFilter, BooleanFilter, Num
 from django.db.models import Q, F
 
 from .models import (
-    Category, ProductTag, Product, Color, ProductVariant,
-    Inventory, SalesProduct, Order, OrderDetail, Contact, Review,
+    Category, ProductTag, Product, Color, ProductVariant, SalesProductColor, SalesProductVariant, 
+    SalesInventory, Inventory, SalesProduct, Order, OrderDetail, Contact, Review,
     Address, ShippingMethod, Coupon, Cart, CartItem,
     Wishlist, WishlistItem, ReturnRequest, Payment,
 )
@@ -916,6 +916,107 @@ class SalesProductFilter(FilterSet):
 
     def filter_has_discount(self, queryset, name, value):
         return queryset.filter(discount_percent__gt=0) if value else queryset.filter(discount_percent=0)
+
+
+class PublicSalesProductFilter(FilterSet):
+    id            = CharFilter(field_name='id')
+    name          = CharFilter(field_name='name', lookup_expr='icontains')
+    category      = CharFilter(field_name='salesprod_has_category__id')
+    has_discount  = BooleanFilter(method='filter_has_discount')
+    min_price     = NumberFilter(field_name='final_price', lookup_expr='gte')
+    max_price     = NumberFilter(field_name='final_price', lookup_expr='lte')
+
+    class Meta:
+        model   = SalesProduct
+        exclude = ['image', 'description']
+
+    def filter_has_discount(self, queryset, name, value):
+        return queryset.filter(discount_percent__gt=0) if value else queryset.filter(discount_percent=0)
+
+
+# ============================================================================
+# SALES PRODUCT COLOR
+# ============================================================================
+
+class SalesProductColorFilter(FilterSet):
+    id        = CharFilter(field_name='id')
+    name      = CharFilter(field_name='name', lookup_expr='icontains')
+    date_from = DateFilter(field_name='created_at', lookup_expr='gte')
+    date_to   = DateFilter(field_name='created_at', lookup_expr='lte')
+
+    class Meta:
+        model  = SalesProductColor
+        fields = '__all__'
+
+
+# ============================================================================
+# SALES PRODUCT VARIANT
+# ============================================================================
+
+class SalesProductVariantFilter(FilterSet):
+    id                  = CharFilter(field_name='id')
+    salesproduct_id     = CharFilter(field_name='salesproduct__id')
+    salesproduct_name   = CharFilter(field_name='salesproduct__name', lookup_expr='icontains')
+    size                = CharFilter(field_name='size', lookup_expr='iexact')
+    colors              = CharFilter(field_name='colors__name', lookup_expr='icontains')
+    material            = CharFilter(field_name='material', lookup_expr='icontains')
+    sku                 = CharFilter(field_name='sku', lookup_expr='icontains')
+    min_stock           = NumberFilter(field_name='stock_quantity', lookup_expr='gte')
+    max_stock           = NumberFilter(field_name='stock_quantity', lookup_expr='lte')
+    is_active           = BooleanFilter(field_name='is_active')
+    date_from           = DateFilter(field_name='created_at', lookup_expr='gte')
+    date_to             = DateFilter(field_name='created_at', lookup_expr='lte')
+
+    class Meta:
+        model  = SalesProductVariant
+        fields = {'size': ['exact'], 'is_active': ['exact']}
+
+
+class PublicSalesProductVariantFilter(FilterSet):
+    salesproduct_id = CharFilter(field_name='salesproduct__id')
+    size            = CharFilter(field_name='size', lookup_expr='iexact')
+    colors          = CharFilter(field_name='colors__name', lookup_expr='icontains')
+    material        = CharFilter(field_name='material', lookup_expr='icontains')
+    in_stock        = BooleanFilter(method='filter_in_stock')
+
+    class Meta:
+        model  = SalesProductVariant
+        fields = ['salesproduct_id', 'size', 'material']
+
+    def filter_in_stock(self, queryset, name, value):
+        if value:
+            return queryset.filter(stock_quantity__gt=0, is_active=True)
+        return queryset
+
+
+# ============================================================================
+# SALES INVENTORY
+# ============================================================================
+
+class SalesInventoryFilter(FilterSet):
+    id                  = CharFilter(field_name='id')
+    salesproduct_id     = CharFilter(field_name='sales_product_variant__salesproduct__id')
+    salesproduct_name   = CharFilter(field_name='sales_product_variant__salesproduct__name', lookup_expr='icontains')
+    variant_id          = CharFilter(field_name='sales_product_variant__id')
+    variant_sku         = CharFilter(field_name='sales_product_variant__sku', lookup_expr='icontains')
+    min_stock           = NumberFilter(field_name='current_stock', lookup_expr='gte')
+    max_stock           = NumberFilter(field_name='current_stock', lookup_expr='lte')
+    is_low_stock        = BooleanFilter(method='filter_is_low_stock')
+    needs_reorder       = BooleanFilter(method='filter_needs_reorder')
+    date_from           = DateFilter(field_name='created_at', lookup_expr='gte')
+    date_to             = DateFilter(field_name='created_at', lookup_expr='lte')
+
+    class Meta:
+        model  = SalesInventory
+        fields = []
+
+    def filter_is_low_stock(self, queryset, name, value):
+        return queryset.filter(current_stock__lte=F('minimum_stock_level')) if value \
+               else queryset.filter(current_stock__gt=F('minimum_stock_level'))
+
+    def filter_needs_reorder(self, queryset, name, value):
+        return queryset.filter(current_stock__lte=F('reorder_point')) if value \
+               else queryset.filter(current_stock__gt=F('reorder_point'))
 
 
 class PublicSalesProductFilter(FilterSet):

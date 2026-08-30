@@ -1104,7 +1104,7 @@ from config.settings import BACKEND_BASE_URL
 
 from .models import (
     Category, ProductTag, Product, ProductImage, Color, ProductVariant,
-    Inventory, SalesProduct, SalesProductImage,
+    Inventory, SalesProduct, SalesProductImage, SalesProductColor, SalesProductVariant, SalesInventory,
     Address, ShippingMethod, Coupon,
     Order, OrderDetail, Payment,
     Cart, CartItem, Wishlist, WishlistItem,
@@ -1591,6 +1591,149 @@ class SalesProductSerializer(serializers.ModelSerializer):
         data['created_at'] = _fmt_dt(data.get('created_at'))
         data['updated_at'] = _fmt_dt(data.get('updated_at'))
         return data
+
+
+# ============================================================================
+# SALES PRODUCT COLOR
+# ============================================================================
+
+class SalesProductColorSerializer(serializers.ModelSerializer):
+    created_by = serializers.SerializerMethodField()
+    updated_by = serializers.SerializerMethodField()
+
+    class Meta:
+        model  = SalesProductColor
+        fields = ['id', 'name', 'created_by', 'updated_by', 'created_at', 'updated_at']
+        read_only_fields = ('created_at', 'updated_at')
+
+    def get_created_by(self, obj): return _full_name(obj.created_by)
+    def get_updated_by(self, obj): return _full_name(obj.updated_by)
+
+    def validate_name(self, value):
+        value = value.strip()
+        if len(value) < 2:
+            raise serializers.ValidationError("Color name must be at least 2 characters")
+        qs = SalesProductColor.objects.filter(name__iexact=value, deleted=False)
+        if self.instance:
+            qs = qs.exclude(id=self.instance.id)
+        if qs.exists():
+            raise serializers.ValidationError(f"Sales product color '{value}' already exists")
+        return value
+
+    def to_representation(self, instance):
+        if instance.deleted:
+            return {'id': instance.id, 'name': instance.name,
+                    'message': f'Sales product color "{instance.name}" deleted successfully'}
+        return super().to_representation(instance)
+
+
+# ============================================================================
+# SALES PRODUCT VARIANT
+# ============================================================================
+
+class SalesProductVariantSerializer(serializers.ModelSerializer):
+    salesproduct_name = serializers.CharField(source='salesproduct.name', read_only=True)
+    salesproduct_price = serializers.DecimalField(source='salesproduct.final_price', max_digits=10, decimal_places=2, read_only=True)
+    total_price = serializers.SerializerMethodField()
+    color_names = serializers.SerializerMethodField()
+    colors_data = serializers.SerializerMethodField()
+    is_low_stock = serializers.SerializerMethodField()
+    created_by = serializers.SerializerMethodField()
+    updated_by = serializers.SerializerMethodField()
+
+    class Meta:
+        model  = SalesProductVariant
+        fields = ['id', 'salesproduct', 'salesproduct_name', 'salesproduct_price',
+                  'size', 'colors', 'color_names', 'colors_data',
+                  'material', 'sku', 'stock_quantity', 'additional_price',
+                  'total_price', 'is_active', 'is_low_stock',
+                  'created_by', 'updated_by', 'created_at', 'updated_at']
+        read_only_fields = ('created_at', 'updated_at', 'sku')
+        extra_kwargs = {
+            'size': {'required': False, 'allow_null': True, 'allow_blank': True},
+            'material': {'required': False, 'allow_null': True, 'allow_blank': True},
+            'additional_price': {'required': False},
+        }
+
+    def get_total_price(self, obj):
+        return float(obj.salesproduct.final_price + obj.additional_price) if not obj.deleted and obj.salesproduct else None
+
+    def get_color_names(self, obj):
+        return [c.name for c in obj.colors.filter(deleted=False)] if not obj.deleted else []
+
+    def get_colors_data(self, obj):
+        return ColorSerializer(obj.colors.filter(deleted=False), many=True).data if not obj.deleted else []
+
+    def get_is_low_stock(self, obj):
+        try:
+            return obj.salesinventory.is_low_stock if hasattr(obj, 'salesinventory') else False
+        except Exception:
+            return obj.stock_quantity < 10
+
+    def get_created_by(self, obj): return _full_name(obj.created_by)
+    def get_updated_by(self, obj): return _full_name(obj.updated_by)
+
+    def validate(self, attrs):
+        # Similar validation as ProductVariant - check uniqueness among non-deleted variants
+        salesproduct = attrs.get('salesproduct', getattr(self.instance, 'salesproduct', None))
+        size = attrs.get('size', getattr(self.instance, 'size', None))
+        material = attrs.get('material', getattr(self.instance, 'material', None))
+
+        qs = SalesProductVariant.objects.filter(
+            salesproduct=salesproduct, size=size, material=material, deleted=False
+        )
+        if self.instance:
+            qs = qs.exclude(pk=self.instance.pk)
+        if qs.exists():
+            raise serializers.ValidationError(
+                "An active sales variant with this sales product, size, and material combination already exists"
+            )
+        return attrs
+
+    def to_representation(self, instance):
+        if instance.deleted:
+            return {'id': instance.id, 'sku': instance.sku,
+                    'message': f'Sales variant "{instance.sku}" deleted successfully'}
+        return super().to_representation(instance)
+
+
+# ============================================================================
+# SALES INVENTORY
+# ============================================================================
+
+class SalesInventorySerializer(serializers.ModelSerializer):
+    salesproduct_name = serializers.CharField(source='sales_product_variant.salesproduct.name', read_only=True)
+    variant_sku = serializers.CharField(source='sales_product_variant.sku', read_only=True)
+    is_low_stock = serializers.BooleanField(read_only=True)
+    needs_reorder = serializers.BooleanField(read_only=True)
+    created_by = serializers.SerializerMethodField()
+    updated_by = serializers.SerializerMethodField()
+
+    class Meta:
+        model  = SalesInventory
+        fields = ['id', 'sales_product_variant', 'salesproduct_name', 'variant_sku',
+                  'current_stock', 'minimum_stock_level', 'maximum_stock_level',
+                  'reorder_point', 'cost_price', 'last_restocked',
+                  'is_low_stock', 'needs_reorder',
+                  'created_by', 'updated_by', 'created_at', 'updated_at']
+        read_only_fields = ('created_at', 'updated_at')
+        extra_kwargs = {
+            'cost_price': {'required': False, 'allow_null': True},
+            'last_restocked': {'required': False, 'allow_null': True},
+        }
+
+    def get_created_by(self, obj): return _full_name(obj.created_by)
+    def get_updated_by(self, obj): return _full_name(obj.updated_by)
+
+    def validate(self, attrs):
+        min_l = attrs.get('minimum_stock_level', getattr(self.instance, 'minimum_stock_level', 5))
+        max_l = attrs.get('maximum_stock_level', getattr(self.instance, 'maximum_stock_level', 1000))
+        reorder = attrs.get('reorder_point', getattr(self.instance, 'reorder_point', 10))
+        if min_l >= max_l:
+            raise serializers.ValidationError({'minimum_stock_level': "Must be less than maximum"})
+        if reorder > max_l:
+            raise serializers.ValidationError({'reorder_point': "Cannot exceed maximum stock level"})
+        return attrs
 
 
 # ============================================================================

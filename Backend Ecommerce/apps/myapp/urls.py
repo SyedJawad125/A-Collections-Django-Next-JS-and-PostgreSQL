@@ -461,6 +461,9 @@ from .views import (
     ReviewView, PublicReviewView,
 
     # ── New views ──────────────────────────────────────────────────────────
+    SalesProductColorView,
+    SalesProductVariantView, PublicSalesProductVariantView,
+    SalesInventoryView,
     AddressView,
     ShippingMethodView, PublicShippingMethodView,
     CouponView, ValidateCouponView,
@@ -503,6 +506,22 @@ urlpatterns = [
     path('v1/sales/product/',           SalesProductView.as_view(),         name='sales-product'),
     path('v1/public/sales/product/',    PublicSalesProductView.as_view(),   name='public-sales-product'),
     path('v1/dropdown/sales/product/',  SalesProductDropdownView.as_view(), name='sales-product-dropdown'),
+
+    # =========================================================================
+    # SALES PRODUCT COLOR  ── NEW
+    # =========================================================================
+    path('v1/sales/product/color/',     SalesProductColorView.as_view(),    name='sales-product-color'),
+
+    # =========================================================================
+    # SALES PRODUCT VARIANT  ── NEW
+    # =========================================================================
+    path('v1/sales/product/variant/',  SalesProductVariantView.as_view(),   name='sales-product-variant'),
+    path('v1/public/sales/product/variant/', PublicSalesProductVariantView.as_view(), name='public-sales-product-variant'),
+
+    # =========================================================================
+    # SALES INVENTORY  ── NEW
+    # =========================================================================
+    path('v1/sales/inventory/',         SalesInventoryView.as_view(),        name='sales-inventory'),
 
     # =========================================================================
     # CATEGORY

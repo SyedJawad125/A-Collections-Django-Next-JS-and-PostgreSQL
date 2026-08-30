@@ -25,34 +25,38 @@
 # from utils.response_messages import ID_NOT_PROVIDED, NOT_FOUND, SUCCESSFUL, UNSUCCESSFUL
 
 # from .models import (
-#     Category, Product, ProductImage, ProductTag, Color, ProductVariant,
-#     Inventory, SalesProduct, SalesProductImage, Order, OrderDetail,
-#     Contact, Review,
-#     Address, ShippingMethod, Coupon, Cart, CartItem,
-#     Wishlist, WishlistItem, Payment, ReturnRequest,
-# )
+#      Category, Product, ProductImage, ProductTag, Color, ProductVariant,
+#      Inventory, SalesProduct, SalesProductImage, Order, OrderDetail,
+#      Contact, Review,
+#      SalesProductColor, SalesProductVariant, SalesInventory,
+#      Address, ShippingMethod, Coupon, Cart, CartItem,
+#      Wishlist, WishlistItem, Payment, ReturnRequest,
+#  )
 # from .serializers import (
-#     DropDownListProductSerializer, DropDownListSalesProductSerializer,
-#     ProductSerializer, ColorSerializer, ProductVariantSerializer,
-#     InventorySerializer, PubliccategorywiseSerializer, SalesProductSerializer,
-#     CategorySerializer, ProductTagSerializer, OrderSerializer, ContactSerializer,
-#     ReviewSerializer, PublicReviewSerializer,
-#     AddressSerializer, ShippingMethodSerializer, CouponSerializer,
-#     ValidateCouponSerializer, CartSerializer, CartItemSerializer,
-#     WishlistSerializer, WishlistItemSerializer, PaymentSerializer,
-#     ReturnRequestSerializer,
+#      DropDownListProductSerializer, DropDownListSalesProductSerializer,
+#      ProductSerializer, ColorSerializer, ProductVariantSerializer,
+#      InventorySerializer, PubliccategorywiseSerializer, SalesProductSerializer,
+#      CategorySerializer, ProductTagSerializer, OrderSerializer, ContactSerializer,
+#      ReviewSerializer, PublicReviewSerializer,
+#      SalesProductColorSerializer, SalesProductVariantSerializer, SalesInventorySerializer,
+#      AddressSerializer, ShippingMethodSerializer, CouponSerializer,
+#      ValidateCouponSerializer, CartSerializer, CartItemSerializer,
+#      WishlistSerializer, WishlistItemSerializer, PaymentSerializer,
+#      ReturnRequestSerializer,
 # )
 # from .filters import (
-#     DropDownListProductFilter, DropDownListSalesProductFilter,
-#     ProductFilter, PublicProductFilter, ProductDropdownFilter,
-#     ColorFilter, ProductVariantFilter, PublicProductVariantFilter,
-#     InventoryFilter, PubliccategorywiseFilter, SalesProductFilter, PublicSalesProductFilter,
-#     SalesProductDropdownFilter, CategoryFilter, PublicCategoryFilter,
-#     CategoryDropdownFilter, ProductTagFilter, OrderFilter,
-#     OrderSearchFilter, ContactFilter, PublicContactFilter,
-#     ReviewFilter, PublicReviewFilter,
-#     AddressFilter, ShippingMethodFilter, CouponFilter,
-#     CartFilter, WishlistFilter, PaymentFilter, ReturnRequestFilter,
+#      DropDownListProductFilter, DropDownListSalesProductFilter,
+#      ProductFilter, PublicProductFilter, ProductDropdownFilter,
+#      ColorFilter, ProductVariantFilter, PublicProductVariantFilter,
+#      InventoryFilter, PubliccategorywiseFilter, SalesProductFilter, PublicSalesProductFilter,
+#      SalesProductDropdownFilter, CategoryFilter, PublicCategoryFilter,
+#      CategoryDropdownFilter, ProductTagFilter, OrderFilter,
+#      OrderSearchFilter, ContactFilter, PublicContactFilter,
+#      ReviewFilter, PublicReviewFilter,
+#      SalesProductColorFilter, SalesProductVariantFilter, PublicSalesProductVariantFilter,
+#      SalesInventoryFilter,
+#      AddressFilter, ShippingMethodFilter, CouponFilter,
+#      CartFilter, WishlistFilter, PaymentFilter, ReturnRequestFilter,
 # )
 
 # logger = logging.getLogger(__name__)
@@ -1567,6 +1571,94 @@ class PublicSalesProductView(BaseView):
 
     def get(self, request):
         return super().get_(request)
+
+
+# ============================================================================
+# SALES PRODUCT COLOR VIEWS
+# ============================================================================
+
+class SalesProductColorView(BaseView):
+    permission_classes = (IsAuthenticated,)
+    serializer_class   = SalesProductColorSerializer
+    filterset_class    = SalesProductColorFilter
+
+    @permission_required(['create_sales_product_color'])
+    def post(self, request):
+        return super().post_(request)
+
+    @permission_required(['read_sales_product_color'])
+    def get(self, request):
+        return super().get_(request)
+
+    @permission_required(['update_sales_product_color'])
+    def patch(self, request):
+        return super().patch_(request)
+
+    @permission_required(['delete_sales_product_color'])
+    def delete(self, request):
+        return super().delete_(request)
+
+
+# ============================================================================
+# SALES PRODUCT VARIANT VIEWS
+# ============================================================================
+
+class SalesProductVariantView(BaseView):
+    permission_classes = (IsAuthenticated,)
+    serializer_class   = SalesProductVariantSerializer
+    filterset_class    = SalesProductVariantFilter
+
+    @permission_required(['create_sales_product_variant'])
+    def post(self, request):
+        return super().post_(request)
+
+    @permission_required(['read_sales_product_variant'])
+    def get(self, request):
+        return super().get_(request)
+
+    @permission_required(['update_sales_product_variant'])
+    def patch(self, request):
+        return super().patch_(request)
+
+    @permission_required(['delete_sales_product_variant'])
+    def delete(self, request):
+        return super().delete_(request)
+
+
+class PublicSalesProductVariantView(BaseView):
+    permission_classes = ()
+    serializer_class   = SalesProductVariantSerializer
+    filterset_class    = PublicSalesProductVariantFilter
+    extra_filters      = {'is_active': True}
+
+    def get(self, request):
+        return super().get_(request)
+
+
+# ============================================================================
+# SALES INVENTORY VIEWS
+# ============================================================================
+
+class SalesInventoryView(BaseView):
+    permission_classes = (IsAuthenticated,)
+    serializer_class   = SalesInventorySerializer
+    filterset_class    = SalesInventoryFilter
+
+    @permission_required(['create_sales_inventory'])
+    def post(self, request):
+        return super().post_(request)
+
+    @permission_required(['read_sales_inventory'])
+    def get(self, request):
+        return super().get_(request)
+
+    @permission_required(['update_sales_inventory'])
+    def patch(self, request):
+        return super().patch_(request)
+
+    @permission_required(['delete_sales_inventory'])
+    def delete(self, request):
+        return super().delete_(request)
 
 
 class SalesProductDropdownView(BaseView):
