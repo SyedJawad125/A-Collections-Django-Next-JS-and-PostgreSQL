@@ -975,6 +975,99 @@ class SalesProductImage(TimeUserStamps):
     def __str__(self):
         return f"{self.sale_product.name} - Sale Image"
 
+# ============================================================================
+# COLOR
+# ============================================================================
+
+class SalesProductColor(TimeUserStamps):
+    name = models.CharField(max_length=50)
+
+    def __str__(self):
+        return self.name
+
+
+# ============================================================================
+# PRODUCT VARIANT
+# ============================================================================
+
+class SalesProductVariant(TimeUserStamps):
+    salesproduct     = models.ForeignKey(SalesProduct, on_delete=models.CASCADE, related_name='salesvariants')
+    size             = models.CharField(max_length=20, blank=True, null=True)
+    colors           = models.ManyToManyField(Color, blank=True, related_name="variants")
+    material         = models.CharField(max_length=100, blank=True, null=True)
+    sku              = models.CharField(max_length=100, unique=True)
+    stock_quantity   = models.PositiveIntegerField(default=0)
+    additional_price = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
+    is_active        = models.BooleanField(default=True)
+
+    class Meta:
+        # FIX: removed `unique_together = ['product', 'size', 'material']`.
+        # That constraint ignored `deleted=True`, so once a variant with a
+        # given (product, size, material) was soft-deleted, the exact same
+        # combination could never be created again — the DB would reject the
+        # insert before any application code ran. Uniqueness among *active*
+        # (non-deleted) variants is now enforced in
+        # ProductVariantSerializer.validate() instead.
+        pass
+
+    def __str__(self):
+        attributes = []
+        if self.size:
+            attributes.append(f"Size: {self.size}")
+        if self.pk and self.colors.exists():
+            attributes.append(f"Colors: {', '.join([c.name for c in self.colors.all()])}")
+        if self.material:
+            attributes.append(f"Material: {self.material}")
+        return f"{self.salesproduct.name} - {', '.join(attributes)}" if attributes else f"{self.salesproduct.name} - Base Variant"
+
+    def save(self, *args, **kwargs):
+        if not self.sku:
+            base_sku     = self.salesproduct.name.replace(' ', '').upper()[:6]
+            attr_parts   = []
+            if self.size:
+                attr_parts.append(self.size.upper())
+            if self.material:
+                attr_parts.append(self.material.upper()[:3])
+            attr_str     = '-'.join(attr_parts) if attr_parts else 'BASE'
+            self.sku     = f"{base_sku}-{attr_str}"
+            counter      = 1
+            original_sku = self.sku
+            while ProductVariant.objects.filter(sku=self.sku).exclude(pk=self.pk).exists():
+                self.sku = f"{original_sku}-{counter}"
+                counter += 1
+        super().save(*args, **kwargs)
+
+    @property
+    def total_price(self):
+        return self.salesproduct.price + self.additional_price
+
+
+# ============================================================================
+# INVENTORY
+# ============================================================================
+
+class SalesInventory(TimeUserStamps):
+    sales_product_variant = models.OneToOneField(SalesProductVariant, on_delete=models.CASCADE, related_name='salesinventory')
+    current_stock       = models.PositiveIntegerField(default=0)
+    minimum_stock_level = models.PositiveIntegerField(default=5)
+    maximum_stock_level = models.PositiveIntegerField(default=1000)
+    reorder_point       = models.PositiveIntegerField(default=10)
+    cost_price          = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
+    last_restocked      = models.DateTimeField(null=True, blank=True)
+
+    class Meta:
+        verbose_name_plural = "Sales Inventories"
+
+    def __str__(self):
+        return f"Inventory for {self.sales_product_variant.salesproduct.name} - Stock: {self.current_stock}"
+
+    @property
+    def is_low_stock(self):
+        return self.current_stock <= self.minimum_stock_level
+
+    @property
+    def needs_reorder(self):
+        return self.current_stock <= self.reorder_point
 
 # ============================================================================
 # ADDRESS
