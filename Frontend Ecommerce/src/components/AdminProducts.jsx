@@ -2924,13 +2924,13 @@ const AdminProducts = () => {
               </button>
             )}
             <button
-              onClick={() => router.push('/productvariant')}
+              onClick={() => router.push('/admin/productvariant')}
               className="px-6 py-3 border border-amber-500 text-amber-500 rounded-full hover:bg-amber-500 hover:text-black transform hover:scale-105 transition-transform"
             >
               Products Variant
             </button>
             <button
-              onClick={() => router.push('/addproductspage')}
+              onClick={() => router.push('/admin/productinventory')}
               className="px-6 py-3 border border-amber-500 text-amber-500 rounded-full hover:bg-amber-500 hover:text-black transform hover:scale-105 transition-transform"
             >
               Products Inventory
