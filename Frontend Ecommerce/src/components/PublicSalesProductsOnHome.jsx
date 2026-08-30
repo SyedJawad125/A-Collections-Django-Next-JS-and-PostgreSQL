@@ -192,7 +192,7 @@ const PublicSalesProductsCom = () => {
     };
 
     return (
-        <div className="min-h-screen bg-gradient-to-br from-slate-50 to-gray-100 py-8 md:py-12 px-4 sm:px-6 lg:px-8">
+        <div className="py-16 px-4 sm:px-8 lg:px-20 mb-1 -mt-20 bg-white min-h-screen">
             <div className="max-w-screen-2xl mx-auto px-4 sm:px-6 lg:px-8">
                 {/* Header Section */}
                 <div className="max-w-screen-xl mx-auto">
@@ -237,7 +237,7 @@ const PublicSalesProductsCom = () => {
 
                 {/* Products Grid - 6 CARDS IN A ROW */}
                 <div 
-                    className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4 sm:gap-2 mx-4 sm:mx-0"
+                    className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-7 gap-4 sm:gap-2 mx-4 sm:mx-0"
                     ref={productsRef}
                 >
                     {!isLoading && records.length > 0 ? (
@@ -272,6 +272,7 @@ const PublicSalesProductsCom = () => {
                                         {item.name}
                                     </h3>
                                     
+                                    
                                     <div className="mb-2">
                                         {item.discount_percent > 0 && item.original_price && (
                                             <div className="text-xs text-gray-500 line-through">
@@ -290,11 +291,11 @@ const PublicSalesProductsCom = () => {
                                     )}
                                     
                                     <div className="mt-auto">
-                                        <div className="flex items-center justify-between mb-3">
+                                        {/* <div className="flex items-center justify-between mb-3">
                                             <span className="text-xs text-gray-500 bg-gray-100 px-2 py-1 rounded">
                                                 {item.category_data?.name || 'Uncategorized'}
                                             </span>
-                                        </div>
+                                        </div> */}
                                         <button className="w-full py-2 bg-gray-900 text-white text-xs sm:text-sm rounded hover:bg-blue-700 transition-colors font-medium">
                                             View Details
                                         </button>

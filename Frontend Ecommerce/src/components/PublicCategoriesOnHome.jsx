@@ -228,7 +228,7 @@ const PublicCategoriesOnHome = () => {
           </div>
         ) : (
           <>
-            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4 sm:gap-2 mx-4 sm:mx-0">
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-7 gap-4 sm:gap-2 mx-4 sm:mx-0">
               {records.length > 0 ? (
                 records.map((item) => (
                   <div
