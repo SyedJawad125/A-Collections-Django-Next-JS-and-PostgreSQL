@@ -993,7 +993,7 @@ class SalesProductColor(TimeUserStamps):
 class SalesProductVariant(TimeUserStamps):
     salesproduct     = models.ForeignKey(SalesProduct, on_delete=models.CASCADE, related_name='salesvariants')
     size             = models.CharField(max_length=20, blank=True, null=True)
-    colors           = models.ManyToManyField(Color, blank=True, related_name="variants")
+    colors           = models.ManyToManyField(Color, blank=True, related_name="sales_variants")
     material         = models.CharField(max_length=100, blank=True, null=True)
     sku              = models.CharField(max_length=100, unique=True)
     stock_quantity   = models.PositiveIntegerField(default=0)
