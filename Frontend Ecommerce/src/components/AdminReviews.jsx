@@ -228,13 +228,51 @@ const AdminReviews = () => {
       />
       
       <div className="max-w-7xl mx-auto">
-        <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-12 -mt-8">
-          <div>
-            <h1 className="text-3xl font-bold bg-gradient-to-r from-amber-300 via-yellow-400 to-amber-300 bg-clip-text text-transparent mb-2">Customer Reviews</h1>
-            <div className="w-60 h-1 bg-gradient-to-r from-amber-400 to-amber-600 mt-1"></div>
-            <p className="text-gray-400 text-sm mt-2">What customers are saying about your products</p>
+        <div className="backdrop-blur-2xl bg-gradient-to-br from-slate-900/90 via-slate-800/80 to-slate-900/90 rounded-3xl border border-amber-400/30 shadow-2xl shadow-amber-500/20 p-4 relative overflow-hidden mb-4 -mt-12">
+
+          {/* Glow Background */}
+          <div className="absolute inset-0 rounded-3xl bg-gradient-to-r from-amber-500/20 via-yellow-500/20 to-amber-500/20 animate-pulse opacity-40"></div>
+
+            {/* Inner Glass Layer */}
+            <div className="absolute inset-[1px] rounded-3xl bg-gradient-to-br from-slate-900/95 to-slate-800/90 backdrop-blur-2xl"></div>
+
+            <div className="relative z-10">
+              <div className="flex flex-col md:flex-row justify-between items-start md:items-center">
+
+                {/* Left Content */}
+                <div>
+
+                  {/* Icon */}
+                  <div className="inline-flex items-center justify-center w-12 h-12 bg-gradient-to-br from-amber-400 to-yellow-500 rounded-full shadow-2xl shadow-amber-500/50 mb-1">
+                    <svg
+                      className="w-6 h-6 text-slate-900"
+                      fill="currentColor"
+                      viewBox="0 0 20 20"
+                    >
+                      <path
+                        d="M10 15.27L16.18 19l-1.64-7.03L20 7.24l-7.19-.61L10 0 7.19 6.63 0 7.24l5.46 4.73L3.82 19z"
+                      />
+                    </svg>
+                  </div>
+
+                  {/* Heading */}
+                  <h1 className="text-3xl font-bold bg-gradient-to-r from-amber-300 via-yellow-400 to-amber-300 bg-clip-text text-transparent mb-2">
+                    CUSTOMER REVIEWS
+                  </h1>
+
+                  {/* Underline */}
+                  <div className="w-70 h-1 bg-gradient-to-r from-amber-400 to-yellow-500 mb-2"></div>
+
+                  {/* Description */}
+                  <p className="text-slate-400 text-sm">
+                    What customers are saying about your products
+                  </p>
+
+                </div>
+
+              </div>
+            </div>
           </div>
-        </div>
         
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 bg-gray-800/50 p-4 rounded-xl gap-4">
           {permissions.create_reviews && (

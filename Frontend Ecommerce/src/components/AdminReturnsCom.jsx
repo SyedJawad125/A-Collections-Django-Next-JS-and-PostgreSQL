@@ -227,13 +227,53 @@ const AdminReturnRequest = () => {
       )}
 
       <div className="max-w-7xl mx-auto">
-        <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-12 -mt-8">
-          <div>
-            <h1 className="text-3xl font-bold bg-gradient-to-r from-amber-300 via-yellow-400 to-amber-300 bg-clip-text text-transparent mb-2">RETURN REQUESTS</h1>
-            <div className="w-70 h-1 bg-gradient-to-r from-amber-400 to-amber-600 mt-1"></div>
-          </div>
-        </div>
+        <div className="backdrop-blur-2xl bg-gradient-to-br from-slate-900/90 via-slate-800/80 to-slate-900/90 rounded-3xl border border-amber-400/30 shadow-2xl shadow-amber-500/20 p-4 relative overflow-hidden mb-4 -mt-12">
 
+          {/* Glow Background */}
+          <div className="absolute inset-0 rounded-3xl bg-gradient-to-r from-amber-500/20 via-yellow-500/20 to-amber-500/20 animate-pulse opacity-40"></div>
+
+            {/* Inner Glass Layer */}
+            <div className="absolute inset-[1px] rounded-3xl bg-gradient-to-br from-slate-900/95 to-slate-800/90 backdrop-blur-2xl"></div>
+
+                  <div className="relative z-10">
+                    <div className="flex flex-col md:flex-row justify-between items-start md:items-center">
+
+                      {/* Left Content */}
+                      <div>
+
+                        {/* Icon */}
+                        <div className="inline-flex items-center justify-center w-12 h-12 bg-gradient-to-br from-amber-400 to-yellow-500 rounded-full shadow-2xl shadow-amber-500/50 mb-1">
+                          <svg
+                            className="w-6 h-6 text-slate-900"
+                            fill="currentColor"
+                            viewBox="0 0 20 20"
+                          >
+                            <path
+                              fillRule="evenodd"
+                              d="M10 2a8 8 0 100 16 8 8 0 000-16zm1 4a1 1 0 10-2 0v4a1 1 0 00.293.707l2 2a1 1 0 001.414-1.414L11 9.586V6zm-1 12a10 10 0 110-20 10 10 0 010 20z"
+                              clipRule="evenodd"
+                            />
+                          </svg>
+                        </div>
+
+                        {/* Heading */}
+                        <h1 className="text-3xl font-bold bg-gradient-to-r from-amber-300 via-yellow-400 to-amber-300 bg-clip-text text-transparent mb-2">
+                          RETURN REQUESTS
+                        </h1>
+
+                        {/* Underline */}
+                        <div className="w-70 h-1 bg-gradient-to-r from-amber-400 to-yellow-500 mb-2"></div>
+
+                        {/* Description */}
+                        <p className="text-slate-400 text-sm">
+                          Manage and review customer return requests
+                        </p>
+
+                      </div>
+
+                    </div>
+                  </div>
+                </div>
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center p-4 bg-gray-800/50 rounded-xl mb-8 gap-4">
           <div className="text-amber-400">Showing {filteredRecords.length} of {pagination.totalCount} items</div>
           <div className="flex flex-col md:flex-row gap-4 w-full md:w-2/3">
