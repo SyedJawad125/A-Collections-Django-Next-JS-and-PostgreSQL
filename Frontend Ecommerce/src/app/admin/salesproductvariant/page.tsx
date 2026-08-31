@@ -1,7 +1,7 @@
 'use client'
 import React from 'react'
 import AdminSideNavbarCom from "@/components/AdminSideNavbarCom";
-import salesproductvariant from "@/components/salesproductvariant";
+import SalesProductVariant from "@/components/SalesProductVariant";
 
 const AdminDashboard = () => {
   return (
@@ -14,7 +14,7 @@ const AdminDashboard = () => {
       {/* Main Content - Takes remaining space */}
       <div className="flex-1 w-[82%] bg-black overflow-auto -ml-6 mr" >
         <div className="w-full h-full p-6">
-          <salesproductvariant />
+          <SalesProductVariant />
         </div>
       </div>
     </div>
@@ -22,9 +22,3 @@ const AdminDashboard = () => {
 }
 
 export default AdminDashboard;
-
-
-
-
-
-salesproductvariant
