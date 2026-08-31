@@ -114,3 +114,54 @@ CREATE_COUPON = 'create_coupon'
 READ_COUPON   = 'read_coupon'
 UPDATE_COUPON = 'update_coupon'
 DELETE_COUPON = 'delete_coupon'
+
+# ============================================================================
+# SHIPPING METHOD PERMISSIONS
+# ============================================================================
+CREATE_SHIPPING = 'create_shipping'
+READ_SHIPPING   = 'read_shipping'
+UPDATE_SHIPPING = 'update_shipping'
+DELETE_SHIPPING = 'delete_shipping'
+
+# ============================================================================
+# COUPON PERMISSIONS
+# ============================================================================
+CREATE_COUPON = 'create_coupon'
+READ_COUPON   = 'read_coupon'
+UPDATE_COUPON = 'update_coupon'
+DELETE_COUPON = 'delete_coupon'
+
+# ============================================================================
+# PAYMENT PERMISSIONS
+# (no create/delete — Payment records are only ever created internally
+#  when an order is placed, and never deleted through the API)
+# ============================================================================
+READ_PAYMENT   = 'read_payment'
+UPDATE_PAYMENT = 'update_payment'
+
+# ============================================================================
+# RETURN REQUEST PERMISSIONS
+# (no create — customers file their own returns via ReturnRequestView.post()
+#  with no permission gate; no delete — the view has no delete route)
+# ============================================================================
+READ_RETURN   = 'read_return'
+UPDATE_RETURN = 'update_return'
+
+# ============================================================================
+# OPTIONAL — not currently enforced in views.py (AddressView / CartView /
+# CartItemView / WishlistView / WishlistItemView only check IsAuthenticated,
+# no @permission_required decorator). Only wire these up if you add the
+# decorator to those views; otherwise leave unused.
+# ============================================================================
+CREATE_ADDRESS = 'create_address'
+READ_ADDRESS   = 'read_address'
+UPDATE_ADDRESS = 'update_address'
+DELETE_ADDRESS = 'delete_address'
+
+READ_CART   = 'read_cart'
+UPDATE_CART = 'update_cart'
+DELETE_CART = 'delete_cart'
+
+READ_WISHLIST   = 'read_wishlist'
+UPDATE_WISHLIST = 'update_wishlist'
+DELETE_WISHLIST = 'delete_wishlist'

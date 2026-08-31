@@ -115,6 +115,41 @@ permissions = [
         Permission(name='Read Reviews', code_name='read_reviews', module_name='Reviews', module_label='Review Management', description='User can read reviews'),
         Permission(name='Update Reviews', code_name='update_reviews', module_name='Reviews', module_label='Review Management', description='User can update reviews'),
         Permission(name='Delete Reviews', code_name='delete_reviews', module_name='Reviews', module_label='Review Management', description='User can delete reviews'),
+
+                # ---------- Shipping Method ----------
+        Permission(name='Create Shipping Method', code_name='create_shipping', module_name='Shipping Method', module_label='Shipping Management', description='User can create shipping method'),
+        Permission(name='Read Shipping Method', code_name='read_shipping', module_name='Shipping Method', module_label='Shipping Management', description='User can read shipping method'),
+        Permission(name='Update Shipping Method', code_name='update_shipping', module_name='Shipping Method', module_label='Shipping Management', description='User can update shipping method'),
+        Permission(name='Delete Shipping Method', code_name='delete_shipping', module_name='Shipping Method', module_label='Shipping Management', description='User can delete shipping method'),
+
+        # ---------- Coupon ----------
+        Permission(name='Create Coupon', code_name='create_coupon', module_name='Coupon', module_label='Coupon Management', description='User can create coupon'),
+        Permission(name='Read Coupon', code_name='read_coupon', module_name='Coupon', module_label='Coupon Management', description='User can read coupon'),
+        Permission(name='Update Coupon', code_name='update_coupon', module_name='Coupon', module_label='Coupon Management', description='User can update coupon'),
+        Permission(name='Delete Coupon', code_name='delete_coupon', module_name='Coupon', module_label='Coupon Management', description='User can delete coupon'),
+
+        # ---------- Payment ----------
+        # No create/delete: Payment rows are only created internally when an
+        # order is placed, and PaymentView exposes no delete route.
+        Permission(name='Read Payment', code_name='read_payment', module_name='Payment', module_label='Payment Management', description='User can read payment records'),
+        Permission(name='Update Payment', code_name='update_payment', module_name='Payment', module_label='Payment Management', description='User can update payment records'),
+
+        # ---------- Return Request ----------
+        # No create: customers file their own returns via an ungated POST.
+        # No delete: ReturnRequestView has no delete route.
+        Permission(name='Read Return Request', code_name='read_return', module_name='Return Request', module_label='Return Management', description='User can read return requests'),
+        Permission(name='Update Return Request', code_name='update_return', module_name='Return Request', module_label='Return Management', description='User can approve/reject return requests'),
+
+        # ---------- OPTIONAL: Address / Cart / Wishlist ----------
+        # Not currently enforced — AddressView, CartView, CartItemView,
+        # WishlistView, and WishlistItemView only check IsAuthenticated with
+        # no @permission_required decorator. Uncomment / seed only if you add
+        # the decorator to those views; otherwise these rows will sit unused.
+        # Permission(name='Create Address', code_name='create_address', module_name='Address', module_label='Address Management', description='User can create address'),
+        # Permission(name='Read Address', code_name='read_address', module_name='Address', module_label='Address Management', description='User can read address'),
+        # Permission(name='Update Address', code_name='update_address', module_name='Address', module_label='Address Management', description='User can update address'),
+        # Permission(name='Delete Address', code_name='delete_address', module_name='Address', module_label='Address Management', description='User can delete address'),
+
 ]
 
 
