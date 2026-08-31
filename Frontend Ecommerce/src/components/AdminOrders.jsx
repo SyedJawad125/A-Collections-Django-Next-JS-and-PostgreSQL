@@ -230,9 +230,9 @@ const Orders = () => {
         {/* Header Section */}
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-12">
           <div>
-            <h1 className="text-4xl font-light text-white mb-2">Orders Management</h1>
-            <div className="w-20 h-1 bg-gradient-to-r from-amber-400 to-amber-600 mb-1"></div>
-            <p className="text-gray-400 text-sm">Manage and track customer orders</p>
+            <h1 className="text-3xl font-bold bg-gradient-to-r from-amber-300 via-yellow-400 to-amber-300 bg-clip-text text-transparent mb-2 -mt-4">ORDERS MANAGEMENT</h1>
+            <div className="w-90 h-1 bg-gradient-to-r from-amber-400 to-amber-600 mt-1"></div>
+            <p className="text-gray-400 text-sm mt-2">Manage and track customer orders</p>
           </div>
         </div>
         

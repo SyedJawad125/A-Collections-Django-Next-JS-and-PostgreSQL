@@ -166,7 +166,7 @@ const AdminReturnRequest = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-gray-900 to-gray-800 py-12 px-4">
+    <div className="min-h-screen ml-2 bg-gradient-to-b from-gray-900 to-gray-800 py-12 px-4">
       <ToastContainer position="top-right" autoClose={4000} theme="light" />
 
       {/* Review Modal */}
@@ -227,10 +227,10 @@ const AdminReturnRequest = () => {
       )}
 
       <div className="max-w-7xl mx-auto">
-        <div className="flex justify-between items-center mb-12 flex-wrap gap-4">
+        <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-12 -mt-8">
           <div>
-            <h1 className="text-4xl font-light text-white">RETURN REQUESTS</h1>
-            <div className="w-20 h-1 bg-gradient-to-r from-amber-400 to-amber-600 mt-1"></div>
+            <h1 className="text-3xl font-bold bg-gradient-to-r from-amber-300 via-yellow-400 to-amber-300 bg-clip-text text-transparent mb-2">RETURN REQUESTS</h1>
+            <div className="w-70 h-1 bg-gradient-to-r from-amber-400 to-amber-600 mt-1"></div>
           </div>
         </div>
 
