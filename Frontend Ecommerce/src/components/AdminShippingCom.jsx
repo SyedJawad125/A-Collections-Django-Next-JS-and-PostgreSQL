@@ -556,10 +556,10 @@ const AdminShippingMethod = () => {
       )}
 
       <div className="max-w-5xl mx-auto">
-        <div className="flex justify-between items-center mb-12 flex-wrap gap-4">
+        <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-12 -mt-8">
           <div>
-            <h1 className="text-4xl font-light text-white">SHIPPING METHODS</h1>
-            <div className="w-20 h-1 bg-gradient-to-r from-amber-400 to-amber-600 mt-1"></div>
+            <h1 className="text-3xl font-bold bg-gradient-to-r from-amber-300 via-yellow-400 to-amber-300 bg-clip-text text-transparent mb-2">SHIPPING METHODS</h1>
+            <div className="w-50 h-1 bg-gradient-to-r from-amber-400 to-amber-600 mt-1"></div>
           </div>
           {permissions.create_shipping && (
             <button onClick={handleAdd} className="px-6 py-3 border border-amber-500 text-amber-500 rounded-full hover:bg-amber-500 hover:text-black transform hover:scale-105 transition-transform">

@@ -873,7 +873,7 @@ const CategoryCom = () => {
                 <h1 className="text-3xl font-bold bg-gradient-to-r from-amber-300 via-yellow-400 to-amber-300 bg-clip-text text-transparent mb-2">
                   OUR COLLECTIONS
                 </h1>
-                <div className="w-16 h-1 bg-gradient-to-r from-amber-400 to-yellow-500 mb-2"></div>
+                <div className="w-70 h-1 bg-gradient-to-r from-amber-400 to-yellow-500 mb-2"></div>
                 <p className="text-slate-400 text-sm">Manage premium product categories</p>
               </div>
               
