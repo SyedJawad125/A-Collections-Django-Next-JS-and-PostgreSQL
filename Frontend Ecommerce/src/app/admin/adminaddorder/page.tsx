@@ -1122,7 +1122,7 @@ const AdminAddOrder = () => {
         payment_status: formData.payment_status,
         delivery_date: formData.delivery_date,
         ...(formData.customer && { customer: formData.customer }),
-        ...(formData.rider && { rider: formData.rider }),
+        ...(formData.rider && { rider: Number(formData.rider) }),
         items: validItems
       };
 

@@ -1423,7 +1423,7 @@ const UpdateOrder = () => {
         payment_status: formData.payment_status,
         delivery_date: formData.delivery_date,
         ...(formData.customer && { customer: formData.customer }),
-        ...(formData.rider && { rider: formData.rider }),
+        ...(formData.rider && { rider: Number(formData.rider) }),
         items: validItems.map(item => ({
           ...(item.id && { id: item.id }),
           product_type: item.product_type,
@@ -1434,7 +1434,7 @@ const UpdateOrder = () => {
       };
 
       console.log('Submitting update:', payload);
-      const response = await AxiosInstance.put(`/api/myapp/v1/order/${id}/`, payload);
+      const response = await AxiosInstance.put(`/api/myapp/v1/order/?id=${id}`, payload);
       
       if (response.data) {
         toast.success('Order updated successfully!', {
