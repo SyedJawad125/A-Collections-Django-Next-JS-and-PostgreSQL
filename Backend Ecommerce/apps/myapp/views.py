@@ -1583,19 +1583,19 @@ class SalesProductColorView(BaseView):
     serializer_class   = SalesProductColorSerializer
     filterset_class    = SalesProductColorFilter
 
-    @permission_required(['create_sales_product_color'])
+    @permission_required(['create_sales_productcolor'])
     def post(self, request):
         return super().post_(request)
 
-    @permission_required(['read_sales_product_color'])
+    @permission_required(['read_sales_productcolor'])
     def get(self, request):
         return super().get_(request)
 
-    @permission_required(['update_sales_product_color'])
+    @permission_required(['update_sales_productcolor'])
     def patch(self, request):
         return super().patch_(request)
 
-    @permission_required(['delete_sales_product_color'])
+    @permission_required(['delete_sales_productcolor'])
     def delete(self, request):
         return super().delete_(request)
 
@@ -1609,19 +1609,19 @@ class SalesProductVariantView(BaseView):
     serializer_class   = SalesProductVariantSerializer
     filterset_class    = SalesProductVariantFilter
 
-    @permission_required(['create_sales_product_variant'])
+    @permission_required(['create_sales_productvariant'])
     def post(self, request):
         return super().post_(request)
 
-    @permission_required(['read_sales_product_variant'])
+    @permission_required(['read_sales_productvariant'])
     def get(self, request):
         return super().get_(request)
 
-    @permission_required(['update_sales_product_variant'])
+    @permission_required(['update_sales_productvariant'])
     def patch(self, request):
         return super().patch_(request)
 
-    @permission_required(['delete_sales_product_variant'])
+    @permission_required(['delete_sales_productvariant'])
     def delete(self, request):
         return super().delete_(request)
 

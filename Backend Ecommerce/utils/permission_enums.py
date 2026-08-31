@@ -42,6 +42,24 @@ READ_SALES_PRODUCT = 'read_sales_product'
 UPDATE_SALES_PRODUCT = 'update_sales_product'
 DELETE_SALES_PRODUCT = 'delete_sales_product'
 
+# Sales Product Color Permissions
+CREATE_SALES_PRODUCTCOLOR = 'create_sales_productcolor'
+READ_SALES_PRODUCTCOLOR = 'read_sales_productcolor'
+UPDATE_SALES_PRODUCTCOLOR = 'update_sales_productcolor'
+DELETE_SALES_PRODUCTCOLOR = 'delete_sales_productcolor'
+
+# Sales Product Variant Permissions
+CREATE_SALES_PRODUCTVARIANT = 'create_sales_productvariant'
+READ_SALES_PRODUCTVARIANT = 'read_sales_productvariant'
+UPDATE_SALES_PRODUCTVARIANT = 'update_sales_productvariant'
+DELETE_SALES_PRODUCTVARIANT = 'delete_sales_productvariant'
+
+# Sales Inventory Permissions
+CREATE_SALES_INVENTORY = 'create_sales_inventory'
+READ_SALES_INVENTORY = 'read_sales_inventory'
+UPDATE_SALES_INVENTORY = 'update_sales_inventory'
+DELETE_SALES_INVENTORY = 'delete_sales_inventory'
+
 # Category Permissions
 CREATE_CATEGORY = 'create_category'
 READ_CATEGORY = 'read_category'

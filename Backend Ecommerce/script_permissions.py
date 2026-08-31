@@ -88,6 +88,24 @@ permissions = [
         Permission(name='Update Sales Product', code_name='update_sales_product', module_name='Sales Product', module_label='Product Management', description='User can update sales product'),
         Permission(name='Delete Sales Product', code_name='delete_sales_product', module_name='Sales Product', module_label='Product Management', description='User can delete sales product'),
 
+        # Sales Product Color Permissions
+        Permission(name='Create Sales Product Color', code_name='create_sales_productcolor', module_name='Sales Product Color', module_label='Product Management', description='User can create sales product color'),
+        Permission(name='Read Sales Product Color', code_name='read_sales_productcolor', module_name='Sales Product Color', module_label='Product Management', description='User can read sales product color'),
+        Permission(name='Update Sales Product Color', code_name='update_sales_productcolor', module_name='Sales Product Color', module_label='Product Management', description='User can update sales product color'),
+        Permission(name='Delete Sales Product Color', code_name='delete_sales_productcolor', module_name='Sales Product Color', module_label='Product Management', description='User can delete sales product color'),
+
+        # Sales Product Variant Permissions
+        Permission(name='Create Sales Product Variant', code_name='create_sales_productvariant', module_name='Sales Product Variant', module_label='Product Management', description='User can create sales product variant'),
+        Permission(name='Read Sales Product Variant', code_name='read_sales_productvariant', module_name='Sales Product Variant', module_label='Product Management', description='User can read sales product variant'),
+        Permission(name='Update Sales Product Variant', code_name='update_sales_productvariant', module_name='Sales Product Variant', module_label='Product Management', description='User can update sales product variant'),
+        Permission(name='Delete Sales Product Variant', code_name='delete_sales_productvariant', module_name='Sales Product Variant', module_label='Product Management', description='User can delete sales product variant'),
+
+        # Sales Inventory Permissions
+        Permission(name='Create Sales Inventory', code_name='create_sales_inventory', module_name='Sales Inventory', module_label='Product Management', description='User can create sales inventory'),
+        Permission(name='Read Sales Inventory', code_name='read_sales_inventory', module_name='Sales Inventory', module_label='Product Management', description='User can read sales inventory'),
+        Permission(name='Update Sales Inventory', code_name='update_sales_inventory', module_name='Sales Inventory', module_label='Product Management', description='User can update sales inventory'),
+        Permission(name='Delete Sales Inventory', code_name='delete_sales_inventory', module_name='Sales Inventory', module_label='Product Management', description='User can delete sales inventory'),
+
         # Category Permissions
         Permission(name='Create Category', code_name='create_category', module_name='Category', module_label='Category Management', description='User can create category'),
         Permission(name='Read Category', code_name='read_category', module_name='Category', module_label='Category Management', description='User can read category'),

@@ -9,10 +9,10 @@ import { AuthContext } from '@/components/AuthContext';
 const SalesProductVariant = () => {
   const router = useRouter();
   const { permissions = {
-    create_sales_product_variant: false,
-    read_sales_product_variant: false,
-    update_sales_product_variant: false,
-    delete_sales_product_variant: false,
+    create_sales_productvariant: false,
+    read_sales_productvariant: false,
+    update_sales_productvariant: false,
+    delete_sales_productvariant: false,
   } } = useContext(AuthContext);
 
   const [records, setRecords] = useState([]);
@@ -40,7 +40,7 @@ const SalesProductVariant = () => {
   // ---------- Fetch variants ----------
   useEffect(() => {
     const fetchVariants = async () => {
-      if (!permissions.read_sales_product_variant) { setIsLoading(false); return; }
+      if (!permissions.read_sales_productvariant) { setIsLoading(false); return; }
       setIsLoading(true);
       try {
         const res = await AxiosInstance.get('/api/myapp/v1/sales/product/variant/', {
@@ -68,7 +68,7 @@ const SalesProductVariant = () => {
     };
     fetchVariants();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [refreshKey, pagination.currentPage, pagination.limit, permissions.read_sales_product_variant]);
+  }, [refreshKey, pagination.currentPage, pagination.limit, permissions.read_sales_productvariant]);
 
   // ---------- Fetch dropdown options ----------
   useEffect(() => {
@@ -143,13 +143,13 @@ const SalesProductVariant = () => {
   };
 
   const handleAdd = () => {
-    if (!permissions.create_sales_product_variant) { toast.error('You do not have permission to add sales variants'); return; }
+    if (!permissions.create_sales_productvariant) { toast.error('You do not have permission to add sales variants'); return; }
     resetForm();
     setModalOpen(true);
   };
 
   const handleEdit = (record) => {
-    if (!permissions.update_sales_product_variant) { toast.error('You do not have permission to update sales variants'); return; }
+    if (!permissions.update_sales_productvariant) { toast.error('You do not have permission to update sales variants'); return; }
     setEditingRecord(record);
     setForm({
       salesproduct: record.salesproduct ? String(record.salesproduct) : '',
@@ -174,7 +174,7 @@ const SalesProductVariant = () => {
   };
 
   const handleDelete = async (id) => {
-    if (!permissions.delete_sales_product_variant) { toast.error('You do not have permission to delete sales variants'); return; }
+    if (!permissions.delete_sales_productvariant) { toast.error('You do not have permission to delete sales variants'); return; }
     if (!window.confirm('Are you sure you want to delete this sales variant?')) return;
     try {
       await AxiosInstance.delete('/api/myapp/v1/sales/product/variant/', { params: { id } });
@@ -226,7 +226,7 @@ const SalesProductVariant = () => {
     }
   };
 
-  if (!permissions.read_sales_product_variant) {
+  if (!permissions.read_sales_productvariant) {
     return (
       <div className="min-h-screen bg-gradient-to-b from-gray-900 to-gray-800 flex items-center justify-center">
         <div className="text-center p-8 max-w-md">
@@ -337,7 +337,7 @@ const SalesProductVariant = () => {
             <div className="w-20 h-1 bg-gradient-to-r from-amber-400 to-amber-600 mt-1"></div>
           </div>
           <div className="flex gap-3 flex-wrap">
-            {permissions.create_sales_product_variant && (
+            {permissions.create_sales_productvariant && (
               <button onClick={handleAdd} className="px-6 py-3 border border-amber-500 text-amber-500 rounded-full hover:bg-amber-500 hover:text-black transform hover:scale-105 transition-transform">
                 Add Variant
               </button>
@@ -398,10 +398,10 @@ const SalesProductVariant = () => {
                       </span>
                     </td>
                     <td className="p-4 text-right space-x-2">
-                      {permissions.update_sales_product_variant && (
+                      {permissions.update_sales_productvariant && (
                         <button onClick={() => handleEdit(item)} className="p-2 bg-amber-600/90 rounded-lg hover:bg-amber-600 transition-colors" aria-label="Edit sales variant">✏️</button>
                       )}
-                      {permissions.delete_sales_product_variant && (
+                      {permissions.delete_sales_productvariant && (
                         <button onClick={() => handleDelete(item.id)} className="p-2 bg-red-600/90 rounded-lg hover:bg-red-600 transition-colors" aria-label="Delete sales variant">🗑️</button>
                       )}
                     </td>
@@ -413,7 +413,7 @@ const SalesProductVariant = () => {
         ) : (
           <div className="text-center py-20 text-gray-300">
             <p>No sales variants found.</p>
-            {permissions.create_sales_product_variant && (
+            {permissions.create_sales_productvariant && (
               <button onClick={handleAdd} className="mt-6 px-6 py-2 bg-amber-600 rounded-full hover:bg-amber-700 text-white transition-colors">
                 Add Variant
               </button>

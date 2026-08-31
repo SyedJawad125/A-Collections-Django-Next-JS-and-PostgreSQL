@@ -15,6 +15,7 @@ const SalesInventory = () => {
     delete_sales_inventory: false,
   } } = useContext(AuthContext);
 
+  
   const [records, setRecords] = useState([]);
   const [filteredRecords, setFilteredRecords] = useState([]);
   const [searchTerm, setSearchTerm] = useState('');
