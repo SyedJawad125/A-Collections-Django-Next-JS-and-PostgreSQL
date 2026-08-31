@@ -3,7 +3,7 @@ import React from 'react'
 import AdminSideNavbarCom from "@/components/AdminSideNavbarCom";
 import AdminSalesProducts from "@/components/AdminSalesProducts";
 
-const AdminDashboard = () => {
+const Sales = () => {
   return (
     <div className="flex h-screen w-full overflow-hidden">
       {/* Sidebar - Fixed percentage width with constraints */}
@@ -21,4 +21,4 @@ const AdminDashboard = () => {
   )
 }
 
-export default AdminDashboard;
+export default Sales;
