@@ -2909,34 +2909,135 @@ const AdminProducts = () => {
 
       <div className="max-w-7xl mx-auto">
         {/* Header Section */}
-        <div className="flex justify-between items-center mb-12 flex-wrap gap-4 -mt-8">
-          <div>
-            <h1 className="text-3xl font-bold bg-gradient-to-r from-amber-300 via-yellow-400 to-amber-300 bg-clip-text text-transparent mb-2">LUXURY PRODUCTS</h1>
-            <div className="w-70 h-1 bg-gradient-to-r from-amber-400 to-amber-600 mt-1"></div>
-          </div>
-          <div className="flex gap-3 flex-wrap">
-            {permissions.create_product && (
-              <button
-                onClick={handleAddProduct}
-                className="px-6 py-3 border border-amber-500 text-amber-500 rounded-full hover:bg-amber-500 hover:text-black transform hover:scale-105 transition-transform"
-              >
-                Add Product
-              </button>
-            )}
-            <button
-              onClick={() => router.push('/admin/productvariant')}
-              className="px-6 py-3 border border-amber-500 text-amber-500 rounded-full hover:bg-amber-500 hover:text-black transform hover:scale-105 transition-transform"
-            >
-              Products Variant
-            </button>
-            <button
-              onClick={() => router.push('/admin/productinventory')}
-              className="px-6 py-3 border border-amber-500 text-amber-500 rounded-full hover:bg-amber-500 hover:text-black transform hover:scale-105 transition-transform"
-            >
-              Products Inventory
-            </button>
-          </div>
-        </div>
+        <div className="backdrop-blur-2xl bg-gradient-to-br from-slate-900/90 via-slate-800/80 to-slate-900/90 rounded-3xl border border-amber-400/30 shadow-2xl shadow-amber-500/20 p-4 relative overflow-hidden mb-6 -mt-12">
+
+          {/* Glow Background */}
+           <div className="absolute inset-0 rounded-3xl bg-gradient-to-r from-amber-500/20 via-yellow-500/20 to-amber-500/20 animate-pulse opacity-40"></div>
+
+              {/* Inner Glass Layer */}
+              <div className="absolute inset-[1px] rounded-3xl bg-gradient-to-br from-slate-900/95 to-slate-800/90 backdrop-blur-2xl"></div>
+
+              <div className="relative z-10">
+                <div className="flex flex-col md:flex-row justify-between items-start md:items-center">
+
+                  {/* Left Content */}
+                  <div>
+
+                    {/* Icon */}
+                    <div className="inline-flex items-center justify-center w-12 h-12 bg-gradient-to-br from-amber-400 to-yellow-500 rounded-full shadow-2xl shadow-amber-500/50 mb-1">
+                      <svg
+                        className="w-6 h-6 text-slate-900"
+                        fill="currentColor"
+                        viewBox="0 0 20 20"
+                      >
+                        <path
+                          fillRule="evenodd"
+                          d="M10 2a4 4 0 00-4 4v1H5a1 1 0 00-.994.89l-1 9A1 1 0 004 18h12a1 1 0 00.994-1.11l-1-9A1 1 0 0015 7h-1V6a4 4 0 00-4-4zm2 5V6a2 2 0 10-4 0v1h4zm-6 3a1 1 0 112 0 1 1 0 01-2 0zm7-1a1 1 0 100 2 1 1 0 000-2z"
+                          clipRule="evenodd"
+                        />
+                      </svg>
+                    </div>
+
+                    {/* Heading */}
+                    <h1 className="text-3xl font-bold bg-gradient-to-r from-amber-300 via-yellow-400 to-amber-300 bg-clip-text text-transparent mb-2">
+                      LUXURY PRODUCTS
+                    </h1>
+
+                    {/* Underline */}
+                    <div className="w-20 h-1 bg-gradient-to-r from-amber-400 to-yellow-500 mb-2"></div>
+
+                    {/* Description */}
+                    <p className="text-slate-400 text-sm">
+                      Manage your luxury products inventory and variants
+                    </p>
+
+                  </div>
+
+                  {/* Action Buttons */}
+                  <div className="flex flex-wrap gap-2 mt-4 md:mt-0">
+
+                    {/* Add Product */}
+                    {permissions.create_product && (
+                      <button
+                        onClick={handleAddProduct}
+                        className="group relative px-6 py-2.5 bg-gradient-to-r from-amber-600 to-yellow-500 text-slate-900 font-semibold rounded-full shadow-2xl shadow-amber-500/50 hover:shadow-amber-500/70 transform hover:scale-105 transition-all duration-300"
+                      >
+                        <div className="absolute inset-0 bg-gradient-to-r from-amber-400 to-yellow-400 opacity-0 group-hover:opacity-100 rounded-full transition-opacity duration-300"></div>
+
+                        <div className="relative flex items-center space-x-2">
+                          <svg
+                            className="w-4 h-4"
+                            fill="currentColor"
+                            viewBox="0 0 20 20"
+                          >
+                            <path
+                              fillRule="evenodd"
+                              d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z"
+                              clipRule="evenodd"
+                            />
+                          </svg>
+
+                          <span>Add Product</span>
+                        </div>
+                      </button>
+                    )}
+
+                    {/* Products Variant */}
+                    <button
+                      onClick={() => router.push('/admin/productvariant')}
+                      className="group relative px-6 py-2.5 bg-gradient-to-r from-blue-600 to-indigo-600 text-white font-semibold rounded-full shadow-2xl shadow-blue-500/50 hover:shadow-blue-500/70 transform hover:scale-105 transition-all duration-300"
+                    >
+                      <div className="absolute inset-0 bg-gradient-to-r from-blue-500 to-indigo-500 opacity-0 group-hover:opacity-100 rounded-full transition-opacity duration-300"></div>
+
+                      <div className="relative flex items-center space-x-2">
+                        <svg
+                          className="w-4 h-4"
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M4 6h16M4 12h16M4 18h16"
+                          />
+                        </svg>
+
+                        <span>Products Variant</span>
+                      </div>
+                    </button>
+
+                    {/* Products Inventory */}
+                    <button
+                      onClick={() => router.push('/admin/productinventory')}
+                      className="group relative px-6 py-2.5 bg-gradient-to-r from-emerald-600 to-teal-600 text-white font-semibold rounded-full shadow-2xl shadow-emerald-500/50 hover:shadow-emerald-500/70 transform hover:scale-105 transition-all duration-300"
+                    >
+                      <div className="absolute inset-0 bg-gradient-to-r from-emerald-500 to-teal-500 opacity-0 group-hover:opacity-100 rounded-full transition-opacity duration-300"></div>
+
+                      <div className="relative flex items-center space-x-2">
+                        <svg
+                          className="w-4 h-4"
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"
+                          />
+                        </svg>
+
+                        <span>Products Inventory</span>
+                      </div>
+                    </button>
+
+                  </div>
+                </div>
+              </div>
+            </div>
 
         {/* Search and Stats Section */}
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center p-4 bg-gray-800/50 rounded-xl mb-8 gap-4">

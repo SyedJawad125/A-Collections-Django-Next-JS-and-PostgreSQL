@@ -228,13 +228,53 @@ const Orders = () => {
       
       <div className="max-w-7xl mx-auto">
         {/* Header Section */}
-        <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-12">
-          <div>
-            <h1 className="text-3xl font-bold bg-gradient-to-r from-amber-300 via-yellow-400 to-amber-300 bg-clip-text text-transparent mb-2 -mt-4">ORDERS MANAGEMENT</h1>
-            <div className="w-90 h-1 bg-gradient-to-r from-amber-400 to-amber-600 mt-1"></div>
-            <p className="text-gray-400 text-sm mt-2">Manage and track customer orders</p>
+        <div className="backdrop-blur-2xl bg-gradient-to-br from-slate-900/90 via-slate-800/80 to-slate-900/90 rounded-3xl border border-amber-400/30 shadow-2xl shadow-amber-500/20 p-4 relative overflow-hidden mb-4 -mt-12">
+
+          {/* Glow Background */}
+          <div className="absolute inset-0 rounded-3xl bg-gradient-to-r from-amber-500/20 via-yellow-500/20 to-amber-500/20 animate-pulse opacity-40"></div>
+
+            {/* Inner Glass Layer */}
+            <div className="absolute inset-[1px] rounded-3xl bg-gradient-to-br from-slate-900/95 to-slate-800/90 backdrop-blur-2xl"></div>
+
+            <div className="relative z-10">
+              <div className="flex flex-col md:flex-row justify-between items-start md:items-center">
+
+                {/* Left Content */}
+                <div>
+
+                  {/* Icon */}
+                  <div className="inline-flex items-center justify-center w-12 h-12 bg-gradient-to-br from-amber-400 to-yellow-500 rounded-full shadow-2xl shadow-amber-500/50 mb-1">
+                    <svg
+                      className="w-6 h-6 text-slate-900"
+                      fill="currentColor"
+                      viewBox="0 0 20 20"
+                    >
+                      <path
+                        fillRule="evenodd"
+                        d="M2 5a2 2 0 012-2h12a2 2 0 012 2v10a2 2 0 01-2 2H4a2 2 0 01-2-2V5zm3 1a1 1 0 000 2h10a1 1 0 100-2H5zm0 4a1 1 0 100 2h6a1 1 0 100-2H5zm0 4a1 1 0 100 2h4a1 1 0 100-2H5z"
+                        clipRule="evenodd"
+                      />
+                    </svg>
+                  </div>
+
+                  {/* Heading */}
+                  <h1 className="text-3xl font-bold bg-gradient-to-r from-amber-300 via-yellow-400 to-amber-300 bg-clip-text text-transparent mb-2">
+                    ORDERS MANAGEMENT
+                  </h1>
+
+                  {/* Underline */}
+                  <div className="w-80 h-1 bg-gradient-to-r from-amber-400 to-yellow-500 mb-2"></div>
+
+                  {/* Description */}
+                  <p className="text-slate-400 text-sm">
+                    Manage and track customer orders
+                  </p>
+
+                </div>
+
+              </div>
+            </div>
           </div>
-        </div>
         
         {/* Stats and Search */}
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 bg-gray-800/50 p-4 rounded-xl gap-4">
