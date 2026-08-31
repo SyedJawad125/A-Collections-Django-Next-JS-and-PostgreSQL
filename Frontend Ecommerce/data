@@ -1,0 +1,32 @@
+🎯 New API Endpoints Available:
+Sales Product Color
+POST /api/myapp/v1/sales/product/color/ - Create color
+GET /api/myapp/v1/sales/product/color/ - List colors
+GET /api/myapp/v1/sales/product/color/?id=N - Get color by ID
+PATCH /api/myapp/v1/sales/product/color/?id=N - Update color
+DELETE /api/myapp/v1/sales/product/color/?id=N - Delete color
+Sales Product Variant
+POST /api/myapp/v1/sales/product/variant/ - Create variant
+GET /api/myapp/v1/sales/product/variant/ - List variants
+GET /api/myapp/v1/sales/product/variant/?id=N - Get variant by ID
+PATCH /api/myapp/v1/sales/product/variant/?id=N - Update variant
+DELETE /api/myapp/v1/sales/product/variant/?id=N - Delete variant
+Public Sales Product Variant
+GET /api/myapp/v1/public/sales/product/variant/ - List active variants (no auth required)
+Sales Inventory
+POST /api/myapp/v1/sales/inventory/ - Create inventory record
+GET /api/myapp/v1/sales/inventory/ - List inventory
+GET /api/myapp/v1/sales/inventory/?id=N - Get inventory by ID
+PATCH /api/myapp/v1/sales/inventory/?id=N - Update inventory
+DELETE /api/myapp/v1/sales/inventory/?id=N - Delete inventory
+🔧 Key Features:
+Auto-generated SKU for sales product variants (similar to regular product variants)
+Soft delete support with appropriate to_representation methods
+Validation for uniqueness, field lengths, and business logic
+Permission-based access control using existing @permission_required decorator
+Stock level tracking with low stock and reorder point alerts
+Color relationships using ManyToMany with the existing Color model
+Total price calculation combining sales product final price with variant additional price
+The code follows the exact same patterns as your existing Color, ProductVariant, and Inventory implementations for consistency. You can now test the order creation again - the rider field should now be sent as a number instead of a string, which should resolve the validation error.
+
+remove error , D:\4. Alizay Collections\Backend Ecommerce
