@@ -362,7 +362,7 @@ const AdminCoupon = () => {
                   </h1>
 
                   {/* Underline */}
-                  <div className="w-20 h-1 bg-gradient-to-r from-amber-400 to-yellow-500 mb-2"></div>
+                  <div className="w-40 h-1 bg-gradient-to-r from-amber-400 to-yellow-500 mb-2"></div>
 
                   {/* Description */}
                   <p className="text-slate-400 text-sm">
