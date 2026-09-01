@@ -1860,11 +1860,24 @@ class OrderView(BaseView):
                 'city':           request.data.get('city'),
                 'payment_method': request.data.get('payment_method'),
             }
+            # customer_id    = request.data.get('customer')
+            # rider_id       = request.data.get('rider')
+            # delivery_date  = request.data.get('delivery_date')
+            # items          = request.data.get('items', [])
+            # if not all(personal_info.values()) or not items:
+            #     return Response({"error": "Missing required fields"}, status=status.HTTP_400_BAD_REQUEST)
             customer_id    = request.data.get('customer')
             rider_id       = request.data.get('rider')
             delivery_date  = request.data.get('delivery_date')
             items          = request.data.get('items', [])
-            if not all(personal_info.values()) or not items:
+
+            # FIX: `all(personal_info.values())` was rejecting every order
+            # where `city` was left blank, even though Order.city is
+            # null=True, blank=True (genuinely optional). Only check the
+            # fields the Order model actually requires.
+            required_fields = ['customer_name', 'customer_email', 'customer_phone',
+                                'delivery_address', 'payment_method']
+            if not all(personal_info.get(f) for f in required_fields) or not items:
                 return Response({"error": "Missing required fields"}, status=status.HTTP_400_BAD_REQUEST)
             order_data = {**personal_info,
                           'delivery_date':  delivery_date or self._calculate_delivery_date(),
@@ -1926,13 +1939,29 @@ class OrderView(BaseView):
     def _update_order_items(self, request, order):
         try:
             with transaction.atomic():
+                # update_fields = {k: request.data[k] for k in
+                #                  ['customer_name', 'customer_email', 'customer_phone',
+                #                   'delivery_address', 'city', 'payment_method',
+                #                   'delivery_date', 'status', 'payment_status']
+                #                  if k in request.data}
+                # for k, v in update_fields.items():
+                #     setattr(order, k, v)
+                # items = request.data.get('items', [])
                 update_fields = {k: request.data[k] for k in
-                                 ['customer_name', 'customer_email', 'customer_phone',
-                                  'delivery_address', 'city', 'payment_method',
-                                  'delivery_date', 'status', 'payment_status']
-                                 if k in request.data}
+                ['customer_name', 'customer_email', 'customer_phone',
+                'delivery_address', 'city', 'payment_method',
+                'delivery_date', 'status', 'payment_status']
+                if k in request.data}
                 for k, v in update_fields.items():
                     setattr(order, k, v)
+
+                # FIX: customer/rider were silently ignored on every update —
+                # only the plain scalar fields above were ever applied.
+                if 'customer' in request.data:
+                    order.customer_id = request.data.get('customer') or None
+                if 'rider' in request.data:
+                    order.rider_id = request.data.get('rider') or None
+
                 items = request.data.get('items', [])
                 if items:
                     OrderDetail.objects.filter(order=order).update(deleted=True)
