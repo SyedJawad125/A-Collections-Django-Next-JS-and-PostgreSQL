@@ -525,45 +525,104 @@ const PermissionsCom = () => {
     <div className="min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-slate-800 p-8">
       <div className="max-w-7xl mx-auto">
         {/* Header Section */}
-        <div className="mb-12">
-          <div className="backdrop-blur-xl bg-gradient-to-r from-slate-900/60 to-slate-800/40 rounded-2xl border border-purple-400/20 shadow-2xl shadow-purple-500/10 p-8">
-            <h1 className="text-4xl font-bold bg-gradient-to-r from-purple-300 via-indigo-300 to-cyan-300 bg-clip-text text-transparent mb-4">
-              Permissions Management
-            </h1>
-            <div className="flex items-center text-sm text-slate-400 space-x-4">
-              <div className="flex items-center space-x-2">
-                <div className="w-2 h-2 bg-gradient-to-r from-purple-400 to-cyan-400 rounded-full animate-pulse"></div>
-                <span className="font-medium">Total: <span className="text-purple-300">{pagination.total}</span> records</span>
+        <div className="backdrop-blur-2xl bg-gradient-to-br from-slate-900/90 via-slate-800/80 to-slate-900/90 rounded-3xl border border-amber-400/30 shadow-2xl shadow-amber-500/20 p-4 relative overflow-hidden mb-4 -mt-10">
+
+            {/* Glow Background */}
+            <div className="absolute inset-0 rounded-3xl bg-gradient-to-r from-amber-500/20 via-yellow-500/20 to-amber-500/20 animate-pulse opacity-40"></div>
+
+            {/* Inner Glass Layer */}
+            <div className="absolute inset-[1px] rounded-3xl bg-gradient-to-br from-slate-900/95 to-slate-800/90 backdrop-blur-2xl"></div>
+
+            <div className="relative z-10">
+              <div className="flex flex-col md:flex-row justify-between items-start md:items-center">
+
+                <div>
+                  {/* Icon */}
+                  <div className="inline-flex items-center justify-center w-12 h-12 bg-gradient-to-br from-amber-400 to-yellow-500 rounded-full shadow-2xl shadow-amber-500/50 mb-1">
+                    <svg
+                      className="w-6 h-6 text-slate-900"
+                      fill="currentColor"
+                      viewBox="0 0 20 20"
+                    >
+                      <path
+                        fillRule="evenodd"
+                        d="M10 2a4 4 0 00-4 4v1H5a2 2 0 00-2 2v7a2 2 0 002 2h10a2 2 0 002-2V9a2 2 0 00-2-2h-1V6a4 4 0 00-4-4zm2 5V6a2 2 0 10-4 0v1h4zm-5 4a1 1 0 112 0 1 1 0 01-2 0zm6-1a1 1 0 100 2 1 1 0 000-2z"
+                        clipRule="evenodd"
+                      />
+                    </svg>
+                  </div>
+
+                  {/* Heading */}
+                  <h1 className="text-3xl font-bold bg-gradient-to-r from-amber-300 via-yellow-400 to-amber-300 bg-clip-text text-transparent mb-2">
+                    PERMISSIONS MANAGEMENT
+                  </h1>
+
+                  {/* Underline */}
+                  <div className="w-20 h-1 bg-gradient-to-r from-amber-400 to-yellow-500 mb-2"></div>
+
+                  {/* Description */}
+                  <p className="text-slate-400 text-sm">
+                    Manage system permissions and access controls
+                  </p>
+                </div>
+
+                {/* Add Permission Button */}
+                {permissions.create_permission && (
+                  <button
+                    onClick={() => router.push('/admin/AddPermissionPage')}
+                    className="group relative px-6 py-2.5 bg-gradient-to-r from-amber-600 to-yellow-500 text-slate-900 font-semibold rounded-full shadow-2xl shadow-amber-500/50 hover:shadow-amber-500/70 transform hover:scale-105 transition-all duration-300 mt-4 md:mt-0 overflow-hidden"
+                  >
+                    <div className="absolute inset-0 bg-gradient-to-r from-amber-400 to-yellow-400 opacity-0 group-hover:opacity-100 rounded-full transition-opacity duration-300"></div>
+
+                    <div className="relative flex items-center space-x-2">
+                      <svg
+                        className="w-4 h-4"
+                        fill="currentColor"
+                        viewBox="0 0 20 20"
+                      >
+                        <path
+                          fillRule="evenodd"
+                          d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z"
+                          clipRule="evenodd"
+                        />
+                      </svg>
+                      <span>Add Permission</span>
+                    </div>
+                  </button>
+                )}
               </div>
-              <span className="text-slate-600">•</span>
-              <div className="flex items-center space-x-2">
-                <div className="w-2 h-2 bg-gradient-to-r from-indigo-400 to-purple-400 rounded-full animate-pulse"></div>
-                <span className="font-medium">Page <span className="text-indigo-300">{pagination.page}</span> of <span className="text-cyan-300">{pagination.totalPages}</span></span>
+
+              {/* Statistics */}
+              <div className="flex flex-wrap items-center gap-3 mt-3">
+
+                <div className="flex items-center space-x-2 px-3 py-1.5 bg-slate-900/60 rounded-lg border border-slate-700/50 backdrop-blur-sm">
+                  <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
+                  <span className="text-slate-300 text-xs">
+                    Total:{' '}
+                    <span className="text-amber-300 font-semibold">
+                      {pagination.total}
+                    </span>{' '}
+                    records
+                  </span>
+                </div>
+
+                <div className="flex items-center space-x-2 px-3 py-1.5 bg-slate-900/60 rounded-lg border border-slate-700/50 backdrop-blur-sm">
+                  <div className="w-2 h-2 bg-blue-400 rounded-full"></div>
+                  <span className="text-slate-300 text-xs">
+                    Page{' '}
+                    <span className="text-amber-300 font-semibold">
+                      {pagination.page}
+                    </span>{' '}
+                    of{' '}
+                    <span className="text-amber-300 font-semibold">
+                      {pagination.totalPages}
+                    </span>
+                  </span>
+                </div>
+
               </div>
             </div>
           </div>
-        </div>
-
-        {/* Add Permission Button */}
-        {permissions.create_permission && (
-          <div className="mb-8">
-            <button
-              onClick={() => router.push('/admin/AddPermissionPage')}
-              className="group relative px-8 py-4 bg-gradient-to-r from-amber-500/20 to-orange-500/20 border border-amber-400/30 text-amber-300 rounded-2xl hover:from-amber-500/30 hover:to-orange-500/30 hover:border-amber-400/50 transition-all duration-300 shadow-lg shadow-amber-500/10 hover:shadow-amber-500/20 backdrop-blur-sm font-semibold"
-            >
-              <div className="flex items-center space-x-3">
-                <div className="w-5 h-5 rounded-full bg-gradient-to-r from-amber-400 to-orange-400 flex items-center justify-center">
-                  <svg className="w-3 h-3 text-slate-900" fill="currentColor" viewBox="0 0 20 20">
-                    <path fillRule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clipRule="evenodd" />
-                  </svg>
-                </div>
-                <span>Add New Permission</span>
-              </div>
-              <div className="absolute inset-0 rounded-2xl bg-gradient-to-r from-amber-400/0 via-amber-400/5 to-orange-400/0 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-            </button>
-          </div>
-        )}
-
         {loading ? (
           <div className="backdrop-blur-xl bg-gradient-to-br from-slate-900/80 to-slate-800/60 rounded-2xl border border-purple-400/20 shadow-2xl shadow-purple-500/10 overflow-hidden">
             <div className="space-y-0">
