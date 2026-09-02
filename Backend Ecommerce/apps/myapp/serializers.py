@@ -1893,7 +1893,14 @@ class OrderDetailSerializer(serializers.ModelSerializer):
 
 
 class OrderSerializer(serializers.ModelSerializer):
-    order_details  = OrderDetailSerializer(many=True, read_only=True)
+    # FIX: was a plain nested serializer with no filtering, so soft-deleted
+    # OrderDetail rows (created every time an admin edits an order, since
+    # _update_order_items soft-deletes + recreates rather than updating in
+    # place) kept showing up in the items list — while total_amount and
+    # items_count correctly filtered them out, causing the totals to look
+    # right but the item table to show duplicated/ghost line items.
+    order_details  = serializers.SerializerMethodField()
+    # order_details  = OrderDetailSerializer(many=True, read_only=True)
     rider_name     = serializers.SerializerMethodField()
     total_amount   = serializers.SerializerMethodField()
     items_count    = serializers.SerializerMethodField()
@@ -1926,6 +1933,10 @@ class OrderSerializer(serializers.ModelSerializer):
     def get_total_amount(self, obj): return obj.total_amount if not obj.deleted else None
     def get_items_count(self, obj):  return obj.order_details.filter(deleted=False).count() if not obj.deleted else 0
     def get_coupon_code(self, obj):  return obj.coupon.code if obj.coupon else None
+
+    def get_order_details(self, obj):
+        qs = obj.order_details.filter(deleted=False).order_by('-created_at')
+        return OrderDetailSerializer(qs, many=True).data
 
     def get_shipping_info(self, obj):
         if obj.shipping_method:
