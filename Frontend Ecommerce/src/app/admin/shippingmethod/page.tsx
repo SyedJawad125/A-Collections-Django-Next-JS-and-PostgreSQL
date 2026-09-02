@@ -1,22 +1,24 @@
-'use client';
+'use client'
 import React from 'react'
-import ShippingMethod from "@/components/ShippingMethod";
 import AdminSideNavbarCom from "@/components/AdminSideNavbarCom";
+import ShippingMethod from "@/components/ShippingMethod";
 
-
-
-const page = () => {
+const Sales = () => {
   return (
-     <div className="flex h-screen">
+    <div className="flex h-screen w-full overflow-hidden">
+      {/* Sidebar - Fixed percentage width with constraints */}
+      <div className="w-[18%] min-w-[280px] max-w-[320px] flex-shrink-0 bg-gradient-to-b from-slate-900 via-slate-800 to-slate-900">
+        <AdminSideNavbarCom />
+      </div>
       
-      <div className="w-[16%] bg-gray-800 text-white">
-        <AdminSideNavbarCom/>
+      {/* Main Content - Takes remaining space */}
+      <div className="flex-1 w-[82%] bg-black overflow-auto -ml-6 mr" >
+        <div className="w-full h-full p-6">
+          <ShippingMethod />
+        </div>
       </div>
-      <div className="w-[84%] p-6 bg-black">
-        <ShippingMethod/>
-      </div>
-    </div> 
+    </div>
   )
 }
 
-export default page
+export default Sales;
