@@ -957,7 +957,7 @@ const AdminSideNavbarCom = () => {
     },
     {
       id: 'employees',
-      label: 'Employee Records',
+      label: 'Employee',
       icon: Users,
       path: '/admin/employeepage',
       roles: ['admin', 'super'],
@@ -965,7 +965,7 @@ const AdminSideNavbarCom = () => {
     },
     {
       id: 'adminproducts',
-      label: 'Admin Products',
+      label: 'Products',
       icon: ShoppingBag,
       path: '/admin/adminproducts',
       roles: ['admin', 'super'],
@@ -973,7 +973,7 @@ const AdminSideNavbarCom = () => {
     },
     {
       id: 'admincategories',
-      label: 'Admin Categories',
+      label: 'Categories',
       icon: Tag,
       path: '/admin/admincategories',
       roles: ['admin', 'super'],
@@ -981,7 +981,7 @@ const AdminSideNavbarCom = () => {
     },
     {
       id: 'adminsales',
-      label: 'Admin Sales',
+      label: 'Sales',
       icon: Tag,
       path: '/admin/adminsales',
       roles: ['admin', 'super'],
@@ -997,7 +997,7 @@ const AdminSideNavbarCom = () => {
     },
     {
       id: 'reviews',
-      label: 'reviews',
+      label: 'Reviews',
       icon: MessageSquare,
       path: '/admin/adminreviews',
       roles: ['admin', 'super'],
@@ -1029,7 +1029,7 @@ const AdminSideNavbarCom = () => {
     },
     {
       id: 'shipping',
-      label: 'Shipping Methods',
+      label: 'Shipping',
       icon: Truck,
       path: '/admin/adminshipping',
       roles: ['admin', 'super'],
