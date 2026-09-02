@@ -136,7 +136,7 @@ const RolesCom = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-black p-8 relative overflow-hidden">
+    <div className="min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-slate-800 p-8">
       {/* Animated Background Elements */}
       <div className="absolute inset-0">
         <div className="absolute top-20 left-10 w-96 h-96 bg-gradient-to-r from-amber-500/8 to-orange-500/5 rounded-full blur-3xl animate-pulse"></div>
