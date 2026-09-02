@@ -242,7 +242,7 @@ const AdminProductVariant = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-gray-900 to-gray-800 py-12 px-4">
+    <div className="min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-black py-16 px-4 relative overflow-hidden">
       <ToastContainer position="top-right" autoClose={4000} theme="light" />
 
       {/* Add / Update Modal */}
@@ -331,22 +331,105 @@ const AdminProductVariant = () => {
       )}
 
       <div className="max-w-7xl mx-auto">
-        <div className="flex justify-between items-center mb-12 flex-wrap gap-4">
-          <div>
-            <h1 className="text-4xl font-light text-white">PRODUCT VARIANTS</h1>
-            <div className="w-20 h-1 bg-gradient-to-r from-amber-400 to-amber-600 mt-1"></div>
+        <div className="backdrop-blur-2xl bg-gradient-to-br from-slate-900/90 via-slate-800/80 to-slate-900/90 rounded-3xl border border-amber-400/30 shadow-2xl shadow-amber-500/20 p-4 relative overflow-hidden mb-4 -mt-16">
+
+            {/* Glow Background */}
+            <div className="absolute inset-0 rounded-3xl bg-gradient-to-r from-amber-500/20 via-yellow-500/20 to-amber-500/20 animate-pulse opacity-40"></div>
+
+            {/* Inner Glass Layer */}
+            <div className="absolute inset-[1px] rounded-3xl bg-gradient-to-br from-slate-900/95 to-slate-800/90 backdrop-blur-2xl"></div>
+
+            <div className="relative z-10">
+              <div className="flex flex-col md:flex-row justify-between items-start md:items-center">
+
+                {/* Left Content */}
+                <div>
+
+                  {/* Icon */}
+                  <div className="inline-flex items-center justify-center w-12 h-12 bg-gradient-to-br from-amber-400 to-yellow-500 rounded-full shadow-2xl shadow-amber-500/50 mb-1">
+                    <svg
+                      className="w-6 h-6 text-slate-900"
+                      fill="currentColor"
+                      viewBox="0 0 20 20"
+                    >
+                      <path
+                        fillRule="evenodd"
+                        d="M10 2a1 1 0 01.894.553l2.118 4.288 4.733.688a1 1 0 01.554 1.706l-3.425 3.338.808 4.714a1 1 0 01-1.451 1.054L10 16.118l-4.231 2.223a1 1 0 01-1.451-1.054l.808-4.714-3.425-3.338a1 1 0 01.554-1.706l4.733-.688 2.118-4.288A1 1 0 0110 2z"
+                        clipRule="evenodd"
+                      />
+                    </svg>
+                  </div>
+
+                  {/* Heading */}
+                  <h1 className="text-3xl font-bold bg-gradient-to-r from-amber-300 via-yellow-400 to-amber-300 bg-clip-text text-transparent mb-2">
+                    PRODUCT VARIANTS
+                  </h1>
+
+                  {/* Underline */}
+                  <div className="w-20 h-1 bg-gradient-to-r from-amber-400 to-yellow-500 mb-2"></div>
+
+                  {/* Description */}
+                  <p className="text-slate-400 text-sm">
+                    Manage product variants and options
+                  </p>
+
+                </div>
+
+                {/* Action Buttons */}
+                <div className="flex flex-wrap gap-3 mt-4 md:mt-0">
+
+                  {permissions.create_productvariant && (
+                    <button
+                      onClick={handleAdd}
+                      className="group relative px-6 py-2.5 bg-gradient-to-r from-amber-600 to-yellow-500 text-slate-900 font-semibold rounded-full shadow-2xl shadow-amber-500/50 hover:shadow-amber-500/70 transform hover:scale-105 transition-all duration-300"
+                    >
+                      <div className="absolute inset-0 bg-gradient-to-r from-amber-400 to-yellow-400 opacity-0 group-hover:opacity-100 rounded-full transition-opacity duration-300"></div>
+
+                      <div className="relative flex items-center space-x-2">
+                        <svg
+                          className="w-4 h-4"
+                          fill="currentColor"
+                          viewBox="0 0 20 20"
+                        >
+                          <path
+                            fillRule="evenodd"
+                            d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z"
+                            clipRule="evenodd"
+                          />
+                        </svg>
+                        <span>Add Variant</span>
+                      </div>
+                    </button>
+                  )}
+
+                  <button
+                    onClick={() => router.push('/admin/adminproducts')}
+                    className="group relative px-6 py-2.5 bg-gradient-to-r from-slate-700 to-slate-600 text-white font-semibold rounded-full border border-slate-500/50 shadow-xl hover:border-amber-400/50 hover:shadow-amber-500/20 transform hover:scale-105 transition-all duration-300"
+                  >
+                    <div className="absolute inset-0 bg-gradient-to-r from-slate-600 to-slate-500 opacity-0 group-hover:opacity-100 rounded-full transition-opacity duration-300"></div>
+
+                    <div className="relative flex items-center space-x-2">
+                      <svg
+                        className="w-4 h-4"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M10 19l-7-7m0 0l7-7m-7 7h18"
+                        />
+                      </svg>
+                      <span>Back to Products</span>
+                    </div>
+                  </button>
+
+                </div>
+              </div>
+            </div>
           </div>
-          <div className="flex gap-3 flex-wrap">
-            {permissions.create_productvariant && (
-              <button onClick={handleAdd} className="px-6 py-3 border border-amber-500 text-amber-500 rounded-full hover:bg-amber-500 hover:text-black transform hover:scale-105 transition-transform">
-                Add Variant
-              </button>
-            )}
-            <button onClick={() => router.push('/admin/adminproducts')} className="px-6 py-3 border border-amber-500 text-amber-500 rounded-full hover:bg-amber-500 hover:text-black transform hover:scale-105 transition-transform">
-              Back to Products
-            </button>
-          </div>
-        </div>
 
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center p-4 bg-gray-800/50 rounded-xl mb-8 gap-4">
           <div className="text-amber-400">Showing {filteredRecords.length} of {pagination.totalCount} items</div>
