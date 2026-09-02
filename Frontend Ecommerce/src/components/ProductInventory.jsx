@@ -224,7 +224,7 @@ const AdminProductInventory = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-gray-900 to-gray-800 py-12 px-4">
+    <div className="min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-black py-16 px-4 relative overflow-hidden">
       <ToastContainer position="top-right" autoClose={4000} theme="light" />
 
       {modalOpen && (
@@ -306,22 +306,56 @@ const AdminProductInventory = () => {
       )}
 
       <div className="max-w-7xl mx-auto">
-        <div className="flex justify-between items-center mb-12 flex-wrap gap-4">
-          <div>
-            <h1 className="text-4xl font-light text-white">PRODUCT INVENTORY</h1>
-            <div className="w-20 h-1 bg-gradient-to-r from-amber-400 to-amber-600 mt-1"></div>
+        <div className="w-full max-w-none backdrop-blur-2xl bg-gradient-to-br from-slate-900/90 via-slate-800/80 to-slate-900/90 rounded-3xl border border-amber-400/30 shadow-2xl shadow-amber-500/20 p-4 relative overflow-hidden mb-4 -mt-16">
+            <div className="absolute inset-0 rounded-3xl bg-gradient-to-r from-amber-500/20 via-yellow-500/20 to-amber-500/20 animate-pulse opacity-40"></div>
+            <div className="absolute inset-[1px] rounded-3xl bg-gradient-to-br from-slate-900/95 to-slate-800/90 backdrop-blur-2xl"></div>
+
+            <div className="relative z-10">
+              <div className="flex flex-col md:flex-row justify-between items-start md:items-center">
+                <div>
+                  <div className="inline-flex items-center justify-center w-12 h-12 bg-gradient-to-br from-amber-400 to-yellow-500 rounded-full shadow-2xl shadow-amber-500/50 mb-1">
+                    <svg
+                      className="w-6 h-6 text-slate-900"
+                      fill="currentColor"
+                      viewBox="0 0 20 20"
+                    >
+                      <path d="M3 3h14v2H3V3zm0 4h14v2H3V7zm0 4h9v2H3v-2zm0 4h6v2H3v-2z" />
+                    </svg>
+                  </div>
+
+                  <h1 className="text-3xl font-bold bg-gradient-to-r from-amber-300 via-yellow-400 to-amber-300 bg-clip-text text-transparent mb-2">
+                    PRODUCT INVENTORY
+                  </h1>
+
+                  <div className="w-20 h-1 bg-gradient-to-r from-amber-400 to-yellow-500 mb-2"></div>
+
+                  <p className="text-slate-400 text-sm">
+                    Manage product inventory and stock records
+                  </p>
+                </div>
+
+                <div className="flex gap-3 flex-wrap mt-4 md:mt-0">
+                  {permissions.create_inventory && (
+                    <button
+                      onClick={handleAdd}
+                      className="group relative px-6 py-2.5 bg-gradient-to-r from-amber-600 to-yellow-500 text-slate-900 font-semibold rounded-full shadow-2xl shadow-amber-500/50 hover:shadow-amber-500/70 transform hover:scale-105 transition-all duration-300 overflow-hidden"
+                    >
+                      <span className="absolute inset-0 bg-gradient-to-r from-yellow-400 to-amber-400 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></span>
+                      <span className="relative z-10">Add Inventory Record</span>
+                    </button>
+                  )}
+
+                  <button
+                    onClick={() => router.push('/admin/adminproducts')}
+                    className="group relative px-6 py-2.5 bg-gradient-to-r from-slate-700 to-slate-600 text-white font-semibold rounded-full border border-slate-600/50 shadow-xl hover:border-amber-400/50 hover:shadow-amber-500/30 transform hover:scale-105 transition-all duration-300 overflow-hidden"
+                  >
+                    <span className="absolute inset-0 bg-gradient-to-r from-amber-600/20 to-yellow-500/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></span>
+                    <span className="relative z-10">Back to Products</span>
+                  </button>
+                </div>
+              </div>
+            </div>
           </div>
-          <div className="flex gap-3 flex-wrap">
-            {permissions.create_inventory && (
-              <button onClick={handleAdd} className="px-6 py-3 border border-amber-500 text-amber-500 rounded-full hover:bg-amber-500 hover:text-black transform hover:scale-105 transition-transform">
-                Add Inventory Record
-              </button>
-            )}
-            <button onClick={() => router.push('/admin/adminproducts')} className="px-6 py-3 border border-amber-500 text-amber-500 rounded-full hover:bg-amber-500 hover:text-black transform hover:scale-105 transition-transform">
-              Back to Products
-            </button>
-          </div>
-        </div>
 
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center p-4 bg-gray-800/50 rounded-xl mb-8 gap-4">
           <div className="text-amber-400">Showing {filteredRecords.length} of {pagination.totalCount} items</div>
