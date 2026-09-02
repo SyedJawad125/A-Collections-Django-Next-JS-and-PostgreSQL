@@ -522,7 +522,7 @@ const PermissionsCom = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-slate-800 p-8">
+    <div className="min-h-screen -ml-8 bg-gradient-to-b from-gray-900 to-gray-800 py-12 px-4">
       <div className="max-w-7xl mx-auto">
         {/* Header Section */}
         <div className="backdrop-blur-2xl bg-gradient-to-br from-slate-900/90 via-slate-800/80 to-slate-900/90 rounded-3xl border border-amber-400/30 shadow-2xl shadow-amber-500/20 p-4 relative overflow-hidden mb-4 -mt-10">
