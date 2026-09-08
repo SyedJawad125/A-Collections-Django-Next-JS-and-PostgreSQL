@@ -291,7 +291,7 @@ const PublicSalesProductsCom = () => {
                         ✨ EXCLUSIVE SALES ✨
                     </h2> */}
                     <h2 className="text-3xl font-serif text-gray-900 font-bold text-center tracking-wider mb-8 mt-4">
-                    EXCLUSIVE SALES
+                    ✨ EXCLUSIVE SALES ✨
                     </h2>
                     
                     {/* Items per page selector and count */}
