@@ -71,6 +71,8 @@ const PublicSalesProductsCom = () => {
             
             const processedProducts = dataArr.map(product => {
                 const imageUrls = product.image_urls || [];
+                console.log('Product data:', product);
+                console.log('Category data:', product.category);
                 return {
                     ...product,
                     mainImage: imageUrls.length > 0
@@ -285,8 +287,11 @@ const PublicSalesProductsCom = () => {
             <div className={`${categories.length > 0 ? 'w-[85%]' : 'w-full'} p-4 md:p-8`} ref={productsRef}>
                 {/* Header Section */}
                 <div className="text-center mb-8">
-                    <h2 className="text-3xl md:text-4xl font-serif text-gray-900 font-bold mb-6 md:mb-8 mt-4 md:mt-10 tracking-wider">
+                    {/* <h2 className="text-2xl md:text-4xl font-serif text-gray-900 font-bold mb-6 md:mb-8 mt-4 md:mt-10 tracking-wider">
                         ✨ EXCLUSIVE SALES ✨
+                    </h2> */}
+                    <h2 className="text-3xl font-serif text-gray-900 font-bold text-center tracking-wider mb-8 mt-4">
+                    EXCLUSIVE SALES
                     </h2>
                     
                     {/* Items per page selector and count */}
@@ -373,11 +378,11 @@ const PublicSalesProductsCom = () => {
                                     )}
                                     
                                     <div className="mt-auto">
-                                        <div className="flex items-center justify-between mb-3">
+                                        {/* <div className="flex items-center justify-between mb-3">
                                             <span className="text-xs text-gray-500 bg-gray-100 px-2 py-1 rounded">
-                                                {item.category_data?.name || 'Uncategorized'}
+                                                {item.category?.name || 'Uncategorized'}
                                             </span>
-                                        </div>
+                                        </div> */}
                                         <button className="w-full py-2 bg-gray-900 text-white text-xs sm:text-sm rounded hover:bg-blue-700 transition-colors font-medium">
                                             View Details
                                         </button>
