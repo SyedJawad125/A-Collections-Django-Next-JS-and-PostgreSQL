@@ -270,15 +270,14 @@
 #         ('other', 'Other'),
 #     )
 
-#     user        = models.ForeignKey(User, on_delete=models.CASCADE, related_name='addresses')
-#     label       = models.CharField(max_length=20, choices=ADDRESS_TYPE, default='home')
-#     full_name   = models.CharField(max_length=100)
-#     phone       = models.CharField(max_length=20)
-#     street      = models.TextField()
-#     city        = models.CharField(max_length=100)
-#     province    = models.CharField(max_length=100)
-#     postal_code = models.CharField(max_length=20, blank=True, null=True)
-#     is_default  = models.BooleanField(default=False)
+#     user            = models.ForeignKey(User, on_delete=models.CASCADE, related_name='addresses')
+#     label           = models.CharField(max_length=20, choices=ADDRESS_TYPE, default='home')
+#     full_name       = models.CharField(max_length=100)
+#     phone           = models.CharField(max_length=20)
+#     delivery_address = models.TextField()
+#     city            = models.CharField(max_length=100)
+#     postal_code     = models.CharField(max_length=20, blank=True, null=True)
+#     is_default      = models.BooleanField(default=False)
 
 #     class Meta:
 #         verbose_name_plural = "Addresses"
@@ -1085,15 +1084,15 @@ class Address(TimeUserStamps):
         ('other', 'Other'),
     )
 
-    user        = models.ForeignKey(User, on_delete=models.CASCADE, related_name='addresses')
-    label       = models.CharField(max_length=20, choices=ADDRESS_TYPE, default='home')
-    full_name   = models.CharField(max_length=100)
-    phone       = models.CharField(max_length=20)
-    street      = models.TextField()
-    city        = models.CharField(max_length=100)
-    province    = models.CharField(max_length=100)
-    postal_code = models.CharField(max_length=20, blank=True, null=True)
-    is_default  = models.BooleanField(default=False)
+    user            = models.ForeignKey(User, on_delete=models.CASCADE, related_name='addresses')
+    label           = models.CharField(max_length=20, choices=ADDRESS_TYPE, default='home')
+    full_name       = models.CharField(max_length=100)
+    email           = models.EmailField(max_length=100, null=True, blank=True)
+    phone           = models.CharField(max_length=20)
+    delivery_address = models.TextField()
+    city            = models.CharField(max_length=100)
+    postal_code     = models.CharField(max_length=20, blank=True, null=True)
+    is_default      = models.BooleanField(default=False)
 
     class Meta:
         verbose_name_plural = "Addresses"

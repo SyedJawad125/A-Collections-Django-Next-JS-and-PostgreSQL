@@ -494,8 +494,8 @@
 
 #     class Meta:
 #         model  = Address
-#         fields = ['id', 'user', 'label', 'full_name', 'phone', 'street',
-#                   'city', 'province', 'postal_code', 'is_default',
+#         fields = ['id', 'user', 'label', 'full_name', 'phone', 'delivery_address',
+#                   'city', 'postal_code', 'is_default',
 #                   'created_by', 'created_at', 'updated_at']
 #         read_only_fields = ('created_at', 'updated_at', 'user')
 
@@ -1745,8 +1745,8 @@ class AddressSerializer(serializers.ModelSerializer):
 
     class Meta:
         model  = Address
-        fields = ['id', 'user', 'label', 'full_name', 'phone', 'street',
-                  'city', 'province', 'postal_code', 'is_default',
+        fields = ['id', 'user', 'label', 'full_name', 'phone', 'email', 'delivery_address',
+                  'city', 'postal_code', 'is_default',
                   'created_by', 'created_at', 'updated_at']
         read_only_fields = ('created_at', 'updated_at', 'user')
 

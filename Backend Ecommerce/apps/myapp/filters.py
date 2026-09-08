@@ -1058,14 +1058,14 @@ class DropDownListSalesProductFilter(FilterSet):
 # ============================================================================
 
 class AddressFilter(FilterSet):
-    id       = CharFilter(field_name='id')
-    label    = CharFilter(field_name='label', lookup_expr='iexact')
-    city     = CharFilter(field_name='city',  lookup_expr='icontains')
-    province = CharFilter(field_name='province', lookup_expr='icontains')
+    id                = CharFilter(field_name='id')
+    label             = CharFilter(field_name='label', lookup_expr='iexact')
+    city              = CharFilter(field_name='city',  lookup_expr='icontains')
+    delivery_address  = CharFilter(field_name='delivery_address', lookup_expr='icontains')
 
     class Meta:
         model  = Address
-        fields = ['id', 'label', 'city', 'province']
+        fields = ['id', 'label', 'city', 'delivery_address']
 
 
 # ============================================================================
