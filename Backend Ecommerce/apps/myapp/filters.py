@@ -395,7 +395,7 @@
 #     customer_phone = CharFilter(field_name='customer_phone', lookup_expr='icontains')
     
 #     # Address filters
-#     city = CharFilter(field_name='city', lookup_expr='icontains')
+#     delivery_city = CharFilter(field_name='delivery_city', lookup_expr='icontains')
 #     delivery_address = CharFilter(field_name='delivery_address', lookup_expr='icontains')
     
 #     # Status filters
@@ -456,7 +456,7 @@
 #             Q(customer_email__icontains=value) |
 #             Q(customer_phone__icontains=value) |
 #             Q(delivery_address__icontains=value) |
-#             Q(city__icontains=value)
+#             Q(delivery_city__icontains=value)
 #         ).distinct()
 
 

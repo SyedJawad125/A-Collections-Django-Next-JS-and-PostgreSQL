@@ -1201,8 +1201,9 @@ class Order(TimeUserStamps):
     address          = models.ForeignKey(
         Address, on_delete=models.SET_NULL, null=True, blank=True, related_name='orders'
     )
-    delivery_address = models.TextField(help_text="Snapshot of address at time of order")
-    city             = models.CharField(max_length=100, null=True, blank=True)
+    delivery_address = models.TextField(help_text="Snapshot of address at time of order", null=True, blank=True)
+    delivery_postal_code = models.CharField(max_length=20,null=True,blank=True)
+    delivery_city        = models.CharField(max_length=100, null=True, blank=True)
     delivery_date    = models.DateField(null=True, blank=True)
     shipping_method  = models.ForeignKey(ShippingMethod, on_delete=models.SET_NULL, null=True, blank=True)
     rider            = models.ForeignKey(
@@ -1241,6 +1242,7 @@ class OrderDetail(TimeUserStamps):
     sales_product = models.ForeignKey(
         SalesProduct, on_delete=models.SET_NULL, related_name='order_details', null=True, blank=True
     )
+    product_name = models.CharField(max_length=255, help_text="Product name at the time of purchase")
     unit_price  = models.DecimalField(max_digits=10, decimal_places=2, help_text="Price at time of purchase")
     quantity    = models.PositiveIntegerField(default=1)
     total_price = models.DecimalField(max_digits=10, decimal_places=2, blank=True, null=True)
@@ -1267,7 +1269,18 @@ class OrderDetail(TimeUserStamps):
         if self.unit_price and self.quantity:
             self.total_price = self.unit_price * self.quantity
 
+    # def save(self, *args, **kwargs):
+    #     self.full_clean()
+    #     super().save(*args, **kwargs)
+
     def save(self, *args, **kwargs):
+        # Automatically create snapshot name
+        if not self.product_name:
+            if self.product:
+                self.product_name = self.product.name
+            elif self.sales_product:
+                self.product_name = self.sales_product.name
+
         self.full_clean()
         super().save(*args, **kwargs)
 

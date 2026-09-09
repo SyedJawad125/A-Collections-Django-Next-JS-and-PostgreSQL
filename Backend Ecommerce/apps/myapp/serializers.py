@@ -650,7 +650,7 @@
 #         model  = Order
 #         fields = ['id', 'bill', 'subtotal', 'shipping_cost', 'discount_amount',
 #                   'customer', 'customer_name', 'customer_email', 'customer_phone',
-#                   'address', 'delivery_address', 'city', 'delivery_date',
+#                   'address', 'delivery_address', 'delivery_city', 'delivery_date',
 #                   'shipping_method', 'shipping_info', 'rider', 'rider_name',
 #                   'coupon', 'coupon_code',
 #                   'status', 'payment_method', 'payment_status',
@@ -661,7 +661,7 @@
 #             'customer':        {'required': False, 'allow_null': True},
 #             'rider':           {'required': False, 'allow_null': True},
 #             'bill':            {'required': False, 'allow_null': True},
-#             'city':            {'required': False, 'allow_null': True},
+#             'delivery_city':   {'required': False, 'allow_null': True},
 #             'delivery_date':   {'required': False, 'allow_null': True},
 #             'address':         {'required': False, 'allow_null': True},
 #             'shipping_method': {'required': False, 'allow_null': True},
@@ -1892,66 +1892,247 @@ class OrderDetailSerializer(serializers.ModelSerializer):
         return attrs
 
 
+# class OrderSerializer(serializers.ModelSerializer):
+#     # FIX: was a plain nested serializer with no filtering, so soft-deleted
+#     # OrderDetail rows (created every time an admin edits an order, since
+#     # _update_order_items soft-deletes + recreates rather than updating in
+#     # place) kept showing up in the items list — while total_amount and
+#     # items_count correctly filtered them out, causing the totals to look
+#     # right but the item table to show duplicated/ghost line items.
+#     order_details  = serializers.SerializerMethodField()
+#     # order_details  = OrderDetailSerializer(many=True, read_only=True)
+#     rider_name     = serializers.SerializerMethodField()
+#     total_amount   = serializers.SerializerMethodField()
+#     items_count    = serializers.SerializerMethodField()
+#     shipping_info  = serializers.SerializerMethodField()
+#     coupon_code    = serializers.SerializerMethodField()
+
+#     class Meta:
+#         model  = Order
+#         fields = ['id', 'bill', 'subtotal', 'shipping_cost', 'discount_amount',
+#                   'customer', 'customer_name', 'customer_email', 'customer_phone',
+#                   'address', 'delivery_address', 'delivery_city', 'delivery_date',
+#                   'shipping_method', 'shipping_info', 'rider', 'rider_name',
+#                   'coupon', 'coupon_code',
+#                   'status', 'payment_method', 'payment_status',
+#                   'order_details', 'total_amount', 'items_count',
+#                   'created_at', 'updated_at']
+#         read_only_fields = ('created_at', 'updated_at')
+#         extra_kwargs = {
+#             'customer':        {'required': False, 'allow_null': True},
+#             'rider':           {'required': False, 'allow_null': True},
+#             'bill':            {'required': False, 'allow_null': True},
+#             'delivery_city':   {'required': False, 'allow_null': True},
+#             'delivery_date':   {'required': False, 'allow_null': True},
+#             'address':         {'required': False, 'allow_null': True},
+#             'shipping_method': {'required': False, 'allow_null': True},
+#             'coupon':          {'required': False, 'allow_null': True},
+#         }
+
+#     def get_rider_name(self, obj):   return _full_name(obj.rider)
+#     def get_total_amount(self, obj): return obj.total_amount if not obj.deleted else None
+#     def get_items_count(self, obj):  return obj.order_details.filter(deleted=False).count() if not obj.deleted else 0
+#     def get_coupon_code(self, obj):  return obj.coupon.code if obj.coupon else None
+
+#     def get_order_details(self, obj):
+#         qs = obj.order_details.filter(deleted=False).order_by('-created_at')
+#         return OrderDetailSerializer(qs, many=True).data
+
+#     def get_shipping_info(self, obj):
+#         if obj.shipping_method:
+#             return ShippingMethodSerializer(obj.shipping_method).data
+#         return None
+
+#     def validate_customer_email(self, value):
+#         if not re.match(r'^[\w\.-]+@[\w\.-]+\.\w+$', value):
+#             raise serializers.ValidationError("Invalid email format")
+#         return value.lower()
+
+#     def to_representation(self, instance):
+#         if instance.deleted:
+#             return {'id': instance.id, 'customer_name': instance.customer_name,
+#                     'message': f'Order #{instance.id} deleted successfully'}
+#         data = super().to_representation(instance)
+#         data['created_at'] = _fmt_dt(data.get('created_at'))
+#         data['updated_at'] = _fmt_dt(data.get('updated_at'))
+#         return data
+
+
+# class OrderSerializer(serializers.ModelSerializer):
+#     address_id = serializers.IntegerField(write_only=True, required=False, allow_null=True)
+#     order_details = serializers.SerializerMethodField()
+#     rider_name = serializers.SerializerMethodField()
+#     total_amount = serializers.SerializerMethodField()
+#     items_count = serializers.SerializerMethodField()
+#     shipping_info = serializers.SerializerMethodField()
+#     coupon_code = serializers.SerializerMethodField()
+
+#     class Meta:
+#         model = Order
+#         fields = ['id', 'bill', 'subtotal', 'shipping_cost', 'discount_amount', 'customer', 'customer_name', 'customer_email', 'customer_phone', 'address', 'address_id', 'delivery_address', 'delivery_city', 'delivery_date', 'shipping_method', 'shipping_info', 'rider', 'rider_name', 'coupon', 'coupon_code', 'status', 'payment_method', 'payment_status', 'order_details', 'total_amount', 'items_count', 'created_at', 'updated_at']
+#         read_only_fields = ('created_at', 'updated_at')
+#         extra_kwargs = {'customer': {'required': False, 'allow_null': True}, 'rider': {'required': False, 'allow_null': True}, 'bill': {'required': False, 'allow_null': True}, 'delivery_address': {'required': False, 'allow_null': True}, 'delivery_city': {'required': False, 'allow_null': True}, 'delivery_date': {'required': False, 'allow_null': True}, 'address': {'required': False, 'allow_null': True}, 'shipping_method': {'required': False, 'allow_null': True}, 'coupon': {'required': False, 'allow_null': True}}
+
+#     def validate(self, attrs):
+#         request = self.context.get('request')
+#         address_id = attrs.pop('address_id', None)
+#         if address_id is not None:
+#             if not request or not request.user.is_authenticated:
+#                 raise serializers.ValidationError({'address_id': 'Guests cannot use a saved address.'})
+#             try:
+#                 address = Address.objects.get(id=address_id, user=request.user, deleted=False)
+#             except Address.DoesNotExist:
+#                 raise serializers.ValidationError({'address_id': 'Invalid address or address does not belong to you.'})
+#             attrs['address'] = address
+#             attrs['delivery_address'] = address.delivery_address
+#             attrs['delivery_city'] = address.city
+#         return attrs
+
+#     def get_rider_name(self, obj):
+#         return _full_name(obj.rider)
+
+#     def get_total_amount(self, obj):
+#         return obj.total_amount if not obj.deleted else None
+
+#     def get_items_count(self, obj):
+#         return obj.order_details.filter(deleted=False).count() if not obj.deleted else 0
+
+#     def get_coupon_code(self, obj):
+#         return obj.coupon.code if obj.coupon else None
+
+#     def get_order_details(self, obj):
+#         qs = obj.order_details.filter(deleted=False).order_by('-created_at')
+#         return OrderDetailSerializer(qs, many=True).data
+
+#     def get_shipping_info(self, obj):
+#         if obj.shipping_method:
+#             return ShippingMethodSerializer(obj.shipping_method).data
+#         return None
+
+#     def validate_customer_email(self, value):
+#         if not re.match(r'^[\w\.-]+@[\w\.-]+\.\w+$', value):
+#             raise serializers.ValidationError("Invalid email format")
+#         return value.lower()
+
+#     def to_representation(self, instance):
+#         if instance.deleted:
+#             return {'id': instance.id, 'customer_name': instance.customer_name, 'message': f'Order #{instance.id} deleted successfully'}
+#         data = super().to_representation(instance)
+#         data['created_at'] = _fmt_dt(data.get('created_at'))
+#         data['updated_at'] = _fmt_dt(data.get('updated_at'))
+#         return data
+
+
 class OrderSerializer(serializers.ModelSerializer):
-    # FIX: was a plain nested serializer with no filtering, so soft-deleted
-    # OrderDetail rows (created every time an admin edits an order, since
-    # _update_order_items soft-deletes + recreates rather than updating in
-    # place) kept showing up in the items list — while total_amount and
-    # items_count correctly filtered them out, causing the totals to look
-    # right but the item table to show duplicated/ghost line items.
-    order_details  = serializers.SerializerMethodField()
-    # order_details  = OrderDetailSerializer(many=True, read_only=True)
-    rider_name     = serializers.SerializerMethodField()
-    total_amount   = serializers.SerializerMethodField()
-    items_count    = serializers.SerializerMethodField()
-    shipping_info  = serializers.SerializerMethodField()
-    coupon_code    = serializers.SerializerMethodField()
+    address_id = serializers.IntegerField(write_only=True, required=False, allow_null=True)
+    order_details = serializers.SerializerMethodField()
+    rider_name = serializers.SerializerMethodField()
+    total_amount = serializers.SerializerMethodField()
+    items_count = serializers.SerializerMethodField()
+    shipping_info = serializers.SerializerMethodField()
+    coupon_code = serializers.SerializerMethodField()
 
     class Meta:
-        model  = Order
-        fields = ['id', 'bill', 'subtotal', 'shipping_cost', 'discount_amount',
-                  'customer', 'customer_name', 'customer_email', 'customer_phone',
-                  'address', 'delivery_address', 'city', 'delivery_date',
-                  'shipping_method', 'shipping_info', 'rider', 'rider_name',
-                  'coupon', 'coupon_code',
-                  'status', 'payment_method', 'payment_status',
-                  'order_details', 'total_amount', 'items_count',
-                  'created_at', 'updated_at']
+        model = Order
+        fields = ['id', 'bill', 'subtotal', 'shipping_cost', 'discount_amount', 'customer', 'customer_name', 'customer_email', 'customer_phone', 'address', 'address_id', 'delivery_address', 'delivery_city', 'delivery_date', 'shipping_method', 'shipping_info', 'rider', 'rider_name', 'coupon', 'coupon_code', 'status', 'payment_method', 'payment_status', 'order_details', 'total_amount', 'items_count', 'created_at', 'updated_at']
         read_only_fields = ('created_at', 'updated_at')
-        extra_kwargs = {
-            'customer':        {'required': False, 'allow_null': True},
-            'rider':           {'required': False, 'allow_null': True},
-            'bill':            {'required': False, 'allow_null': True},
-            'city':            {'required': False, 'allow_null': True},
-            'delivery_date':   {'required': False, 'allow_null': True},
-            'address':         {'required': False, 'allow_null': True},
-            'shipping_method': {'required': False, 'allow_null': True},
-            'coupon':          {'required': False, 'allow_null': True},
-        }
+        extra_kwargs = {'customer': {'required': False, 'allow_null': True}, 'rider': {'required': False, 'allow_null': True}, 'bill': {'required': False, 'allow_null': True}, 'delivery_address': {'required': False, 'allow_null': True}, 'delivery_city': {'required': False, 'allow_null': True}, 'delivery_date': {'required': False, 'allow_null': True}, 'address': {'required': False, 'allow_null': True}, 'shipping_method': {'required': False, 'allow_null': True}, 'coupon': {'required': False, 'allow_null': True}}
 
-    def get_rider_name(self, obj):   return _full_name(obj.rider)
+    # def validate(self, attrs):
+    #     request = self.context.get('request')
+    #     is_admin_order = self.context.get('is_admin_order', False)
+    #     address_id = attrs.pop('address_id', None)
+    #     if address_id is not None:
+    #         if not request or not request.user.is_authenticated:
+    #             raise serializers.ValidationError({'address_id': 'Guests cannot use a saved address.'})
+    #         if is_admin_order:
+    #             address = Address.objects.filter(id=address_id, deleted=False).first()
+    #             if not address:
+    #                 raise serializers.ValidationError({'address_id': 'Invalid or deleted address.'})
+    #             customer = attrs.get('customer')
+    #             if customer and address.user_id != customer.id:
+    #                 raise serializers.ValidationError({'address_id': 'The selected address does not belong to the selected customer.'})
+    #         else:
+    #             address = Address.objects.filter(id=address_id, user=request.user, deleted=False).first()
+    #             if not address:
+    #                 raise serializers.ValidationError({'address_id': 'Invalid address or address does not belong to you.'})
+    #         attrs['address'] = address
+    #         attrs['delivery_address'] = address.delivery_address
+    #         attrs['delivery_city'] = address.city
+    #     return attrs
+
+    def validate(self, attrs):
+        request = self.context.get('request')
+        is_admin_order = self.context.get('is_admin_order', False)
+
+        address_id = attrs.pop('address_id', None)
+
+        # Saved address was requested
+        if address_id is not None:
+
+            # Guest cannot use saved address
+            if not request or not request.user.is_authenticated:
+                raise serializers.ValidationError({
+                    'address_id': 'Guests cannot use a saved address.'
+                })
+
+            if is_admin_order:
+                address = Address.objects.filter(
+                    id=address_id,
+                    deleted=False
+                ).first()
+
+                if not address:
+                    raise serializers.ValidationError({
+                        'address_id': 'Invalid or deleted address.'
+                    })
+
+                customer = attrs.get('customer')
+
+                if customer and address.user_id != customer.id:
+                    raise serializers.ValidationError({
+                        'address_id': (
+                            'The selected address does not belong '
+                            'to the selected customer.'
+                        )
+                    })
+
+            else:
+                address = Address.objects.filter(
+                    id=address_id,
+                    user=request.user,
+                    deleted=False
+                ).first()
+
+                if not address:
+                    raise serializers.ValidationError({
+                        'address_id': (
+                            'Invalid address or address does not '
+                            'belong to you.'
+                        )
+                    })
+
+            attrs['address'] = address
+
+            # Trusted DB values
+            attrs['delivery_address'] = address.delivery_address
+            attrs['delivery_city'] = address.city if address.city else None
+
+        return attrs
+    def get_rider_name(self, obj): return _full_name(obj.rider)
     def get_total_amount(self, obj): return obj.total_amount if not obj.deleted else None
-    def get_items_count(self, obj):  return obj.order_details.filter(deleted=False).count() if not obj.deleted else 0
-    def get_coupon_code(self, obj):  return obj.coupon.code if obj.coupon else None
-
-    def get_order_details(self, obj):
-        qs = obj.order_details.filter(deleted=False).order_by('-created_at')
-        return OrderDetailSerializer(qs, many=True).data
-
-    def get_shipping_info(self, obj):
-        if obj.shipping_method:
-            return ShippingMethodSerializer(obj.shipping_method).data
-        return None
-
+    def get_items_count(self, obj): return obj.order_details.filter(deleted=False).count() if not obj.deleted else 0
+    def get_coupon_code(self, obj): return obj.coupon.code if obj.coupon else None
+    def get_order_details(self, obj): return OrderDetailSerializer(obj.order_details.filter(deleted=False).order_by('-created_at'), many=True).data
+    def get_shipping_info(self, obj): return ShippingMethodSerializer(obj.shipping_method).data if obj.shipping_method else None
     def validate_customer_email(self, value):
-        if not re.match(r'^[\w\.-]+@[\w\.-]+\.\w+$', value):
+        if not re.match(r'^[\w.-]+@[\w.-]+\.\w+$', value):
             raise serializers.ValidationError("Invalid email format")
         return value.lower()
 
     def to_representation(self, instance):
         if instance.deleted:
-            return {'id': instance.id, 'customer_name': instance.customer_name,
-                    'message': f'Order #{instance.id} deleted successfully'}
+            return {'id': instance.id, 'customer_name': instance.customer_name, 'message': f'Order #{instance.id} deleted successfully'}
         data = super().to_representation(instance)
         data['created_at'] = _fmt_dt(data.get('created_at'))
         data['updated_at'] = _fmt_dt(data.get('updated_at'))
