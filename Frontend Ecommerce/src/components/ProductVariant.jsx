@@ -403,6 +403,28 @@ const AdminProductVariant = () => {
                   )}
 
                   <button
+                    onClick={() => router.push('/admin/productcolor')}
+                    className="group relative px-6 py-2.5 bg-gradient-to-r from-purple-600 to-pink-500 text-white font-semibold rounded-full border border-purple-500/50 shadow-xl hover:border-purple-400/50 hover:shadow-purple-500/20 transform hover:scale-105 transition-all duration-300"
+                  >
+                    <div className="absolute inset-0 bg-gradient-to-r from-purple-500 to-pink-400 opacity-0 group-hover:opacity-100 rounded-full transition-opacity duration-300"></div>
+
+                    <div className="relative flex items-center space-x-2">
+                      <svg
+                        className="w-4 h-4"
+                        fill="currentColor"
+                        viewBox="0 0 20 20"
+                      >
+                        <path
+                          fillRule="evenodd"
+                          d="M4 2a2 2 0 00-2 2v11a3 3 0 106 0V4a2 2 0 00-2-2H4zm1 14a1 1 0 100-2 1 1 0 000 2zm5-1.757l4.9-4.9a2 2 0 000-2.828L13.485 5.1a2 2 0 00-2.828 0L10 5.757v8.486zM16 18H9.071l6-6H16a2 2 0 012 2v2a2 2 0 01-2 2z"
+                          clipRule="evenodd"
+                        />
+                      </svg>
+                      <span>Manage Colors</span>
+                    </div>
+                  </button>
+
+                  <button
                     onClick={() => router.push('/admin/adminproducts')}
                     className="group relative px-6 py-2.5 bg-gradient-to-r from-slate-700 to-slate-600 text-white font-semibold rounded-full border border-slate-500/50 shadow-xl hover:border-amber-400/50 hover:shadow-amber-500/20 transform hover:scale-105 transition-all duration-300"
                   >
