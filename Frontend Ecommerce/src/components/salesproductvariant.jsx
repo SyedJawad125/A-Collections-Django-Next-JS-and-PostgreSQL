@@ -371,6 +371,14 @@ const SalesProductVariant = () => {
                   )}
 
                   <button
+                    onClick={() => router.push('/admin/salesproductcolor')}
+                    className="group relative px-6 py-2.5 bg-gradient-to-r from-purple-600 to-pink-500 text-white font-semibold rounded-full border border-purple-500/50 shadow-xl hover:border-purple-400/50 hover:shadow-purple-500/20 transform hover:scale-105 transition-all duration-300 overflow-hidden"
+                  >
+                    <span className="absolute inset-0 bg-gradient-to-r from-purple-500 to-pink-400 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></span>
+                    <span className="relative z-10">Manage Colors</span>
+                  </button>
+
+                  <button
                     onClick={() => router.push('/admin/adminsales')}
                     className="group relative px-6 py-2.5 bg-gradient-to-r from-slate-700 to-slate-600 text-white font-semibold rounded-full border border-slate-600/50 shadow-xl hover:border-amber-400/50 hover:shadow-amber-500/30 transform hover:scale-105 transition-all duration-300 overflow-hidden"
                   >
