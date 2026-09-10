@@ -1142,7 +1142,7 @@ const ImagesCategoryCom = () => {
             )}
             <button
               className="flex items-center gap-2 bg-slate-800/50 hover:bg-slate-700/50 text-white px-6 py-3 rounded-xl font-semibold border border-slate-700/50 hover:border-slate-600/50 transition-all duration-200 hover:scale-105"
-              onClick={() => router.push('/imagespage')}
+              onClick={() => router.push('/admin/imagespage')}
             >
               <Image className="w-5 h-5" />
               Images
