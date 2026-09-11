@@ -28,6 +28,12 @@ const ProductDetailsCom = () => {
   });
 
   const [featuredProducts, setFeaturedProducts] = useState([]);
+  const [productVariants, setProductVariants] = useState([]);
+  const [colors, setColors] = useState([]);
+  const [selectedVariant, setSelectedVariant] = useState(null);
+  const [selectedColor, setSelectedColor] = useState(null);
+  const [variantLoading, setVariantLoading] = useState(true);
+  const [inventoryData, setInventoryData] = useState({});
 
   const ProductId = searchParams.get('ProductId');
 
@@ -82,6 +88,78 @@ const ProductDetailsCom = () => {
       sku: productData.sku || productData.product_sku,
       longDescription: productData.long_description || productData.full_description
     };
+  };
+
+  // Fetch product variants for this product
+  const fetchProductVariants = async () => {
+    if (!ProductId) return;
+    
+    setVariantLoading(true);
+    try {
+      const res = await AxiosInstance.get('/api/myapp/v1/public/product/variant/', {
+        params: {
+          product: ProductId,
+          is_active: true
+        }
+      });
+      
+      const variantsData = res?.data?.data || [];
+      setProductVariants(variantsData);
+      
+      // Auto-select first variant if available
+      if (variantsData.length > 0) {
+        setSelectedVariant(variantsData[0]);
+      }
+      
+      console.log('Product variants:', variantsData);
+    } catch (error) {
+      console.error('Error fetching product variants:', error);
+      setProductVariants([]);
+    } finally {
+      setVariantLoading(false);
+    }
+  };
+
+  // Fetch all colors
+  const fetchColors = async () => {
+    try {
+      const res = await AxiosInstance.get('/api/myapp/v1/public/color/');
+      const colorsData = res?.data?.data || [];
+      setColors(colorsData);
+      console.log('Available colors:', colorsData);
+    } catch (error) {
+      console.error('Error fetching colors:', error);
+      setColors([]);
+    }
+  };
+
+  // Fetch inventory data for variants
+  const fetchInventoryData = async () => {
+    if (!ProductId) return;
+    
+    try {
+      const res = await AxiosInstance.get('/api/myapp/v1/public/inventory/', {
+        params: {
+          product: ProductId
+        }
+      });
+      
+      const inventoryList = res?.data?.data || [];
+      
+      // Create a map of variant_id -> inventory data
+      const inventoryMap = {};
+      inventoryList.forEach(inv => {
+        if (inv.product_variant) {
+          inventoryMap[inv.product_variant] = inv;
+        }
+      });
+      
+      setInventoryData(inventoryMap);
+      console.log('Inventory data:', inventoryMap);
+    } catch (error) {
+      console.error('Error fetching inventory data:', error);
+      setInventoryData({});
+    }
   };
 
   useEffect(() => {
@@ -199,6 +277,9 @@ const ProductDetailsCom = () => {
 
     fetchProductAndReviews();
     fetchFeaturedProducts();
+    fetchProductVariants();
+    fetchColors();
+    fetchInventoryData();
   }, [ProductId]);
 
   useEffect(() => {
@@ -241,7 +322,10 @@ const ProductDetailsCom = () => {
         quantity: quantity,
         price: product.final_price || product.price,
         original_price: product.original_price || product.price,
-        isSalesProduct: false // This is regular product, not sales
+        isSalesProduct: false, // This is regular product, not sales
+        // Add variant information if selected
+        variant: selectedVariant,
+        color: selectedColor
       };
 
       addToCart(cartProduct, quantity);
@@ -250,6 +334,36 @@ const ProductDetailsCom = () => {
     } else {
       console.error('No product to add to cart');
       toast.error('Failed to add product to cart');
+    }
+  };
+
+  const handleVariantSelect = (variant) => {
+    setSelectedVariant(variant);
+    // Update price based on variant
+    if (variant.additional_price) {
+      const basePrice = parseFloat(product.final_price || product.price || 0);
+      const additionalPrice = parseFloat(variant.additional_price || 0);
+      // You could update a display price here if needed
+    }
+  };
+
+  const handleColorSelect = (color) => {
+    setSelectedColor(color);
+  };
+
+  const getStockStatus = (variantId) => {
+    const inventory = inventoryData[variantId];
+    if (!inventory) return { status: 'unknown', text: 'Stock unknown' };
+    
+    const currentStock = inventory.current_stock || 0;
+    const minimumStock = inventory.minimum_stock_level || 5;
+    
+    if (currentStock === 0) {
+      return { status: 'out', text: 'Out of Stock', color: 'red' };
+    } else if (currentStock <= minimumStock) {
+      return { status: 'low', text: `Low Stock (${currentStock} left)`, color: 'orange' };
+    } else {
+      return { status: 'available', text: 'In Stock', color: 'green' };
     }
   };
 
@@ -499,29 +613,182 @@ const ProductDetailsCom = () => {
                   )}
                 </div>
               </div>
-
+            
               <div className="mb-8">
-                <h3 className="text-sm font-medium text-gray-900 uppercase mb-3">Quantity</h3>
-                <div className="flex items-center space-x-4">
+                <h3 className="text-xs font-semibold tracking-[0.2em] text-gray-500 uppercase mb-4">
+                  Quantity
+                </h3>
+
+                <div className="inline-flex items-center h-10 rounded-full border border-amber-200 bg-gradient-to-r from-amber-50 via-white to-amber-50 p-0.5 shadow-sm">
+                  
+                  {/* Decrease */}
                   <button
                     onClick={decreaseQuantity}
-                    className="w-10 h-10 rounded-full border border-gray-300 flex items-center justify-center hover:bg-gray-100 transition-colors"
+                    aria-label="Decrease quantity"
+                    className="group w-9 h-9 rounded-full flex items-center justify-center
+                              text-gray-600
+                              transition-all duration-300
+                              hover:bg-amber-600 hover:text-white
+                              active:scale-90"
                   >
-                    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 12H4" />
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      className="h-4 w-4"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke="currentColor"
+                      strokeWidth={1.8}
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        d="M20 12H4"
+                      />
                     </svg>
                   </button>
-                  <span className="text-lg font-medium text-gray-900 w-12 text-center">{quantity}</span>
+
+                  {/* Quantity */}
+                  <div className="min-w-[52px] px-2 text-center">
+                    <span className="text-base font-semibold tracking-wide text-gray-900">
+                      {quantity}
+                    </span>
+                  </div>
+
+                  {/* Increase */}
                   <button
                     onClick={increaseQuantity}
-                    className="w-10 h-10 rounded-full border border-gray-300 flex items-center justify-center hover:bg-gray-100 transition-colors"
+                    aria-label="Increase quantity"
+                    className="group w-9 h-9 rounded-full flex items-center justify-center
+                              text-gray-600
+                              transition-all duration-300
+                              hover:bg-amber-600 hover:text-white
+                              active:scale-90"
                   >
-                    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      className="h-4 w-4"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke="currentColor"
+                      strokeWidth={1.8}
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        d="M12 4v16m8-8H4"
+                      />
                     </svg>
                   </button>
+
                 </div>
               </div>
+
+              {/* Product Variants Section */}
+              {!variantLoading && productVariants.length > 0 && (
+                <div className="mb-8">
+                  <h3 className="text-sm font-medium text-gray-900 uppercase mb-3">Variants</h3>
+                  <div className="space-y-3">
+                    {productVariants.map((variant) => {
+                      const stockStatus = getStockStatus(variant.id);
+                      return (
+                        <div
+                          key={variant.id}
+                          onClick={() => handleVariantSelect(variant)}
+                          className={`p-4 border-2 rounded-lg cursor-pointer transition-all ${
+                            selectedVariant?.id === variant.id
+                              ? 'border-black bg-gray-50'
+                              : 'border-gray-200 hover:border-gray-300'
+                          }`}
+                        >
+                          <div className="flex justify-between items-start">
+                            <div>
+                              <div className="font-medium text-gray-900">
+                                {variant.size && <span className="mr-2">Size: {variant.size}</span>}
+                                {variant.material && <span>Material: {variant.material}</span>}
+                              </div>
+                              {variant.additional_price && parseFloat(variant.additional_price) > 0 && (
+                                <div className="text-sm text-gray-600">
+                                  +PKR {parseFloat(variant.additional_price).toLocaleString()}
+                                </div>
+                              )}
+                            </div>
+                            <div className={`text-sm font-medium ${
+                              stockStatus.color === 'red' ? 'text-red-600' :
+                              stockStatus.color === 'orange' ? 'text-orange-600' :
+                              'text-green-600'
+                            }`}>
+                              {stockStatus.text}
+                            </div>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+              )}
+
+              {/* Colors Section */}
+              {colors.length > 0 && selectedVariant && (
+                <div className="mb-8">
+                  <h3 className="text-sm font-medium text-gray-900 uppercase mb-3">Available Colors</h3>
+                  <div className="flex flex-wrap gap-3">
+                    {colors.map((color) => {
+                      const isColorAvailable = selectedVariant.colors && 
+                        selectedVariant.colors.includes(color.id);
+                      
+                      return (
+                        <div
+                          key={color.id}
+                          onClick={() => isColorAvailable && handleColorSelect(color)}
+                          className={`relative w-10 h-10 rounded-full cursor-pointer transition-all ${
+                            !isColorAvailable 
+                              ? 'opacity-30 cursor-not-allowed grayscale' 
+                              : selectedColor?.id === color.id
+                                ? 'ring-2 ring-offset-2 ring-black scale-110'
+                                : 'hover:scale-105'
+                          }`}
+                          style={{ 
+                            backgroundColor: color.name.toLowerCase(),
+                            border: '1px solid #e5e7eb'
+                          }}
+                          title={color.name}
+                        >
+                          {selectedColor?.id === color.id && (
+                            <div className="absolute inset-0 flex items-center justify-center">
+                              <svg className="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 20 20">
+                                <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                              </svg>
+                            </div>
+                          )}
+                        </div>
+                      );
+                    })}
+                  </div>
+                  {selectedColor && (
+                    <p className="mt-2 text-sm text-gray-600">
+                      Selected: {selectedColor.name}
+                    </p>
+                  )}
+                </div>
+              )}
+
+              {/* Stock Status for Selected Variant */}
+              {selectedVariant && (
+                <div className="mb-8">
+                  {(() => {
+                    const stockStatus = getStockStatus(selectedVariant.id);
+                    return (
+                      <div className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium ${
+                        stockStatus.color === 'red' ? 'bg-red-100 text-red-800' :
+                        stockStatus.color === 'orange' ? 'bg-orange-100 text-orange-800' :
+                        'bg-green-100 text-green-800'
+                      }`}>
+                        {stockStatus.text}
+                      </div>
+                    );
+                  })()}
+                </div>
+              )}
 
               <button
                 onClick={handleAddToCart}
