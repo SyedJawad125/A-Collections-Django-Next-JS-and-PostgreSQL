@@ -455,10 +455,10 @@ from .views import (
     SalesProductView, PublicSalesProductView, SalesProductDropdownView,
     CategoryView, PublicCategoryView, PublicCategoryDetailView,
     CategoryDropdownView, CategorySearchView, PubliccategorywiseView,
-    ProductTagView,
+    ProductTagView, CustomerReturnRequestView, AdminReturnRequestView,
     OrderView, OrderSearchView, PublicOrderView,
     ContactView, PublicContactView,
-    ReviewView, PublicReviewView,
+    ReviewView, PublicReviewView, 
 
     # ── New views ──────────────────────────────────────────────────────────
     SalesProductColorView,
@@ -469,8 +469,7 @@ from .views import (
     CouponView, ValidateCouponView,
     CartView, CartItemView,
     WishlistView, WishlistItemView,
-    PaymentView,
-    ReturnRequestView,
+    PaymentView
 )
 
 app_name = 'ecommerce'
