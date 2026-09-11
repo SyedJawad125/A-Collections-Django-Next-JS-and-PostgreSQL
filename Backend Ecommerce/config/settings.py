@@ -87,6 +87,7 @@ INSTALLED_APPS = [
     'django_celery_results',
 
     'corsheaders',
+    'django_filters',
     'apps.myapp',
     'apps.notification',
     'apps.images',
