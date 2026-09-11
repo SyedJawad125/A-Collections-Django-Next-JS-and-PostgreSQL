@@ -485,12 +485,7 @@ const CategoryWiseProductCom = () => {
   }
 
   const handleProductClick = (product) => {
-    const query = new URLSearchParams({
-      ProductId: product.id.toString(),
-      productData: JSON.stringify(product)
-    }).toString();
-
-    router.push(`/productdetailpage?${query}`);
+    router.push(`/productdetailpage?ProductId=${product.id}`);
   };
 
   const renderStars = (rating) => {
