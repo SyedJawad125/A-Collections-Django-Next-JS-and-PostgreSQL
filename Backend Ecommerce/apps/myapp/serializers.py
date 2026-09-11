@@ -1462,8 +1462,39 @@ class ProductVariantSerializer(serializers.ModelSerializer):
         return super().to_representation(instance)
 
 
+# class PublicProductVariantSerializer(serializers.ModelSerializer):
+#     """Public read-only serializer for ProductVariant model"""
+#     product_name  = serializers.CharField(source='product.name', read_only=True)
+#     product_price = serializers.DecimalField(source='product.price', max_digits=10, decimal_places=2, read_only=True)
+#     total_price   = serializers.SerializerMethodField()
+#     color_names   = serializers.SerializerMethodField()
+#     colors_data   = serializers.SerializerMethodField()
+#     is_low_stock  = serializers.SerializerMethodField()
+
+#     class Meta:
+#         model  = ProductVariant
+#         fields = ['id', 'product', 'product_name', 'product_price',
+#                   'size', 'colors', 'color_names', 'colors_data',
+#                   'material', 'sku', 'stock_quantity', 'additional_price',
+#                   'total_price', 'is_active', 'is_low_stock']
+#         read_only_fields = ('sku',)
+
+#     def get_total_price(self, obj):
+#         return float(obj.product.price + obj.additional_price) if not obj.deleted and obj.product else None
+
+#     def get_color_names(self, obj):
+#         return [c.name for c in obj.colors.filter(deleted=False)] if not obj.deleted else []
+
+#     def get_colors_data(self, obj):
+#         return ColorSerializer(obj.colors.filter(deleted=False), many=True).data if not obj.deleted else []
+
+#     def get_is_low_stock(self, obj):
+#         try:
+#             return obj.inventory.is_low_stock if hasattr(obj, 'inventory') else False
+#         except Exception:
+#             return obj.stock_quantity < 10
+
 class PublicProductVariantSerializer(serializers.ModelSerializer):
-    """Public read-only serializer for ProductVariant model"""
     product_name  = serializers.CharField(source='product.name', read_only=True)
     product_price = serializers.DecimalField(source='product.price', max_digits=10, decimal_places=2, read_only=True)
     total_price   = serializers.SerializerMethodField()
@@ -1486,7 +1517,9 @@ class PublicProductVariantSerializer(serializers.ModelSerializer):
         return [c.name for c in obj.colors.filter(deleted=False)] if not obj.deleted else []
 
     def get_colors_data(self, obj):
-        return ColorSerializer(obj.colors.filter(deleted=False), many=True).data if not obj.deleted else []
+        # 👇 use PublicColorSerializer, not admin ColorSerializer
+        return PublicColorSerializer(obj.colors.filter(deleted=False), many=True).data \
+               if not obj.deleted else []
 
     def get_is_low_stock(self, obj):
         try:
