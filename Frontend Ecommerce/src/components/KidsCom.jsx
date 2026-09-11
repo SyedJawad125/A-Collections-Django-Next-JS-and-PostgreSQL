@@ -684,11 +684,7 @@ const fetchKidsProducts = async (page = 1, limit = 16) => {
     }, [records]);
 
     const handleProductClick = (product) => {
-        const queryString = new URLSearchParams({
-            ProductId: product.id.toString(),
-            productData: JSON.stringify(product)
-        }).toString();
-        router.push(`/productdetailpage?${queryString}`);
+        router.push(`/productdetailpage?ProductId=${product.id}`);
     };
 
     const handleCategoryClick = (categoryId) => {
