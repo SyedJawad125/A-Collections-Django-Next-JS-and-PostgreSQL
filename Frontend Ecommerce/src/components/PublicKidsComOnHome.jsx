@@ -617,11 +617,7 @@ const KidsOnHome = () => {
     };
 
     const handleProductClick = (product) => {
-        const queryString = new URLSearchParams({
-            ProductId: product.id.toString(),
-            productData: JSON.stringify(product)
-        }).toString();
-        router.push(`/productdetailpage?${queryString}`);
+        router.push(`/productdetailpage?ProductId=${product.id}`);
     };
 
     // Generate page numbers for pagination
