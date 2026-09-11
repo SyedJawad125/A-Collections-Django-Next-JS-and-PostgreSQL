@@ -194,11 +194,7 @@ const PublicSalesProductsCom = () => {
 
     // Event handlers - FIXED: Changed to lowercase /salesdetail
     const handleProductClick = (product) => {
-        const queryString = new URLSearchParams({
-            ProductId: product.id.toString(),
-            productData: JSON.stringify(product)
-        }).toString();
-        router.push(`/salesdetail?${queryString}`); // Changed from /SalesDetail to /salesdetail
+        router.push(`/salesdetail?ProductId=${product.id}`);
     };
 
     const handleCategoryClick = (categoryId) => {
