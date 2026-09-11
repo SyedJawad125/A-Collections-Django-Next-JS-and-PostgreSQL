@@ -662,6 +662,7 @@ E-commerce Filters
 Follows the existing pattern from the codebase.
 """
 
+import django_filters
 from django_filters import FilterSet, CharFilter, DateFilter, BooleanFilter, NumberFilter, ChoiceFilter
 from django.db.models import Q, F
 
