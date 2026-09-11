@@ -620,8 +620,10 @@ urlpatterns = [
     # =========================================================================
     # RETURN REQUEST  ── NEW
     # =========================================================================
-    # POST  /v1/return/          → customer submits return request
-    # GET   /v1/return/          → admin lists return requests
-    # PATCH /v1/return/?id=N     → admin approves/rejects
-    path('v1/return/',          ReturnRequestView.as_view(),            name='return-request'),
+    # POST /api/v1/return/
+    # GET  /api/v1/return/
+    # GET   /api/v1/admin/return/
+    # PATCH /api/v1/admin/return/?id=15
+    path('v1/return/',          CustomerReturnRequestView.as_view(),    name='customer-return-request'),
+    path('v1/admin/return/',    AdminReturnRequestView.as_view(),       name='admin-return-request'),
 ]
