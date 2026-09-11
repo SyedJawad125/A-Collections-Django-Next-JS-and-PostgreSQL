@@ -821,6 +821,16 @@ class ColorFilter(FilterSet):
         fields = '__all__'
 
 
+class PublicColorFilter(FilterSet):
+    """Filter for Color model - Public API"""
+    id   = CharFilter(field_name='id')
+    name = CharFilter(field_name='name', lookup_expr='icontains')
+
+    class Meta:
+        model  = Color
+        fields = ['id', 'name']
+
+
 # ============================================================================
 # PRODUCT VARIANT
 # ============================================================================
@@ -889,6 +899,26 @@ class InventoryFilter(FilterSet):
     def filter_needs_reorder(self, queryset, name, value):
         return queryset.filter(current_stock__lte=F('reorder_point')) if value \
                else queryset.filter(current_stock__gt=F('reorder_point'))
+
+
+class PublicInventoryFilter(FilterSet):
+    """Filter for Inventory model - Public API"""
+    product_id   = CharFilter(field_name='product_variant__product__id')
+    variant_id   = CharFilter(field_name='product_variant__id')
+    variant_sku  = CharFilter(field_name='product_variant__sku', lookup_expr='icontains')
+    min_stock    = NumberFilter(field_name='current_stock', lookup_expr='gte')
+    max_stock    = NumberFilter(field_name='current_stock', lookup_expr='lte')
+    in_stock     = BooleanFilter(method='filter_in_stock')
+
+    class Meta:
+        model  = Inventory
+        fields = ['product_id', 'variant_id']
+
+    def filter_in_stock(self, queryset, name, value):
+        """Filter inventory items that are in stock"""
+        if value:
+            return queryset.filter(current_stock__gt=0)
+        return queryset
 
 
 # ============================================================================
