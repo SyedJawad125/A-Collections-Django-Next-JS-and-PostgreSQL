@@ -33,9 +33,7 @@ const PublicProductsOnHome = () => {
                 {
                     params: {
                         page: page,
-                        limit: limit,
-                        tags: 'Regular', // Changed from 'Regular Products' to match your backend
-                        api_type: 'list' // Triggers list_serializer if set
+                        limit: limit
                     }
                 }
             );
@@ -174,11 +172,7 @@ const PublicProductsOnHome = () => {
     };
 
     const handleProductClick = (product) => {
-        const queryString = new URLSearchParams({
-            ProductId: product.id.toString(),
-            productData: JSON.stringify(product)
-        }).toString();
-        router.push(`/productdetailpage?${queryString}`);
+        router.push(`/productdetailpage?ProductId=${product.id}`);
     };
 
     const handleCategoryClick = (categoryId) => {
