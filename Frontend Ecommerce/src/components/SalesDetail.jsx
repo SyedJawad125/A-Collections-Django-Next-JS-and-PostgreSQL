@@ -30,7 +30,6 @@ const SalesDetail = () => {
   const [featuredProducts, setFeaturedProducts] = useState([]);
 
   const ProductId = searchParams.get('ProductId');
-  const productDataString = searchParams.get('productData');
 
   // Helper function to process image URL
   const processImageUrl = (url) => {
@@ -65,8 +64,7 @@ const SalesDetail = () => {
 
   useEffect(() => {
     console.log('ProductId:', ProductId);
-    console.log('productDataString:', productDataString);
-  }, [ProductId, productDataString]);
+  }, [ProductId]);
 
   useEffect(() => {
     if (!ProductId) {
@@ -103,37 +101,14 @@ const SalesDetail = () => {
           setMainImage(processedProduct.mainImage);
           
           console.log('Processed Sales Product:', processedProduct);
-        } else if (productDataString) {
-          console.log('Using productData from URL');
-          const parsedProduct = JSON.parse(productDataString);
-          const processedProduct = processProductData(parsedProduct);
-
-          setProduct(processedProduct);
-          setMainImage(processedProduct.mainImage);
         } else {
           throw new Error('No product data found');
         }
       } catch (error) {
         console.error('Error fetching sales product:', error);
         console.error('Error details:', error.response?.data);
-        
-        if (productDataString) {
-          try {
-            console.log('Attempting fallback to productData from URL');
-            const parsedProduct = JSON.parse(productDataString);
-            const processedProduct = processProductData(parsedProduct);
-
-            setProduct(processedProduct);
-            setMainImage(processedProduct.mainImage);
-          } catch (parseError) {
-            console.error('Error parsing productData:', parseError);
-            toast.error('Failed to load product details.');
-            router.push('/publicsalesproduct');
-          }
-        } else {
-          toast.error('Failed to load product details.');
-          router.push('/publicsalesproduct');
-        }
+        toast.error('Failed to load product details.');
+        router.push('/publicsalesproduct');
       } finally {
         setLoading(false);
       }
@@ -194,7 +169,7 @@ const SalesDetail = () => {
 
     fetchProductAndReviews();
     fetchFeaturedProducts();
-  }, [ProductId, productDataString, router]);
+  }, [ProductId, router]);
 
   useEffect(() => {
     if (featuredProducts.length <= 1 || isHovered) return;
