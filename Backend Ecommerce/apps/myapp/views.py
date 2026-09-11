@@ -1312,7 +1312,7 @@ from .serializers import (
     AddressSerializer, ShippingMethodSerializer, CouponSerializer,
     ValidateCouponSerializer, CartSerializer, CartItemSerializer,
     WishlistSerializer, WishlistItemSerializer, PaymentSerializer,
-    ReturnRequestSerializer,
+    AdminReturnRequestSerializer, CustomerReturnRequestSerializer
 )
 from .filters import (
     DropDownListProductFilter, DropDownListSalesProductFilter,
@@ -1324,9 +1324,8 @@ from .filters import (
     OrderSearchFilter, ContactFilter, PublicContactFilter,
     ReviewFilter, PublicReviewFilter,
     SalesProductColorFilter, SalesProductVariantFilter, PublicSalesProductVariantFilter,
-    SalesInventoryFilter,
-    AddressFilter, ShippingMethodFilter, CouponFilter,
-    CartFilter, WishlistFilter, PaymentFilter, ReturnRequestFilter,
+    SalesInventoryFilter, AddressFilter, ShippingMethodFilter, CouponFilter,
+    CartFilter, WishlistFilter, PaymentFilter, AdminReturnRequestFilter, CustomerReturnRequestFilter
 )
 from apps.myapp import serializers
 
