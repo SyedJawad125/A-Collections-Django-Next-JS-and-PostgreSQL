@@ -2393,52 +2393,230 @@ class WishlistSerializer(serializers.ModelSerializer):
 # ============================================================================
 # RETURN REQUEST
 # ============================================================================
-
-class ReturnRequestSerializer(serializers.ModelSerializer):
-    order_number = serializers.IntegerField(source='order.id', read_only=True)
+class AdminReturnRequestSerializer(serializers.ModelSerializer):
+    order_number = serializers.IntegerField(
+        source='order.id',
+        read_only=True
+    )
     product_name = serializers.SerializerMethodField()
     reviewed_by_name = serializers.SerializerMethodField()
-    created_by   = serializers.SerializerMethodField()
+    created_by_name = serializers.SerializerMethodField()
 
     class Meta:
-        model  = ReturnRequest
-        fields = ['id', 'order', 'order_number', 'order_detail',
-                  'reason', 'description', 'status', 'refund_amount',
-                  'product_name', 'reviewed_by', 'reviewed_by_name',
-                  'created_by', 'created_at', 'updated_at']
-        read_only_fields = ('created_at', 'updated_at')
+        model = ReturnRequest
+
+        fields = [
+            'id',
+            'order',
+            'order_number',
+            'order_detail',
+            'reason',
+            'description',
+            'status',
+            'refund_amount',
+            'product_name',
+            'reviewed_by',
+            'reviewed_by_name',
+            'created_by',
+            'created_by_name',
+            'created_at',
+            'updated_at',
+        ]
+
+        read_only_fields = [
+            'id',
+            'order',
+            'order_detail',
+            'order_number',
+            'product_name',
+            'reviewed_by',
+            'reviewed_by_name',
+            'created_by',
+            'created_by_name',
+            'created_at',
+            'updated_at',
+        ]
 
     def get_product_name(self, obj):
         try:
             d = obj.order_detail
-            return (d.product.name if d.product else
-                    (d.sales_product.name if d.sales_product else "Deleted Product"))
+
+            if d.product:
+                return d.product.name
+
+            if d.sales_product:
+                return d.sales_product.name
+
+            return "Deleted Product"
+
         except Exception:
             return None
 
-    def get_reviewed_by_name(self, obj): return _full_name(obj.reviewed_by)
-    def get_created_by(self, obj):       return _full_name(obj.created_by)
+    def get_reviewed_by_name(self, obj):
+        return _full_name(obj.reviewed_by)
+
+    def get_created_by_name(self, obj):
+        return _full_name(obj.created_by)
 
     def validate(self, attrs):
-        order        = attrs.get('order')        or (self.instance.order        if self.instance else None)
-        order_detail = attrs.get('order_detail')  or (self.instance.order_detail if self.instance else None)
+        status = attrs.get('status')
 
-        if order and order.status != 'delivered':
-            raise serializers.ValidationError("Returns can only be requested for delivered orders")
+        if status and self.instance:
+            old_status = self.instance.status
 
-        # FIX: previously nothing checked that order_detail actually belongs
-        # to order — a request could reference mismatched order/order_detail
-        # pairs. Mirrors the same check added to ReturnRequest.clean().
-        if order and order_detail and order_detail.order_id != order.id:
-            raise serializers.ValidationError("This order item does not belong to the given order")
+            allowed_transitions = {
+                'requested': ['approved', 'rejected'],
+                'approved': ['completed'],
+                'rejected': [],
+                'completed': [],
+            }
+
+            if (
+                status != old_status
+                and status not in allowed_transitions.get(old_status, [])
+            ):
+                raise serializers.ValidationError({
+                    'status':
+                        f"Invalid status transition: "
+                        f"{old_status} → {status}"
+                })
+
+        refund_amount = attrs.get('refund_amount')
+
+        if refund_amount is not None:
+            if refund_amount < 0:
+                raise serializers.ValidationError({
+                    'refund_amount':
+                        'Refund amount cannot be negative.'
+                })
 
         return attrs
 
     def to_representation(self, instance):
         if instance.deleted:
-            return {'id': instance.id, 'message': 'Return request deleted successfully'}
+            return {
+                'id': instance.id,
+                'message': 'Return request deleted successfully'
+            }
+
         data = super().to_representation(instance)
+
         data['created_at'] = _fmt_dt(data.get('created_at'))
+        data['updated_at'] = _fmt_dt(data.get('updated_at'))
+
+        return data
+
+
+class CustomerReturnRequestSerializer(serializers.ModelSerializer):
+    order_number = serializers.IntegerField(
+        source='order.id',
+        read_only=True
+    )
+    product_name = serializers.SerializerMethodField()
+
+    class Meta:
+        model = ReturnRequest
+        fields = [
+            'id',
+            'order',
+            'order_number',
+            'order_detail',
+            'reason',
+            'description',
+            'status',
+            'refund_amount',
+            'product_name',
+            'created_at',
+            'updated_at',
+        ]
+
+        read_only_fields = [
+            'id',
+            'order_number',
+            'status',
+            'refund_amount',
+            'product_name',
+            'created_at',
+            'updated_at',
+        ]
+
+    def get_product_name(self, obj):
+        try:
+            d = obj.order_detail
+
+            if d.product:
+                return d.product.name
+
+            if d.sales_product:
+                return d.sales_product.name
+
+            return "Deleted Product"
+
+        except Exception:
+            return None
+
+    def validate(self, attrs):
+        order = attrs.get('order')
+        order_detail = attrs.get('order_detail')
+
+        if not order:
+            raise serializers.ValidationError({
+                'order': 'Order is required.'
+            })
+
+        if not order_detail:
+            raise serializers.ValidationError({
+                'order_detail': 'Order item is required.'
+            })
+
+        # Only delivered orders can be returned
+        if order.status != 'delivered':
+            raise serializers.ValidationError(
+                "Returns can only be requested for delivered orders."
+            )
+
+        # Make sure order detail belongs to this order
+        if order_detail.order_id != order.id:
+            raise serializers.ValidationError({
+                'order_detail':
+                    'This order item does not belong to the given order.'
+            })
+
+        # Optional: don't allow deleted order detail
+        if getattr(order_detail, 'deleted', False):
+            raise serializers.ValidationError({
+                'order_detail':
+                    'This order item is no longer available for return.'
+            })
+
+        # Prevent duplicate active return
+        existing = ReturnRequest.objects.filter(
+            order_id=order.id,
+            order_detail_id=order_detail.id,
+            deleted=False,
+        ).exclude(
+            status='rejected'
+        ).exists()
+
+        if existing:
+            raise serializers.ValidationError(
+                "A return request already exists for this order item."
+            )
+
+        return attrs
+
+    def to_representation(self, instance):
+        if instance.deleted:
+            return {
+                'id': instance.id,
+                'message': 'Return request deleted successfully'
+            }
+
+        data = super().to_representation(instance)
+
+        data['created_at'] = _fmt_dt(data.get('created_at'))
+        data['updated_at'] = _fmt_dt(data.get('updated_at'))
+
         return data
 
 
