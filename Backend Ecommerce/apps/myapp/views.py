@@ -3213,43 +3213,79 @@ class PaymentView(BaseView):
 # RETURN REQUEST
 # ============================================================================
 
-class ReturnRequestView(BaseView):
+# class ReturnRequestView(BaseView):
+#     """
+#     POST  → customer submits a return request
+#     GET   → admin lists all return requests (with filters)
+#     PATCH → admin approves / rejects (?id=N)
+#     """
+#     permission_classes = (IsAuthenticated,)
+#     serializer_class   = ReturnRequestSerializer
+#     filterset_class    = ReturnRequestFilter
+
+#     def post(self, request):
+#         """Authenticated customers can submit a return request — for THEIR OWN orders only."""
+#         try:
+#             order_id = request.data.get('order')
+#             if not order_id:
+#                 return Response(create_response("order is required"), status=400)
+
+#             order = Order.objects.filter(id=order_id, deleted=False).first()
+#             if not order:
+#                 return Response(create_response(NOT_FOUND), status=404)
+
+#             # FIX — SECURITY: previously any authenticated user could submit a
+#             # return request for ANY order by supplying its id, because there
+#             # was no check that the order actually belonged to them. Now we
+#             # require the order to belong to the requesting user unless
+#             # they're staff (staff/admin may file returns on a customer's
+#             # behalf, e.g. over the phone).
+#             if order.customer_id != request.user.id and not request.user.is_staff:
+#                 return Response(create_response("You can only request returns for your own orders"), status=403)
+
+#             serializer = ReturnRequestSerializer(data=request.data)
+#             if serializer.is_valid():
+#                 instance = serializer.save(created_by=request.user)
+#                 return Response(create_response(SUCCESSFUL, ReturnRequestSerializer(instance).data), status=201)
+#             return Response(create_response(get_first_error(serializer.errors)), status=400)
+#         except Exception as e:
+#             return Response(create_response(str(e)), status=500)
+
+#     @permission_required(['read_return'])
+#     def get(self, request):
+#         return super().get_(request)
+
+#     @permission_required(['update_return'])
+#     def patch(self, request):
+#         """Admin reviews (approves / rejects) a return request."""
+#         try:
+#             return_id = request.query_params.get('id')
+#             if not return_id:
+#                 return Response(create_response(ID_NOT_PROVIDED), status=400)
+#             instance = ReturnRequest.objects.filter(id=return_id, deleted=False).first()
+#             if not instance:
+#                 return Response(create_response(NOT_FOUND), status=404)
+#             data = request.data.copy()
+#             data['reviewed_by'] = request.user.id
+#             serializer = ReturnRequestSerializer(instance, data=data, partial=True)
+#             if serializer.is_valid():
+#                 updated = serializer.save(updated_by=request.user)
+#                 return Response(create_response(SUCCESSFUL, ReturnRequestSerializer(updated).data), status=200)
+#             return Response(create_response(get_first_error(serializer.errors)), status=400)
+#         except Exception as e:
+#             return Response(create_response(str(e)), status=500)
+
+
+
+class AdminReturnRequestView(BaseView):
     """
-    POST  → customer submits a return request
-    GET   → admin lists all return requests (with filters)
-    PATCH → admin approves / rejects (?id=N)
+    GET   → Admin lists all return requests
+    PATCH → Admin approves / rejects / completes
     """
+
     permission_classes = (IsAuthenticated,)
-    serializer_class   = ReturnRequestSerializer
-    filterset_class    = ReturnRequestFilter
-
-    def post(self, request):
-        """Authenticated customers can submit a return request — for THEIR OWN orders only."""
-        try:
-            order_id = request.data.get('order')
-            if not order_id:
-                return Response(create_response("order is required"), status=400)
-
-            order = Order.objects.filter(id=order_id, deleted=False).first()
-            if not order:
-                return Response(create_response(NOT_FOUND), status=404)
-
-            # FIX — SECURITY: previously any authenticated user could submit a
-            # return request for ANY order by supplying its id, because there
-            # was no check that the order actually belonged to them. Now we
-            # require the order to belong to the requesting user unless
-            # they're staff (staff/admin may file returns on a customer's
-            # behalf, e.g. over the phone).
-            if order.customer_id != request.user.id and not request.user.is_staff:
-                return Response(create_response("You can only request returns for your own orders"), status=403)
-
-            serializer = ReturnRequestSerializer(data=request.data)
-            if serializer.is_valid():
-                instance = serializer.save(created_by=request.user)
-                return Response(create_response(SUCCESSFUL, ReturnRequestSerializer(instance).data), status=201)
-            return Response(create_response(get_first_error(serializer.errors)), status=400)
-        except Exception as e:
-            return Response(create_response(str(e)), status=500)
+    serializer_class = AdminReturnRequestSerializer
+    filterset_class = AdminReturnRequestFilter
 
     @permission_required(['read_return'])
     def get(self, request):
@@ -3257,20 +3293,183 @@ class ReturnRequestView(BaseView):
 
     @permission_required(['update_return'])
     def patch(self, request):
-        """Admin reviews (approves / rejects) a return request."""
         try:
             return_id = request.query_params.get('id')
+
             if not return_id:
-                return Response(create_response(ID_NOT_PROVIDED), status=400)
-            instance = ReturnRequest.objects.filter(id=return_id, deleted=False).first()
+                return Response(
+                    create_response(ID_NOT_PROVIDED),
+                    status=400
+                )
+
+            instance = ReturnRequest.objects.filter(
+                id=return_id,
+                deleted=False
+            ).select_related(
+                'order',
+                'order_detail',
+                'reviewed_by',
+                'created_by',
+            ).first()
+
             if not instance:
-                return Response(create_response(NOT_FOUND), status=404)
+                return Response(
+                    create_response(NOT_FOUND),
+                    status=404
+                )
+
             data = request.data.copy()
+
+            # Admin who reviewed the request
             data['reviewed_by'] = request.user.id
-            serializer = ReturnRequestSerializer(instance, data=data, partial=True)
+
+            serializer = self.serializer_class(
+                instance,
+                data=data,
+                partial=True
+            )
+
             if serializer.is_valid():
-                updated = serializer.save(updated_by=request.user)
-                return Response(create_response(SUCCESSFUL, ReturnRequestSerializer(updated).data), status=200)
-            return Response(create_response(get_first_error(serializer.errors)), status=400)
+
+                updated = serializer.save(
+                    updated_by=request.user
+                )
+
+                return Response(
+                    create_response(
+                        SUCCESSFUL,
+                        self.serializer_class(updated).data
+                    ),
+                    status=200
+                )
+
+            return Response(
+                create_response(
+                    get_first_error(serializer.errors)
+                ),
+                status=400
+            )
+
         except Exception as e:
-            return Response(create_response(str(e)), status=500)
+            # Log e here
+            return Response(
+                create_response(
+                    "An unexpected error occurred"
+                ),
+                status=500
+            )
+
+
+class CustomerReturnRequestView(BaseView):
+    """
+    POST → Customer creates return request
+    GET  → Customer views their own return requests
+    """
+
+    permission_classes = ()
+    serializer_class = CustomerReturnRequestSerializer
+    filterset_class = CustomerReturnRequestFilter
+
+    def post(self, request):
+        try:
+            order_id = request.data.get('order')
+
+            if not order_id:
+                return Response(
+                    create_response("order is required"),
+                    status=400
+                )
+
+            # Only find customer's own order
+            order = Order.objects.filter(
+                id=order_id,
+                customer_id=request.user.id,
+                deleted=False,
+            ).first()
+
+            if not order:
+                return Response(
+                    create_response(
+                        "Order not found or does not belong to you"
+                    ),
+                    status=404
+                )
+
+            serializer = self.serializer_class(
+                data=request.data
+            )
+
+            if serializer.is_valid():
+                instance = serializer.save(
+                    created_by=request.user
+                )
+
+                return Response(
+                    create_response(
+                        SUCCESSFUL,
+                        self.serializer_class(instance).data
+                    ),
+                    status=201
+                )
+
+            return Response(
+                create_response(
+                    get_first_error(serializer.errors)
+                ),
+                status=400
+            )
+
+        except Exception as e:
+            # Log e here
+            return Response(
+                create_response(
+                    "An unexpected error occurred"
+                ),
+                status=500
+            )
+
+    def get(self, request):
+        """
+        Customer can see ONLY their own return requests.
+        """
+
+        queryset = ReturnRequest.objects.filter(
+            order__customer_id=request.user.id,
+            deleted=False,
+        ).select_related(
+            'order',
+            'order_detail',
+            'reviewed_by',
+            'created_by',
+        )
+
+        filterset = self.filterset_class(
+            request.GET,
+            queryset=queryset
+        )
+
+        if not filterset.is_valid():
+            return Response(
+                create_response(
+                    get_first_error(filterset.errors)
+                ),
+                status=400
+            )
+
+        queryset = filterset.qs
+
+        # If your BaseView has pagination/standard response handling,
+        # use your project's existing pagination implementation here.
+
+        serializer = self.serializer_class(
+            queryset,
+            many=True
+        )
+
+        return Response(
+            create_response(
+                SUCCESSFUL,
+                serializer.data
+            ),
+            status=200
+        )
