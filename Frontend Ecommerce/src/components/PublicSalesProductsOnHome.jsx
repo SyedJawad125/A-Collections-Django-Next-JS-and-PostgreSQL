@@ -137,11 +137,7 @@ const PublicSalesProductsCom = () => {
 
     // Event handlers
     const handleProductClick = (product) => {
-        const queryString = new URLSearchParams({
-            ProductId: product.id.toString(),
-            productData: JSON.stringify(product)
-        }).toString();
-        router.push(`/salesdetail?${queryString}`);
+        router.push(`/salesdetail?ProductId=${product.id}`);
     };
 
     // Pagination handlers
