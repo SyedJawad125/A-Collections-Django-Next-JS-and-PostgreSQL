@@ -449,9 +449,9 @@ from .views import (
     # ── Existing views (unchanged) ─────────────────────────────────────────
     DropDownListProductViews, DropDownListSalesProductView,
     ProductView, PublicProductView, ProductDropdownView,
-    ColorView,
+    ColorView, PublicProductColorView,
     ProductVariantView, PublicProductVariantView,
-    InventoryView,
+    InventoryView, PublicInventoryView,
     SalesProductView, PublicSalesProductView, SalesProductDropdownView,
     CategoryView, PublicCategoryView, PublicCategoryDetailView,
     CategoryDropdownView, CategorySearchView, PubliccategorywiseView,
@@ -488,6 +488,7 @@ urlpatterns = [
     # COLOR
     # =========================================================================
     path('v1/color/',                   ColorView.as_view(),            name='color'),
+    path('v1/public/color/',            PublicProductColorView.as_view(), name='public-color'),
 
     # =========================================================================
     # PRODUCT VARIANT
@@ -499,6 +500,7 @@ urlpatterns = [
     # INVENTORY
     # =========================================================================
     path('v1/inventory/',               InventoryView.as_view(),        name='inventory'),
+    path('v1/public/inventory/',        PublicInventoryView.as_view(),  name='public-inventory'),
 
     # =========================================================================
     # SALES PRODUCT
