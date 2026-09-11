@@ -1381,6 +1381,14 @@ class ColorSerializer(serializers.ModelSerializer):
         return super().to_representation(instance)
 
 
+class PublicColorSerializer(serializers.ModelSerializer):
+    """Public read-only serializer for Color model"""
+    
+    class Meta:
+        model  = Color
+        fields = ['id', 'name']
+
+
 # ============================================================================
 # PRODUCT VARIANT
 # ============================================================================
@@ -1454,6 +1462,39 @@ class ProductVariantSerializer(serializers.ModelSerializer):
         return super().to_representation(instance)
 
 
+class PublicProductVariantSerializer(serializers.ModelSerializer):
+    """Public read-only serializer for ProductVariant model"""
+    product_name  = serializers.CharField(source='product.name', read_only=True)
+    product_price = serializers.DecimalField(source='product.price', max_digits=10, decimal_places=2, read_only=True)
+    total_price   = serializers.SerializerMethodField()
+    color_names   = serializers.SerializerMethodField()
+    colors_data   = serializers.SerializerMethodField()
+    is_low_stock  = serializers.SerializerMethodField()
+
+    class Meta:
+        model  = ProductVariant
+        fields = ['id', 'product', 'product_name', 'product_price',
+                  'size', 'colors', 'color_names', 'colors_data',
+                  'material', 'sku', 'stock_quantity', 'additional_price',
+                  'total_price', 'is_active', 'is_low_stock']
+        read_only_fields = ('sku',)
+
+    def get_total_price(self, obj):
+        return float(obj.product.price + obj.additional_price) if not obj.deleted and obj.product else None
+
+    def get_color_names(self, obj):
+        return [c.name for c in obj.colors.filter(deleted=False)] if not obj.deleted else []
+
+    def get_colors_data(self, obj):
+        return ColorSerializer(obj.colors.filter(deleted=False), many=True).data if not obj.deleted else []
+
+    def get_is_low_stock(self, obj):
+        try:
+            return obj.inventory.is_low_stock if hasattr(obj, 'inventory') else False
+        except Exception:
+            return obj.stock_quantity < 10
+
+
 # ============================================================================
 # INVENTORY
 # ============================================================================
@@ -1496,6 +1537,18 @@ class InventorySerializer(serializers.ModelSerializer):
         if instance.deleted:
             return {'id': instance.id, 'message': 'Inventory record deleted successfully'}
         return super().to_representation(instance)
+
+
+class PublicInventorySerializer(serializers.ModelSerializer):
+    """Public read-only serializer for Inventory model"""
+    product_name = serializers.CharField(source='product_variant.product.name', read_only=True)
+    variant_sku  = serializers.CharField(source='product_variant.sku', read_only=True)
+    is_low_stock = serializers.BooleanField(read_only=True)
+
+    class Meta:
+        model  = Inventory
+        fields = ['id', 'product_variant', 'product_name', 'variant_sku',
+                  'current_stock', 'is_low_stock']
 
 
 # ============================================================================
