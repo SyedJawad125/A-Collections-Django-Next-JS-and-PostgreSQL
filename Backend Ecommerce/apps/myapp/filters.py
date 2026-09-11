@@ -822,13 +822,14 @@ class ColorFilter(FilterSet):
 
 
 class PublicColorFilter(FilterSet):
-    """Filter for Color model - Public API"""
+    """Global colour catalogue — no product relation. Kept for admin use only."""
     id   = CharFilter(field_name='id')
     name = CharFilter(field_name='name', lookup_expr='icontains')
 
     class Meta:
         model  = Color
         fields = ['id', 'name']
+
 
 
 # ============================================================================
@@ -853,22 +854,28 @@ class ProductVariantFilter(FilterSet):
         model  = ProductVariant
         fields = {'size': ['exact'], 'is_active': ['exact']}
 
-
 class PublicProductVariantFilter(FilterSet):
-    product_id = CharFilter(field_name='product__id')
-    size       = CharFilter(field_name='size', lookup_expr='iexact')
-    colors     = CharFilter(field_name='colors__name', lookup_expr='icontains')
-    material   = CharFilter(field_name='material', lookup_expr='icontains')
-    in_stock   = BooleanFilter(method='filter_in_stock')
+    """
+    Public filter for ProductVariant.
+    Accepts BOTH ?product= and ?product_id= so the frontend can use either.
+    """
+    product     = CharFilter(field_name='product__id')   # ← alias
+    product_id  = CharFilter(field_name='product__id')
+    size        = CharFilter(field_name='size', lookup_expr='iexact')
+    colors      = CharFilter(field_name='colors__name', lookup_expr='icontains')
+    material    = CharFilter(field_name='material', lookup_expr='icontains')
+    is_active   = BooleanFilter(field_name='is_active')
+    in_stock    = BooleanFilter(method='filter_in_stock')
 
     class Meta:
         model  = ProductVariant
-        fields = ['product_id', 'size', 'material']
+        fields = ['product', 'product_id', 'size', 'material', 'is_active']
 
     def filter_in_stock(self, queryset, name, value):
         if value:
             return queryset.filter(stock_quantity__gt=0, is_active=True)
         return queryset
+
 
 
 # ============================================================================
@@ -902,24 +909,28 @@ class InventoryFilter(FilterSet):
 
 
 class PublicInventoryFilter(FilterSet):
-    """Filter for Inventory model - Public API"""
-    product_id   = CharFilter(field_name='product_variant__product__id')
-    variant_id   = CharFilter(field_name='product_variant__id')
-    variant_sku  = CharFilter(field_name='product_variant__sku', lookup_expr='icontains')
-    min_stock    = NumberFilter(field_name='current_stock', lookup_expr='gte')
-    max_stock    = NumberFilter(field_name='current_stock', lookup_expr='lte')
-    in_stock     = BooleanFilter(method='filter_in_stock')
+    """
+    Public filter for Inventory.
+    Accepts BOTH ?product= and ?product_id= (both scope via product_variant__product).
+    Also accepts ?variant_id= / ?product_variant=.
+    """
+    product         = CharFilter(field_name='product_variant__product__id')  # ← alias
+    product_id      = CharFilter(field_name='product_variant__product__id')
+    variant_id      = CharFilter(field_name='product_variant__id')
+    product_variant = CharFilter(field_name='product_variant__id')
+    variant_sku     = CharFilter(field_name='product_variant__sku', lookup_expr='icontains')
+    min_stock       = NumberFilter(field_name='current_stock', lookup_expr='gte')
+    max_stock       = NumberFilter(field_name='current_stock', lookup_expr='lte')
+    in_stock        = BooleanFilter(method='filter_in_stock')
 
     class Meta:
         model  = Inventory
-        fields = ['product_id', 'variant_id']
+        fields = ['product', 'product_id', 'variant_id', 'product_variant']
 
     def filter_in_stock(self, queryset, name, value):
-        """Filter inventory items that are in stock"""
         if value:
             return queryset.filter(current_stock__gt=0)
         return queryset
-
 
 # ============================================================================
 # SALES PRODUCT
