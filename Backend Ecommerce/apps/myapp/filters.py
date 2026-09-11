@@ -1248,28 +1248,66 @@ class WishlistFilter(FilterSet):
 # ============================================================================
 # RETURN REQUEST  ── NEW
 # ============================================================================
+class AdminReturnRequestFilter(django_filters.FilterSet):
+    status = django_filters.CharFilter(
+        field_name='status',
+        lookup_expr='exact'
+    )
 
-class ReturnRequestFilter(FilterSet):
-    id        = CharFilter(field_name='id')
-    order_id  = CharFilter(field_name='order__id')
-    status    = CharFilter(field_name='status', lookup_expr='iexact')
-    reason    = CharFilter(field_name='reason', lookup_expr='iexact')
-    date_from = DateFilter(field_name='created_at', lookup_expr='gte')
-    date_to   = DateFilter(field_name='created_at', lookup_expr='lte')
-    search    = CharFilter(method='filter_search')
+    reason = django_filters.CharFilter(
+        field_name='reason',
+        lookup_expr='exact'
+    )
+
+    order = django_filters.NumberFilter(
+        field_name='order_id'
+    )
+
+    order_detail = django_filters.NumberFilter(
+        field_name='order_detail_id'
+    )
+
+    customer = django_filters.NumberFilter(
+        field_name='order__customer_id'
+    )
 
     class Meta:
-        model  = ReturnRequest
-        fields = ['status', 'reason']
+        model = ReturnRequest
+        fields = [
+            'status',
+            'reason',
+            'order',
+            'order_detail',
+            'customer',
+        ]
 
-    def filter_search(self, queryset, name, value):
-        return queryset.filter(
-            Q(order__customer_name__icontains=value)  |
-            Q(order__customer_email__icontains=value) |
-            Q(description__icontains=value)
-        )
+class CustomerReturnRequestFilter(django_filters.FilterSet):
+    status = django_filters.CharFilter(
+        field_name='status',
+        lookup_expr='exact'
+    )
 
+    reason = django_filters.CharFilter(
+        field_name='reason',
+        lookup_expr='exact'
+    )
 
+    order = django_filters.NumberFilter(
+        field_name='order_id'
+    )
+
+    order_detail = django_filters.NumberFilter(
+        field_name='order_detail_id'
+    )
+
+    class Meta:
+        model = ReturnRequest
+        fields = [
+            'status',
+            'reason',
+            'order',
+            'order_detail',
+        ]
 # ============================================================================
 # CONTACT
 # ============================================================================
