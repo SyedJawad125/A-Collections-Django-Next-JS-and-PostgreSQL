@@ -42,7 +42,7 @@ const AdminReturnRequest = () => {
       try {
         const params = { page: pagination.currentPage, limit: pagination.limit };
         if (statusFilter) params.status = statusFilter;
-        const res = await AxiosInstance.get('/api/myapp/v1/return/', { params });
+        const res = await AxiosInstance.get('/api/v1/admin/return/', { params });
         const responseData = res?.data;
         const dataArr = Array.isArray(responseData?.data) ? responseData.data : [];
         setRecords(dataArr);
@@ -124,7 +124,7 @@ const AdminReturnRequest = () => {
       const payload = { status: reviewForm.status };
       if (reviewForm.refund_amount !== '') payload.refund_amount = reviewForm.refund_amount;
 
-      await AxiosInstance.patch('/api/myapp/v1/return/', payload, {
+      await AxiosInstance.patch('/api/v1/admin/return/', payload, {
         params: { id: reviewingRecord.id },
       });
       toast.success('Return request updated successfully');

@@ -1353,7 +1353,7 @@ const ImagesCom = () => {
                 </h1>
 
                 {/* Underline */}
-                <div className="w-16 h-1 bg-gradient-to-r from-amber-400 to-yellow-500 mt-1 mb-1"></div>
+                <div className="w-30 h-1 bg-gradient-to-r from-amber-400 to-yellow-500 mt-1 mb-1"></div>
 
                 {/* Description */}
                 <p className="text-slate-400 text-xs">
@@ -1367,7 +1367,7 @@ const ImagesCom = () => {
 
           {hasCreatePermission && (
             <button
-              className="group relative flex items-center gap-2 px-5 py-2 bg-gradient-to-r from-amber-600 to-yellow-500 text-slate-900 font-semibold rounded-full shadow-xl shadow-amber-500/40 hover:shadow-amber-500/60 hover:scale-105 transition-all duration-300 overflow-hidden"
+              className="group relative flex items-center gap-2 px-5 py-2 bg-gradient-to-r from-amber-600 to-yellow-500 text-slate-900 font-semibold rounded-full shadow-xl shadow-amber-400/30 hover:shadow-amber-400/50 hover:scale-105 transition-all duration-300 overflow-hidden"
               onClick={handleAddImage}
             >
               <div className="absolute inset-0 bg-gradient-to-r from-amber-400 to-yellow-400 opacity-0 group-hover:opacity-100 rounded-full transition-opacity duration-300"></div>

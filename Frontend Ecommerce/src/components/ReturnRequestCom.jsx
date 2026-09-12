@@ -75,7 +75,7 @@ const ReturnRequestCom = () => {
 
         setSubmitting(true);
         try {
-            await AxiosInstance.post('/api/myapp/v1/return/', formData);
+            await AxiosInstance.post('/api/v1/return/', formData);
             toast.success('Return request submitted successfully');
             setShowModal(false);
             setFormData({
