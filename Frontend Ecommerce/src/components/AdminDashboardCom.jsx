@@ -1029,20 +1029,49 @@ const AdminPage = () => {
   return (
     <div className="w-full min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 p-6 overflow-auto">
       {/* Welcome Banner */}
-      <div className="bg-gradient-to-r from-amber-600 via-yellow-500 to-amber-600 rounded-2xl p-6 mb-6 -mt-6 shadow-2xl shadow-amber-500/20 relative overflow-hidden">
-        <div className="absolute inset-0 bg-black/20"></div>
+      <div className="w-full max-w-none backdrop-blur-2xl bg-gradient-to-br from-slate-900/90 via-slate-800/80 to-slate-900/90 rounded-3xl border border-amber-400/30 shadow-2xl shadow-amber-500/20 p-6 relative overflow-hidden mb-6 -mt-6">
+        {/* Luxury Glow */}
+        <div className="absolute inset-0 rounded-3xl bg-gradient-to-r from-amber-500/20 via-yellow-500/20 to-amber-500/20 animate-pulse opacity-40"></div>
+        <div className="absolute inset-[1px] rounded-3xl bg-gradient-to-br from-slate-900/95 to-slate-800/90 backdrop-blur-2xl"></div>
+
         <div className="relative z-10">
-          <h1 className="text-4xl font-bold text-slate-900 mb-3">Welcome to Admin Dashboard</h1>
-          <p className="text-slate-900/90 text-lg mb-2 font-medium">
+          {/* Small Luxury Label */}
+          <div className="flex items-center gap-2 mb-3">
+            <span className="w-7 h-px bg-amber-400"></span>
+
+            <span className="text-xs font-semibold tracking-[0.2em] uppercase text-amber-400">
+              Admin Dashboard
+            </span>
+
+            <span className="w-7 h-px bg-amber-400"></span>
+          </div>
+
+          {/* Heading */}
+          <h1 className="text-3xl md:text-4xl font-bold tracking-tight bg-gradient-to-r from-amber-300 via-yellow-400 to-amber-300 bg-clip-text text-transparent mb-2">
+            Welcome to Admin Dashboard
+          </h1>
+
+          {/* Underline */}
+          <div className="w-20 h-1 bg-gradient-to-r from-amber-400 to-yellow-500 mb-3"></div>
+
+          {/* Main Description */}
+          <p className="text-slate-200 text-lg mb-1 font-medium">
             Complete control over your E-Commerce platform
           </p>
-          <p className="text-slate-900/80 text-sm font-medium">
+
+          {/* Sub Description */}
+          <p className="text-slate-400 text-sm leading-relaxed">
             Monitor sales, manage orders, and track your business growth in real-time
           </p>
         </div>
-        <div className="absolute -right-10 -bottom-10 w-40 h-40 bg-white/20 rounded-full blur-3xl"></div>
-        <div className="absolute -left-10 -top-10 w-40 h-40 bg-white/20 rounded-full blur-3xl"></div>
-      </div>
+
+      {/* Decorative Circles */}
+      <div className="absolute -right-8 -top-8 w-28 h-28 rounded-full border border-amber-400/20"></div>
+      <div className="absolute -right-4 -top-4 w-16 h-16 rounded-full border border-amber-400/20"></div>
+
+      <div className="absolute -right-10 -bottom-10 w-40 h-40 rounded-full bg-amber-500/10 blur-3xl"></div>
+      <div className="absolute -left-10 -top-10 w-40 h-40 rounded-full bg-yellow-500/10 blur-3xl"></div>
+    </div>
 
       {/* Stats Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
