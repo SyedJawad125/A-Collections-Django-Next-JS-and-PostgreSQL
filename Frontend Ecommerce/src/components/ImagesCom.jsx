@@ -1317,7 +1317,7 @@ const ImagesCom = () => {
   }
 
   return (
-    <div className="w-full h-full bg-gradient-to-b from-gray-900 to-gray-800 p-6 overflow-auto">
+    <div className="w-full h-full bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 p-6 overflow-auto">
       <ToastContainer
         position="top-right"
         autoClose={3000}
@@ -1327,36 +1327,83 @@ const ImagesCom = () => {
 
       {/* Header Section */}
       <div className="mb-8">
-        <div className="flex items-center justify-between mb-6">
-          <div>
-            <h1 className="text-4xl font-bold bg-gradient-to-r from-amber-300 via-yellow-400 to-amber-300 bg-clip-text text-transparent mb-2">
-              Image Gallery
-            </h1>
-            <p className="text-slate-400 text-sm">Manage and organize your image collection</p>
-          </div>
+      <div className="mb-5">
+        <div className="w-full backdrop-blur-2xl bg-gradient-to-br from-slate-900/90 via-slate-800/80 to-slate-900/90 rounded-3xl border border-amber-400/30 shadow-2xl shadow-amber-500/20 px-5 py-3 relative overflow-hidden -mt-6">
+        
+        {/* Luxury Glow */}
+        <div className="absolute inset-0 rounded-3xl bg-gradient-to-r from-amber-500/20 via-yellow-500/20 to-amber-500/20 opacity-30"></div>
 
-          <div className="flex items-center gap-3">
-            {hasCreatePermission && (
-              <button
-                className="group relative flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-amber-600 to-yellow-500 text-slate-900 font-semibold rounded-full shadow-2xl shadow-amber-500/50 hover:shadow-amber-500/70 transform hover:scale-105 transition-all duration-300"
-                onClick={handleAddImage}
-              >
-                <div className="absolute inset-0 bg-gradient-to-r from-amber-400 to-yellow-400 opacity-0 group-hover:opacity-100 rounded-full transition-opacity duration-300"></div>
-                <div className="relative flex items-center space-x-2">
-                  <Plus className="w-5 h-5" />
-                  <span>Add Images</span>
-                </div>
-              </button>
-            )}
+        <div className="absolute inset-[1px] rounded-3xl bg-gradient-to-br from-slate-900/95 to-slate-800/90 backdrop-blur-2xl"></div>
+
+        <div className="relative z-10">
+          <div className="flex items-center justify-between gap-4 flex-wrap">
+
+            {/* Left Side */}
+            <div className="flex items-center gap-3">
+
+              {/* Icon */}
+              <div className="flex-shrink-0 inline-flex items-center justify-center w-10 h-10 bg-gradient-to-br from-amber-400 to-yellow-500 rounded-full shadow-xl shadow-amber-500/40">
+                <Folder className="w-5 h-5 text-slate-900" />
+              </div>
+
+              <div>
+                {/* Title */}
+                <h1 className="text-2xl md:text-3xl font-bold bg-gradient-to-r from-amber-300 via-yellow-400 to-amber-300 bg-clip-text text-transparent leading-tight">
+                  Image Gallery
+                </h1>
+
+                {/* Underline */}
+                <div className="w-16 h-1 bg-gradient-to-r from-amber-400 to-yellow-500 mt-1 mb-1"></div>
+
+                {/* Description */}
+                <p className="text-slate-400 text-xs">
+                  Manage and organize your image collection
+                </p>
+              </div>
+            </div>
+
+        {/* Right Side Buttons */}
+        <div className="flex items-center gap-2 flex-wrap">
+
+          {hasCreatePermission && (
             <button
-              className="flex items-center gap-2 bg-slate-800/50 hover:bg-slate-700/50 text-white px-6 py-3 rounded-xl font-semibold border border-slate-700/50 hover:border-slate-600/50 transition-all duration-200 hover:scale-105"
-              onClick={() => router.push('/admin/ImagesCategoryPage')}
+              className="group relative flex items-center gap-2 px-5 py-2 bg-gradient-to-r from-amber-600 to-yellow-500 text-slate-900 font-semibold rounded-full shadow-xl shadow-amber-500/40 hover:shadow-amber-500/60 hover:scale-105 transition-all duration-300 overflow-hidden"
+              onClick={handleAddImage}
             >
-              <Folder className="w-5 h-5" />
-              Categories
+              <div className="absolute inset-0 bg-gradient-to-r from-amber-400 to-yellow-400 opacity-0 group-hover:opacity-100 rounded-full transition-opacity duration-300"></div>
+
+              <div className="relative flex items-center gap-2">
+                <Plus className="w-4 h-4" />
+                <span className="text-sm">Add Images</span>
+              </div>
             </button>
-          </div>
+          )}
+
+          <button
+            className="group relative flex items-center gap-2 px-5 py-2 bg-gradient-to-r from-slate-700 to-slate-600 text-white rounded-full font-semibold border border-slate-600/50 shadow-lg hover:border-amber-400/50 hover:shadow-amber-500/30 hover:scale-105 transition-all duration-300 overflow-hidden"
+            onClick={() => router.push('/admin/ImagesCategoryPage')}
+          >
+            <div className="absolute inset-0 bg-gradient-to-r from-amber-600/20 to-yellow-500/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+
+            <div className="relative flex items-center gap-2">
+              <Folder className="w-4 h-4" />
+              <span className="text-sm">Categories</span>
+            </div>
+          </button>
+
         </div>
+      </div>
+    </div>
+
+    {/* Decorative Elements */}
+    <div className="absolute -right-8 -top-8 w-24 h-24 rounded-full border border-amber-400/15"></div>
+    <div className="absolute -right-3 -top-3 w-12 h-12 rounded-full border border-amber-400/15"></div>
+
+    <div className="absolute -right-10 -bottom-10 w-32 h-32 rounded-full bg-amber-500/10 blur-3xl"></div>
+    <div className="absolute -left-10 -top-10 w-32 h-32 rounded-full bg-yellow-500/10 blur-3xl"></div>
+
+  </div>
+</div>
 
         {/* Stats Cards */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
@@ -1432,7 +1479,7 @@ const ImagesCom = () => {
         <>
           {currentImages.length > 0 ? (
             <>
-              <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-6">
+              <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-6">
                 {currentImages.map(item => (
                   <div
                     key={item.id}
