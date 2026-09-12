@@ -1,3 +1,627 @@
+// import React, { useState, useEffect } from 'react';
+// import { Bar } from 'react-chartjs-2';
+// import 'chart.js/auto';
+// import { TrendingUp, ShoppingCart, Users, Package, DollarSign, Clock, CheckCircle, Truck, Star, MessageSquare, Tag, Users2, AlertCircle } from 'lucide-react';
+// import AxiosInstance from '@/components/AxiosInstance';
+
+// const AdminPage = () => {
+//   const [loading, setLoading] = useState(true);
+//   const [orders, setOrders] = useState([]);
+//   const [products, setProducts] = useState([]);
+//   const [employees, setEmployees] = useState([]);
+//   const [reviews, setReviews] = useState([]);
+//   const [salesProducts, setSalesProducts] = useState([]);
+//   const [categories, setCategories] = useState([]);
+//   const [stats, setStats] = useState({
+//     totalRevenue: 0,
+//     totalOrders: 0,
+//     customers: 0,
+//     products: 0,
+//     employees: 0,
+//     reviews: 0,
+//     salesProducts: 0,
+//     categories: 0,
+//     pendingOrders: 0,
+//     completedOrders: 0,
+//     cancelledOrders: 0,
+//     averageOrderValue: 0,
+//     averageRating: 0
+//   });
+//   const [recentOrders, setRecentOrders] = useState([]);
+//   const [recentReviews, setRecentReviews] = useState([]);
+//   const [chartData, setChartData] = useState({
+//     labels: ['January', 'February', 'March', 'April', 'May', 'June'],
+//     datasets: [
+//       {
+//         label: 'Sales (Rs)',
+//         data: [0, 0, 0, 0, 0, 0],
+//         backgroundColor: 'rgba(59, 130, 246, 0.8)',
+//         borderColor: 'rgba(59, 130, 246, 1)',
+//         borderWidth: 2,
+//         borderRadius: 8,
+//       },
+//     ],
+//   });
+
+//   const chartOptions = {
+//     responsive: true,
+//     maintainAspectRatio: false,
+//     plugins: {
+//       legend: {
+//         display: false,
+//       },
+//     },
+//     scales: {
+//       y: {
+//         beginAtZero: true,
+//         grid: {
+//           color: 'rgba(148, 163, 184, 0.1)',
+//         },
+//         ticks: {
+//           color: '#94a3b8',
+//         },
+//       },
+//       x: {
+//         grid: {
+//           display: false,
+//         },
+//         ticks: {
+//           color: '#94a3b8',
+//         },
+//       },
+//     },
+//   };
+
+//   useEffect(() => {
+//     fetchDashboardData();
+//   }, []);
+
+//   const fetchDashboardData = async () => {
+//     try {
+//       setLoading(true);
+      
+//       // Fetch orders
+//       const ordersRes = await AxiosInstance.get('/api/myapp/v1/order/');
+//       const ordersData = ordersRes.data?.data || [];
+//       setOrders(ordersData);
+
+//       // Fetch products
+//       const productsRes = await AxiosInstance.get('/api/myapp/v1/product/', {
+//         params: { api_type: 'list', limit: 1000 }
+//       });
+//       const productsData = productsRes.data?.data || [];
+//       setProducts(productsData);
+
+//       // Fetch employees (customers)
+//       let employeesData = [];
+//       try {
+//         const employeesRes = await AxiosInstance.get('/api/user/v1/employee/');
+//         employeesData = employeesRes.data?.data || [];
+//         setEmployees(employeesData);
+//       } catch (employeeError) {
+//         console.warn('Could not fetch employee data:', employeeError);
+//       }
+
+//       // Fetch reviews
+//       let reviewsData = [];
+//       try {
+//         const reviewsRes = await AxiosInstance.get('/api/myapp/v1/review/', {
+//           params: { limit: 100 }
+//         });
+//         reviewsData = reviewsRes.data?.data || [];
+//         setReviews(reviewsData);
+//       } catch (reviewError) {
+//         console.warn('Could not fetch review data:', reviewError);
+//       }
+
+//       // Fetch sales products
+//       let salesProductsData = [];
+//       try {
+//         const salesRes = await AxiosInstance.get('/api/myapp/v1/sales/product/', {
+//           params: { limit: 1000 }
+//         });
+//         salesProductsData = salesRes.data?.data || [];
+//         setSalesProducts(salesProductsData);
+//       } catch (salesError) {
+//         console.warn('Could not fetch sales products data:', salesError);
+//       }
+
+//       // Fetch categories
+//       let categoriesData = [];
+//       try {
+//         const categoriesRes = await AxiosInstance.get('/api/myapp/v1/category/', {
+//           params: { limit: 100 }
+//         });
+//         categoriesData = categoriesRes.data?.data || [];
+//         setCategories(categoriesData);
+//       } catch (categoryError) {
+//         console.warn('Could not fetch category data:', categoryError);
+//       }
+
+//       // Calculate comprehensive stats
+//       const totalRevenue = ordersData.reduce((sum, order) => sum + (parseFloat(order.total_amount) || 0), 0);
+//       const uniqueCustomers = new Set(ordersData.map(order => order.user_id)).size;
+//       const pendingOrders = ordersData.filter(order => order.status === 'pending' || order.status === 'processing').length;
+//       const completedOrders = ordersData.filter(order => order.status === 'delivered' || order.status === 'completed').length;
+//       const cancelledOrders = ordersData.filter(order => order.status === 'cancelled').length;
+//       const averageOrderValue = ordersData.length > 0 ? totalRevenue / ordersData.length : 0;
+      
+//       // Calculate average rating from reviews
+//       const validRatings = reviewsData.filter(review => review.rating !== null && review.rating !== undefined);
+//       const averageRating = validRatings.length > 0 
+//         ? validRatings.reduce((sum, review) => sum + parseFloat(review.rating), 0) / validRatings.length 
+//         : 0;
+
+//       setStats({
+//         totalRevenue: totalRevenue,
+//         totalOrders: ordersData.length,
+//         customers: Math.max(uniqueCustomers, employeesData.length),
+//         products: productsData.length,
+//         employees: employeesData.length,
+//         reviews: reviewsData.length,
+//         salesProducts: salesProductsData.length,
+//         categories: categoriesData.length,
+//         pendingOrders,
+//         completedOrders,
+//         cancelledOrders,
+//         averageOrderValue,
+//         averageRating: averageRating.toFixed(1)
+//       });
+
+//       // Get recent orders (last 5)
+//       const recent = ordersData
+//         .sort((a, b) => new Date(b.created_at) - new Date(a.created_at))
+//         .slice(0, 5)
+//         .map(order => ({
+//           id: order.id,
+//           customer: order.customer_name || order.customer_name_display || 'Customer',
+//           status: order.status || 'Processing',
+//           total: `Rs ${parseFloat(order.total_amount || 0).toLocaleString()}`,
+//           statusColor: getStatusColorFromStatus(order.status),
+//           icon: getStatusIcon(order.status),
+//           date: order.created_at
+//         }));
+//       setRecentOrders(recent);
+
+//       // Get recent reviews (last 3)
+//       const recentReviews = reviewsData
+//         .sort((a, b) => new Date(b.created_at) - new Date(a.created_at))
+//         .slice(0, 3)
+//         .map(review => ({
+//           id: review.id,
+//           customer: review.customer_name || 'Customer',
+//           rating: review.rating || 0,
+//           comment: review.comment || 'No comment',
+//           product: review.product_name || 'Product',
+//           date: review.created_at
+//         }));
+//       setRecentReviews(recentReviews);
+
+//       // Calculate monthly sales for chart
+//       const monthlySales = calculateMonthlySales(ordersData);
+//       setChartData(prev => ({
+//         ...prev,
+//         datasets: [{
+//           ...prev.datasets[0],
+//           data: monthlySales
+//         }]
+//       }));
+
+//     } catch (error) {
+//       console.error('Error fetching dashboard data:', error);
+//     } finally {
+//       setLoading(false);
+//     }
+//   };
+
+//   const calculateMonthlySales = (ordersData) => {
+//     const months = ['January', 'February', 'March', 'April', 'May', 'June'];
+//     const currentYear = new Date().getFullYear();
+//     const monthlyTotals = [0, 0, 0, 0, 0, 0];
+
+//     ordersData.forEach(order => {
+//       if (order.created_at) {
+//         const orderDate = new Date(order.created_at);
+//         if (orderDate.getFullYear() === currentYear) {
+//           const monthIndex = orderDate.getMonth();
+//           if (monthIndex >= 0 && monthIndex < 6) {
+//             monthlyTotals[monthIndex] += parseFloat(order.total_amount) || 0;
+//           }
+//         }
+//       }
+//     });
+
+//     return monthlyTotals;
+//   };
+
+//   const getStatusColorFromStatus = (status) => {
+//     const statusMap = {
+//       'delivered': 'blue',
+//       'shipped': 'emerald',
+//       'processing': 'amber',
+//       'pending': 'amber',
+//       'cancelled': 'red'
+//     };
+//     return statusMap[status?.toLowerCase()] || 'amber';
+//   };
+
+//   const getStatusIcon = (status) => {
+//     const iconMap = {
+//       'delivered': CheckCircle,
+//       'shipped': Truck,
+//       'processing': Clock,
+//       'pending': Clock,
+//       'cancelled': Clock
+//     };
+//     return iconMap[status?.toLowerCase()] || Clock;
+//   };
+
+//   const getStatusColor = (color) => {
+//     const colors = {
+//       emerald: 'bg-emerald-500/20 text-emerald-400 border-emerald-500/30',
+//       amber: 'bg-amber-500/20 text-amber-400 border-amber-500/30',
+//       blue: 'bg-blue-500/20 text-blue-400 border-blue-500/30',
+//       red: 'bg-red-500/20 text-red-400 border-red-500/30',
+//     };
+//     return colors[color] || colors.amber;
+//   };
+
+//   const renderStars = (rating) => {
+//     const stars = [];
+//     for (let i = 1; i <= 5; i++) {
+//       if (i <= rating) {
+//         stars.push(<Star key={i} className="w-4 h-4 text-yellow-400 fill-yellow-400" />);
+//       } else if (i - 0.5 <= rating) {
+//         stars.push(<Star key={i} className="w-4 h-4 text-yellow-400 fill-yellow-400 opacity-50" />);
+//       } else {
+//         stars.push(<Star key={i} className="w-4 h-4 text-slate-600" />);
+//       }
+//     }
+//     return stars;
+//   };
+
+//   const statsData = [
+//     { 
+//       title: 'Total Revenue', 
+//       value: `Rs ${stats.totalRevenue.toLocaleString()}`, 
+//       change: '+12.5%', 
+//       icon: DollarSign, 
+//       color: 'from-blue-500 to-blue-600', 
+//       bgColor: 'from-blue-900/20 to-blue-950/30', 
+//       borderColor: 'border-blue-700/30' 
+//     },
+//     { 
+//       title: 'Total Orders', 
+//       value: stats.totalOrders.toString(), 
+//       change: '+8.2%', 
+//       icon: ShoppingCart, 
+//       color: 'from-emerald-500 to-emerald-600', 
+//       bgColor: 'from-emerald-900/20 to-emerald-950/30', 
+//       borderColor: 'border-emerald-700/30',
+//       subtitle: `${stats.pendingOrders} pending`
+//     },
+//     { 
+//       title: 'Customers', 
+//       value: stats.customers.toString(), 
+//       change: '+15.3%', 
+//       icon: Users, 
+//       color: 'from-purple-500 to-purple-600', 
+//       bgColor: 'from-purple-900/20 to-purple-950/30', 
+//       borderColor: 'border-purple-700/30' 
+//     },
+//     { 
+//       title: 'Products', 
+//       value: stats.products.toString(), 
+//       change: '+4.1%', 
+//       icon: Package, 
+//       color: 'from-amber-500 to-amber-600', 
+//       bgColor: 'from-amber-900/20 to-amber-950/30', 
+//       borderColor: 'border-amber-700/30' 
+//     },
+//   ];
+
+//   const additionalStats = [
+//     {
+//       title: 'Employees',
+//       value: stats.employees.toString(),
+//       icon: Users2,
+//       color: 'from-indigo-500 to-indigo-600',
+//       bgColor: 'from-indigo-900/20 to-indigo-950/30',
+//       borderColor: 'border-indigo-700/30'
+//     },
+//     {
+//       title: 'Reviews',
+//       value: stats.reviews.toString(),
+//       icon: Star,
+//       color: 'from-yellow-500 to-yellow-600',
+//       bgColor: 'from-yellow-900/20 to-yellow-950/30',
+//       borderColor: 'border-yellow-700/30',
+//       subtitle: `${stats.averageRating} avg rating`
+//     },
+//     {
+//       title: 'Sales Products',
+//       value: stats.salesProducts.toString(),
+//       icon: Tag,
+//       color: 'from-pink-500 to-pink-600',
+//       bgColor: 'from-pink-900/20 to-pink-950/30',
+//       borderColor: 'border-pink-700/30'
+//     },
+//     {
+//       title: 'Categories',
+//       value: stats.categories.toString(),
+//       icon: Package,
+//       color: 'from-cyan-500 to-cyan-600',
+//       bgColor: 'from-cyan-900/20 to-cyan-950/30',
+//       borderColor: 'border-cyan-700/30'
+//     },
+//     {
+//       title: 'Completed Orders',
+//       value: stats.completedOrders.toString(),
+//       icon: CheckCircle,
+//       color: 'from-green-500 to-green-600',
+//       bgColor: 'from-green-900/20 to-green-950/30',
+//       borderColor: 'border-green-700/30'
+//     },
+//     {
+//       title: 'Pending Orders',
+//       value: stats.pendingOrders.toString(),
+//       icon: Clock,
+//       color: 'from-orange-500 to-orange-600',
+//       bgColor: 'from-orange-900/20 to-orange-950/30',
+//       borderColor: 'border-orange-700/30'
+//     },
+//     {
+//       title: 'Cancelled Orders',
+//       value: stats.cancelledOrders.toString(),
+//       icon: AlertCircle,
+//       color: 'from-red-500 to-red-600',
+//       bgColor: 'from-red-900/20 to-red-950/30',
+//       borderColor: 'border-red-700/30'
+//     },
+//     {
+//       title: 'Avg. Order Value',
+//       value: `Rs ${Math.round(stats.averageOrderValue).toLocaleString()}`,
+//       icon: TrendingUp,
+//       color: 'from-teal-500 to-teal-600',
+//       bgColor: 'from-teal-900/20 to-teal-950/30',
+//       borderColor: 'border-teal-700/30'
+//     }
+//   ];
+
+//   if (loading) {
+//     return (
+//       <div className="w-full min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 p-6 flex items-center justify-center">
+//         <div className="text-center">
+//           <div className="inline-block animate-spin rounded-full h-16 w-16 border-t-2 border-b-2 border-blue-500 mb-4"></div>
+//           <p className="text-white text-lg">Loading dashboard data...</p>
+//         </div>
+//       </div>
+//     );
+//   }
+
+//   return (
+//     <div className="w-full min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 p-6 overflow-auto">
+//       {/* Welcome Banner */}
+//       <div className="bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 rounded-2xl p-6 mb-6 -mt-6 shadow-2xl shadow-blue-500/20 relative overflow-hidden">
+//         <div className="absolute inset-0 bg-black/20"></div>
+//         <div className="relative z-10">
+//           <h1 className="text-4xl font-bold text-white mb-3">Welcome to Admin Dashboard</h1>
+//           <p className="text-white/90 text-lg mb-2">
+//             Complete control over your E-Commerce platform
+//           </p>
+//           <p className="text-white/80 text-sm">
+//             Monitor sales, manage orders, and track your business growth in real-time
+//           </p>
+//         </div>
+//         <div className="absolute -right-10 -bottom-10 w-40 h-40 bg-white/10 rounded-full blur-3xl"></div>
+//         <div className="absolute -left-10 -top-10 w-40 h-40 bg-white/10 rounded-full blur-3xl"></div>
+//       </div>
+
+//       {/* Stats Grid */}
+//       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
+//         {statsData.map((stat, index) => {
+//           const Icon = stat.icon;
+//           return (
+//             <div
+//               key={index}
+//               className={`bg-gradient-to-br ${stat.bgColor} backdrop-blur-sm border ${stat.borderColor} rounded-xl p-6 hover:border-opacity-60 transition-all duration-300 hover:transform hover:scale-105`}
+//             >
+//               <div className="flex items-center justify-between mb-4">
+//                 <span className="text-slate-400 text-sm font-medium">{stat.title}</span>
+//                 <div className={`p-3 bg-gradient-to-br ${stat.color} rounded-lg shadow-lg`}>
+//                   <Icon className="w-6 h-6 text-white" />
+//                 </div>
+//               </div>
+//               <div className="flex items-end justify-between">
+//                 <div>
+//                   <p className="text-3xl font-bold text-white">{stat.value}</p>
+//                   {stat.subtitle && (
+//                     <p className="text-slate-400 text-xs mt-1">{stat.subtitle}</p>
+//                   )}
+//                 </div>
+//                 <span className="text-emerald-400 text-sm font-semibold flex items-center gap-1">
+//                   <TrendingUp className="w-4 h-4" />
+//                   {stat.change}
+//                 </span>
+//               </div>
+//             </div>
+//           );
+//         })}
+//       </div>
+
+//       {/* Additional Stats Grid */}
+//       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+//         {additionalStats.map((stat, index) => {
+//           const Icon = stat.icon;
+//           return (
+//             <div
+//               key={index}
+//               className={`bg-gradient-to-br ${stat.bgColor} backdrop-blur-sm border ${stat.borderColor} rounded-xl p-6 hover:border-opacity-60 transition-all duration-300 hover:transform hover:scale-105`}
+//             >
+//               <div className="flex items-center justify-between mb-4">
+//                 <span className="text-slate-400 text-sm font-medium">{stat.title}</span>
+//                 <div className={`p-3 bg-gradient-to-br ${stat.color} rounded-lg shadow-lg`}>
+//                   <Icon className="w-6 h-6 text-white" />
+//                 </div>
+//               </div>
+//               <div className="flex items-end justify-between">
+//                 <div>
+//                   <p className="text-3xl font-bold text-white">{stat.value}</p>
+//                   {stat.subtitle && (
+//                     <p className="text-slate-400 text-xs mt-1">{stat.subtitle}</p>
+//                   )}
+//                 </div>
+//               </div>
+//             </div>
+//           );
+//         })}
+//       </div>
+
+//       {/* Main Content Grid */}
+//       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+//         {/* Sales Overview Chart */}
+//         <div className="bg-gradient-to-br from-slate-800/40 to-slate-900/40 backdrop-blur-sm border border-slate-700/50 rounded-xl p-6 hover:border-slate-600/60 transition-all">
+//           <div className="flex items-center justify-between mb-6">
+//             <div>
+//               <h2 className="text-2xl font-bold text-white mb-1">Sales Overview</h2>
+//               <p className="text-slate-400 text-sm">Monthly revenue trend</p>
+//             </div>
+//             <div className="p-3 bg-gradient-to-br from-blue-600 to-purple-600 rounded-lg shadow-lg">
+//               <TrendingUp className="w-6 h-6 text-white" />
+//             </div>
+//           </div>
+//           <div className="h-72">
+//             <Bar data={chartData} options={chartOptions} />
+//           </div>
+//         </div>
+
+//         {/* Recent Orders */}
+//         <div className="bg-gradient-to-br from-slate-800/40 to-slate-900/40 backdrop-blur-sm border border-slate-700/50 rounded-xl p-6 hover:border-slate-600/60 transition-all">
+//           <div className="flex items-center justify-between mb-6">
+//             <div>
+//               <h2 className="text-2xl font-bold text-white mb-1">Recent Orders</h2>
+//               <p className="text-slate-400 text-sm">Latest customer transactions</p>
+//             </div>
+//             <div className="p-3 bg-gradient-to-br from-emerald-600 to-emerald-700 rounded-lg shadow-lg">
+//               <ShoppingCart className="w-6 h-6 text-white" />
+//             </div>
+//           </div>
+
+//           <div className="space-y-3">
+//             {recentOrders.length === 0 ? (
+//               <div className="text-center py-8 text-slate-400">
+//                 No recent orders found
+//               </div>
+//             ) : (
+//               recentOrders.map((order) => {
+//                 const StatusIcon = order.icon;
+//                 return (
+//                   <div
+//                     key={order.id}
+//                     className="bg-slate-900/50 border border-slate-700/30 rounded-lg p-4 hover:border-slate-600/50 transition-all hover:bg-slate-800/50"
+//                   >
+//                     <div className="flex items-center justify-between">
+//                       <div className="flex items-center gap-4 flex-1">
+//                         <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-purple-600 rounded-lg flex items-center justify-center flex-shrink-0">
+//                           <span className="text-white font-bold text-sm">#{order.id}</span>
+//                         </div>
+//                         <div className="flex-1 min-w-0">
+//                           <p className="text-white font-semibold mb-1">{order.customer}</p>
+//                           <div className="flex items-center gap-2">
+//                             <StatusIcon className="w-3.5 h-3.5 text-slate-400" />
+//                             <span className={`text-xs px-2 py-1 rounded-full border ${getStatusColor(order.statusColor)}`}>
+//                               {order.status}
+//                             </span>
+//                           </div>
+//                           {order.date && (
+//                             <p className="text-slate-500 text-xs mt-1">{new Date(order.date).toLocaleDateString()}</p>
+//                           )}
+//                         </div>
+//                       </div>
+//                       <div className="text-right">
+//                         <p className="text-white font-bold text-lg">{order.total}</p>
+//                       </div>
+//                     </div>
+//                   </div>
+//                 );
+//               })
+//             )}
+//           </div>
+
+//           <button className="w-full mt-4 py-3 bg-slate-800/50 hover:bg-slate-700/50 border border-slate-700/50 hover:border-slate-600/50 text-white rounded-lg transition-all font-medium">
+//             View All Orders
+//           </button>
+//         </div>
+//       </div>
+
+//       {/* Recent Reviews Section */}
+//       <div className="bg-gradient-to-br from-slate-800/40 to-slate-900/40 backdrop-blur-sm border border-slate-700/50 rounded-xl p-6 hover:border-slate-600/60 transition-all mb-8">
+//         <div className="flex items-center justify-between mb-6">
+//           <div>
+//             <h2 className="text-2xl font-bold text-white mb-1">Recent Reviews</h2>
+//             <p className="text-slate-400 text-sm">Latest customer feedback</p>
+//           </div>
+//           <div className="p-3 bg-gradient-to-br from-yellow-600 to-orange-600 rounded-lg shadow-lg">
+//             <Star className="w-6 h-6 text-white" />
+//           </div>
+//         </div>
+
+//         <div className="space-y-3">
+//           {recentReviews.length === 0 ? (
+//             <div className="text-center py-8 text-slate-400">
+//               No recent reviews found
+//             </div>
+//           ) : (
+//             recentReviews.map((review) => (
+//               <div
+//                 key={review.id}
+//                 className="bg-slate-900/50 border border-slate-700/30 rounded-lg p-4 hover:border-slate-600/50 transition-all hover:bg-slate-800/50"
+//               >
+//                 <div className="flex items-start justify-between">
+//                   <div className="flex-1">
+//                     <div className="flex items-center gap-2 mb-2">
+//                       <span className="text-white font-semibold">{review.customer}</span>
+//                       <div className="flex items-center gap-1">
+//                         {renderStars(review.rating)}
+//                         <span className="text-yellow-400 text-sm ml-1">{review.rating}</span>
+//                       </div>
+//                     </div>
+//                     <p className="text-slate-300 text-sm mb-1">{review.comment}</p>
+//                     <p className="text-slate-500 text-xs">Product: {review.product}</p>
+//                     {review.date && (
+//                       <p className="text-slate-500 text-xs mt-1">{new Date(review.date).toLocaleDateString()}</p>
+//                     )}
+//                   </div>
+//                 </div>
+//               </div>
+//             ))
+//           )}
+//         </div>
+//       </div>
+
+//       {/* Footer */}
+//       <footer className="bg-gradient-to-r from-slate-800/50 to-slate-900/50 backdrop-blur-sm border border-slate-700/50 rounded-xl p-6 text-center">
+//         <p className="text-slate-400">
+//           © 2024 E-Commerce Admin Dashboard • All Rights Reserved
+//         </p>
+//         <p className="text-slate-500 text-sm mt-2">
+//           Built with ❤️ for modern business management
+//         </p>
+//       </footer>
+//     </div>
+//   );
+// };
+
+// export default AdminPage;
+
+
+
+
+
+
+
+
+
 import React, { useState, useEffect } from 'react';
 import { Bar } from 'react-chartjs-2';
 import 'chart.js/auto';
@@ -35,8 +659,8 @@ const AdminPage = () => {
       {
         label: 'Sales (Rs)',
         data: [0, 0, 0, 0, 0, 0],
-        backgroundColor: 'rgba(59, 130, 246, 0.8)',
-        borderColor: 'rgba(59, 130, 246, 1)',
+        backgroundColor: 'rgba(251, 191, 36, 0.8)',
+        borderColor: 'rgba(251, 191, 36, 1)',
         borderWidth: 2,
         borderRadius: 8,
       },
@@ -79,7 +703,7 @@ const AdminPage = () => {
   const fetchDashboardData = async () => {
     try {
       setLoading(true);
-      
+
       // Fetch orders
       const ordersRes = await AxiosInstance.get('/api/myapp/v1/order/');
       const ordersData = ordersRes.data?.data || [];
@@ -145,11 +769,11 @@ const AdminPage = () => {
       const completedOrders = ordersData.filter(order => order.status === 'delivered' || order.status === 'completed').length;
       const cancelledOrders = ordersData.filter(order => order.status === 'cancelled').length;
       const averageOrderValue = ordersData.length > 0 ? totalRevenue / ordersData.length : 0;
-      
+
       // Calculate average rating from reviews
       const validRatings = reviewsData.filter(review => review.rating !== null && review.rating !== undefined);
-      const averageRating = validRatings.length > 0 
-        ? validRatings.reduce((sum, review) => sum + parseFloat(review.rating), 0) / validRatings.length 
+      const averageRating = validRatings.length > 0
+        ? validRatings.reduce((sum, review) => sum + parseFloat(review.rating), 0) / validRatings.length
         : 0;
 
       setStats({
@@ -236,7 +860,7 @@ const AdminPage = () => {
 
   const getStatusColorFromStatus = (status) => {
     const statusMap = {
-      'delivered': 'blue',
+      'delivered': 'amber',
       'shipped': 'emerald',
       'processing': 'amber',
       'pending': 'amber',
@@ -260,7 +884,7 @@ const AdminPage = () => {
     const colors = {
       emerald: 'bg-emerald-500/20 text-emerald-400 border-emerald-500/30',
       amber: 'bg-amber-500/20 text-amber-400 border-amber-500/30',
-      blue: 'bg-blue-500/20 text-blue-400 border-blue-500/30',
+      blue: 'bg-amber-500/20 text-amber-400 border-amber-500/30',
       red: 'bg-red-500/20 text-red-400 border-red-500/30',
     };
     return colors[color] || colors.amber;
@@ -270,9 +894,9 @@ const AdminPage = () => {
     const stars = [];
     for (let i = 1; i <= 5; i++) {
       if (i <= rating) {
-        stars.push(<Star key={i} className="w-4 h-4 text-yellow-400 fill-yellow-400" />);
+        stars.push(<Star key={i} className="w-4 h-4 text-amber-400 fill-amber-400" />);
       } else if (i - 0.5 <= rating) {
-        stars.push(<Star key={i} className="w-4 h-4 text-yellow-400 fill-yellow-400 opacity-50" />);
+        stars.push(<Star key={i} className="w-4 h-4 text-amber-400 fill-amber-400 opacity-50" />);
       } else {
         stars.push(<Star key={i} className="w-4 h-4 text-slate-600" />);
       }
@@ -281,42 +905,42 @@ const AdminPage = () => {
   };
 
   const statsData = [
-    { 
-      title: 'Total Revenue', 
-      value: `Rs ${stats.totalRevenue.toLocaleString()}`, 
-      change: '+12.5%', 
-      icon: DollarSign, 
-      color: 'from-blue-500 to-blue-600', 
-      bgColor: 'from-blue-900/20 to-blue-950/30', 
-      borderColor: 'border-blue-700/30' 
+    {
+      title: 'Total Revenue',
+      value: `Rs ${stats.totalRevenue.toLocaleString()}`,
+      change: '+12.5%',
+      icon: DollarSign,
+      color: 'from-amber-500 to-yellow-500',
+      bgColor: 'from-amber-900/20 to-amber-950/30',
+      borderColor: 'border-amber-700/30'
     },
-    { 
-      title: 'Total Orders', 
-      value: stats.totalOrders.toString(), 
-      change: '+8.2%', 
-      icon: ShoppingCart, 
-      color: 'from-emerald-500 to-emerald-600', 
-      bgColor: 'from-emerald-900/20 to-emerald-950/30', 
+    {
+      title: 'Total Orders',
+      value: stats.totalOrders.toString(),
+      change: '+8.2%',
+      icon: ShoppingCart,
+      color: 'from-emerald-500 to-emerald-600',
+      bgColor: 'from-emerald-900/20 to-emerald-950/30',
       borderColor: 'border-emerald-700/30',
       subtitle: `${stats.pendingOrders} pending`
     },
-    { 
-      title: 'Customers', 
-      value: stats.customers.toString(), 
-      change: '+15.3%', 
-      icon: Users, 
-      color: 'from-purple-500 to-purple-600', 
-      bgColor: 'from-purple-900/20 to-purple-950/30', 
-      borderColor: 'border-purple-700/30' 
+    {
+      title: 'Customers',
+      value: stats.customers.toString(),
+      change: '+15.3%',
+      icon: Users,
+      color: 'from-orange-500 to-orange-600',
+      bgColor: 'from-orange-900/20 to-orange-950/30',
+      borderColor: 'border-orange-700/30'
     },
-    { 
-      title: 'Products', 
-      value: stats.products.toString(), 
-      change: '+4.1%', 
-      icon: Package, 
-      color: 'from-amber-500 to-amber-600', 
-      bgColor: 'from-amber-900/20 to-amber-950/30', 
-      borderColor: 'border-amber-700/30' 
+    {
+      title: 'Products',
+      value: stats.products.toString(),
+      change: '+4.1%',
+      icon: Package,
+      color: 'from-yellow-500 to-amber-600',
+      bgColor: 'from-yellow-900/20 to-yellow-950/30',
+      borderColor: 'border-yellow-700/30'
     },
   ];
 
@@ -325,15 +949,15 @@ const AdminPage = () => {
       title: 'Employees',
       value: stats.employees.toString(),
       icon: Users2,
-      color: 'from-indigo-500 to-indigo-600',
-      bgColor: 'from-indigo-900/20 to-indigo-950/30',
-      borderColor: 'border-indigo-700/30'
+      color: 'from-amber-500 to-orange-600',
+      bgColor: 'from-amber-900/20 to-orange-950/30',
+      borderColor: 'border-amber-700/30'
     },
     {
       title: 'Reviews',
       value: stats.reviews.toString(),
       icon: Star,
-      color: 'from-yellow-500 to-yellow-600',
+      color: 'from-yellow-500 to-amber-600',
       bgColor: 'from-yellow-900/20 to-yellow-950/30',
       borderColor: 'border-yellow-700/30',
       subtitle: `${stats.averageRating} avg rating`
@@ -342,33 +966,33 @@ const AdminPage = () => {
       title: 'Sales Products',
       value: stats.salesProducts.toString(),
       icon: Tag,
-      color: 'from-pink-500 to-pink-600',
-      bgColor: 'from-pink-900/20 to-pink-950/30',
-      borderColor: 'border-pink-700/30'
+      color: 'from-orange-500 to-red-500',
+      bgColor: 'from-orange-900/20 to-orange-950/30',
+      borderColor: 'border-orange-700/30'
     },
     {
       title: 'Categories',
       value: stats.categories.toString(),
       icon: Package,
-      color: 'from-cyan-500 to-cyan-600',
-      bgColor: 'from-cyan-900/20 to-cyan-950/30',
-      borderColor: 'border-cyan-700/30'
+      color: 'from-amber-500 to-yellow-600',
+      bgColor: 'from-amber-900/20 to-amber-950/30',
+      borderColor: 'border-amber-700/30'
     },
     {
       title: 'Completed Orders',
       value: stats.completedOrders.toString(),
       icon: CheckCircle,
-      color: 'from-green-500 to-green-600',
-      bgColor: 'from-green-900/20 to-green-950/30',
-      borderColor: 'border-green-700/30'
+      color: 'from-emerald-500 to-green-600',
+      bgColor: 'from-emerald-900/20 to-emerald-950/30',
+      borderColor: 'border-emerald-700/30'
     },
     {
       title: 'Pending Orders',
       value: stats.pendingOrders.toString(),
       icon: Clock,
-      color: 'from-orange-500 to-orange-600',
-      bgColor: 'from-orange-900/20 to-orange-950/30',
-      borderColor: 'border-orange-700/30'
+      color: 'from-amber-500 to-orange-600',
+      bgColor: 'from-amber-900/20 to-amber-950/30',
+      borderColor: 'border-amber-700/30'
     },
     {
       title: 'Cancelled Orders',
@@ -382,18 +1006,21 @@ const AdminPage = () => {
       title: 'Avg. Order Value',
       value: `Rs ${Math.round(stats.averageOrderValue).toLocaleString()}`,
       icon: TrendingUp,
-      color: 'from-teal-500 to-teal-600',
-      bgColor: 'from-teal-900/20 to-teal-950/30',
-      borderColor: 'border-teal-700/30'
+      color: 'from-yellow-500 to-amber-600',
+      bgColor: 'from-yellow-900/20 to-yellow-950/30',
+      borderColor: 'border-yellow-700/30'
     }
   ];
 
   if (loading) {
     return (
       <div className="w-full min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 p-6 flex items-center justify-center">
-        <div className="text-center">
-          <div className="inline-block animate-spin rounded-full h-16 w-16 border-t-2 border-b-2 border-blue-500 mb-4"></div>
-          <p className="text-white text-lg">Loading dashboard data...</p>
+        <div className="flex flex-col items-center">
+          <div className="relative">
+            <div className="w-16 h-16 border-4 border-slate-700 border-t-amber-500 rounded-full animate-spin"></div>
+            <div className="absolute inset-0 w-16 h-16 border-4 border-transparent border-t-yellow-500 rounded-full animate-spin" style={{ animationDirection: 'reverse', animationDuration: '1s' }}></div>
+          </div>
+          <p className="mt-6 text-slate-400 font-medium">Loading dashboard data...</p>
         </div>
       </div>
     );
@@ -402,19 +1029,19 @@ const AdminPage = () => {
   return (
     <div className="w-full min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 p-6 overflow-auto">
       {/* Welcome Banner */}
-      <div className="bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 rounded-2xl p-6 mb-6 -mt-6 shadow-2xl shadow-blue-500/20 relative overflow-hidden">
+      <div className="bg-gradient-to-r from-amber-600 via-yellow-500 to-amber-600 rounded-2xl p-6 mb-6 -mt-6 shadow-2xl shadow-amber-500/20 relative overflow-hidden">
         <div className="absolute inset-0 bg-black/20"></div>
         <div className="relative z-10">
-          <h1 className="text-4xl font-bold text-white mb-3">Welcome to Admin Dashboard</h1>
-          <p className="text-white/90 text-lg mb-2">
+          <h1 className="text-4xl font-bold text-slate-900 mb-3">Welcome to Admin Dashboard</h1>
+          <p className="text-slate-900/90 text-lg mb-2 font-medium">
             Complete control over your E-Commerce platform
           </p>
-          <p className="text-white/80 text-sm">
+          <p className="text-slate-900/80 text-sm font-medium">
             Monitor sales, manage orders, and track your business growth in real-time
           </p>
         </div>
-        <div className="absolute -right-10 -bottom-10 w-40 h-40 bg-white/10 rounded-full blur-3xl"></div>
-        <div className="absolute -left-10 -top-10 w-40 h-40 bg-white/10 rounded-full blur-3xl"></div>
+        <div className="absolute -right-10 -bottom-10 w-40 h-40 bg-white/20 rounded-full blur-3xl"></div>
+        <div className="absolute -left-10 -top-10 w-40 h-40 bg-white/20 rounded-full blur-3xl"></div>
       </div>
 
       {/* Stats Grid */}
@@ -424,7 +1051,7 @@ const AdminPage = () => {
           return (
             <div
               key={index}
-              className={`bg-gradient-to-br ${stat.bgColor} backdrop-blur-sm border ${stat.borderColor} rounded-xl p-6 hover:border-opacity-60 transition-all duration-300 hover:transform hover:scale-105`}
+              className={`bg-gradient-to-br ${stat.bgColor} backdrop-blur-sm border ${stat.borderColor} rounded-xl p-6 hover:border-amber-500/60 transition-all duration-300 hover:transform hover:scale-105`}
             >
               <div className="flex items-center justify-between mb-4">
                 <span className="text-slate-400 text-sm font-medium">{stat.title}</span>
@@ -456,7 +1083,7 @@ const AdminPage = () => {
           return (
             <div
               key={index}
-              className={`bg-gradient-to-br ${stat.bgColor} backdrop-blur-sm border ${stat.borderColor} rounded-xl p-6 hover:border-opacity-60 transition-all duration-300 hover:transform hover:scale-105`}
+              className={`bg-gradient-to-br ${stat.bgColor} backdrop-blur-sm border ${stat.borderColor} rounded-xl p-6 hover:border-amber-500/60 transition-all duration-300 hover:transform hover:scale-105`}
             >
               <div className="flex items-center justify-between mb-4">
                 <span className="text-slate-400 text-sm font-medium">{stat.title}</span>
@@ -480,14 +1107,14 @@ const AdminPage = () => {
       {/* Main Content Grid */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
         {/* Sales Overview Chart */}
-        <div className="bg-gradient-to-br from-slate-800/40 to-slate-900/40 backdrop-blur-sm border border-slate-700/50 rounded-xl p-6 hover:border-slate-600/60 transition-all">
+        <div className="bg-gradient-to-br from-slate-800/40 to-slate-900/40 backdrop-blur-sm border border-slate-700/50 rounded-xl p-6 hover:border-amber-500/40 transition-all">
           <div className="flex items-center justify-between mb-6">
             <div>
               <h2 className="text-2xl font-bold text-white mb-1">Sales Overview</h2>
               <p className="text-slate-400 text-sm">Monthly revenue trend</p>
             </div>
-            <div className="p-3 bg-gradient-to-br from-blue-600 to-purple-600 rounded-lg shadow-lg">
-              <TrendingUp className="w-6 h-6 text-white" />
+            <div className="p-3 bg-gradient-to-br from-amber-500 to-yellow-500 rounded-lg shadow-lg shadow-amber-500/25">
+              <TrendingUp className="w-6 h-6 text-slate-900" />
             </div>
           </div>
           <div className="h-72">
@@ -496,14 +1123,14 @@ const AdminPage = () => {
         </div>
 
         {/* Recent Orders */}
-        <div className="bg-gradient-to-br from-slate-800/40 to-slate-900/40 backdrop-blur-sm border border-slate-700/50 rounded-xl p-6 hover:border-slate-600/60 transition-all">
+        <div className="bg-gradient-to-br from-slate-800/40 to-slate-900/40 backdrop-blur-sm border border-slate-700/50 rounded-xl p-6 hover:border-amber-500/40 transition-all">
           <div className="flex items-center justify-between mb-6">
             <div>
               <h2 className="text-2xl font-bold text-white mb-1">Recent Orders</h2>
               <p className="text-slate-400 text-sm">Latest customer transactions</p>
             </div>
-            <div className="p-3 bg-gradient-to-br from-emerald-600 to-emerald-700 rounded-lg shadow-lg">
-              <ShoppingCart className="w-6 h-6 text-white" />
+            <div className="p-3 bg-gradient-to-br from-amber-600 to-yellow-500 rounded-lg shadow-lg shadow-amber-500/25">
+              <ShoppingCart className="w-6 h-6 text-slate-900" />
             </div>
           </div>
 
@@ -518,11 +1145,11 @@ const AdminPage = () => {
                 return (
                   <div
                     key={order.id}
-                    className="bg-slate-900/50 border border-slate-700/30 rounded-lg p-4 hover:border-slate-600/50 transition-all hover:bg-slate-800/50"
+                    className="bg-slate-900/50 border border-slate-700/30 rounded-lg p-4 hover:border-amber-500/50 transition-all hover:bg-slate-800/50"
                   >
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-4 flex-1">
-                        <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-purple-600 rounded-lg flex items-center justify-center flex-shrink-0">
+                        <div className="w-10 h-10 bg-gradient-to-br from-amber-500 to-orange-600 rounded-lg flex items-center justify-center flex-shrink-0 shadow-lg shadow-amber-500/20">
                           <span className="text-white font-bold text-sm">#{order.id}</span>
                         </div>
                         <div className="flex-1 min-w-0">
@@ -548,21 +1175,21 @@ const AdminPage = () => {
             )}
           </div>
 
-          <button className="w-full mt-4 py-3 bg-slate-800/50 hover:bg-slate-700/50 border border-slate-700/50 hover:border-slate-600/50 text-white rounded-lg transition-all font-medium">
+          <button className="w-full mt-4 py-3 bg-slate-800/50 hover:bg-slate-700/50 border border-slate-700/50 hover:border-amber-500/50 text-white rounded-lg transition-all font-medium">
             View All Orders
           </button>
         </div>
       </div>
 
       {/* Recent Reviews Section */}
-      <div className="bg-gradient-to-br from-slate-800/40 to-slate-900/40 backdrop-blur-sm border border-slate-700/50 rounded-xl p-6 hover:border-slate-600/60 transition-all mb-8">
+      <div className="bg-gradient-to-br from-slate-800/40 to-slate-900/40 backdrop-blur-sm border border-slate-700/50 rounded-xl p-6 hover:border-amber-500/40 transition-all mb-8">
         <div className="flex items-center justify-between mb-6">
           <div>
             <h2 className="text-2xl font-bold text-white mb-1">Recent Reviews</h2>
             <p className="text-slate-400 text-sm">Latest customer feedback</p>
           </div>
-          <div className="p-3 bg-gradient-to-br from-yellow-600 to-orange-600 rounded-lg shadow-lg">
-            <Star className="w-6 h-6 text-white" />
+          <div className="p-3 bg-gradient-to-br from-amber-500 to-yellow-500 rounded-lg shadow-lg shadow-amber-500/25">
+            <Star className="w-6 h-6 text-slate-900" />
           </div>
         </div>
 
@@ -575,7 +1202,7 @@ const AdminPage = () => {
             recentReviews.map((review) => (
               <div
                 key={review.id}
-                className="bg-slate-900/50 border border-slate-700/30 rounded-lg p-4 hover:border-slate-600/50 transition-all hover:bg-slate-800/50"
+                className="bg-slate-900/50 border border-slate-700/30 rounded-lg p-4 hover:border-amber-500/50 transition-all hover:bg-slate-800/50"
               >
                 <div className="flex items-start justify-between">
                   <div className="flex-1">
@@ -583,7 +1210,7 @@ const AdminPage = () => {
                       <span className="text-white font-semibold">{review.customer}</span>
                       <div className="flex items-center gap-1">
                         {renderStars(review.rating)}
-                        <span className="text-yellow-400 text-sm ml-1">{review.rating}</span>
+                        <span className="text-amber-400 text-sm ml-1">{review.rating}</span>
                       </div>
                     </div>
                     <p className="text-slate-300 text-sm mb-1">{review.comment}</p>
