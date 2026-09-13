@@ -352,18 +352,6 @@ const NavbarCom = ({ isSticky = false }) => {
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
-  const handleLogout = async () => {
-    console.log('Logout button clicked from navbar');
-    try {
-      await logout();
-      setIsDropdownOpen(false);
-      router.push('/login');
-      router.refresh();
-    } catch (error) {
-      console.error('Logout error:', error);
-    }
-  };
-
   // Get user initials for avatar
   const getUserInitials = () => {
     if (!user) return 'U';
@@ -398,7 +386,7 @@ const NavbarCom = ({ isSticky = false }) => {
 
   return (
     <nav className={`w-full bg-gradient-to-r from-gray-900 via-black to-gray-900 backdrop-blur-md shadow-[0_3px_10px_rgba(0,0,0,0.4)] transition-all duration-300 ${
-      isSticky ? 'fixed top-0 left-0 right-0 z-50 shadow-2xl' : 'relative'
+      isSticky ? 'fixed top-0 left-0 right-0 z-50 shadow-2xl' : 'relative z-40'
     }`}>
       <div className="container mx-auto flex justify-between items-center py-2 px-8">
         {/* Brand Name */}
@@ -523,7 +511,7 @@ const NavbarCom = ({ isSticky = false }) => {
 
                 {/* Dropdown Menu */}
                 {isDropdownOpen && (
-                  <div className="absolute right-0 mt-2 w-64 bg-gray-900 border border-amber-500/30 rounded-lg shadow-2xl overflow-hidden animate-fadeIn z-50">
+                  <div className="absolute right-0 mt-2 w-64 bg-gray-900 border border-amber-500/30 rounded-lg shadow-2xl overflow-hidden animate-fadeIn z-[60]">
                     {/* User Info */}
                     <div className="px-4 py-3 border-b border-gray-800 bg-gradient-to-r from-gray-900 to-gray-800">
                       <p className="text-sm font-semibold text-amber-400 truncate">
@@ -598,41 +586,12 @@ const NavbarCom = ({ isSticky = false }) => {
                         </span>
                       </Link>
                     </div>
-
-                    {/* Logout Button */}
-                    <div className="border-t border-gray-800">
-                      <button
-                        onClick={handleLogout}
-                        className="w-full text-left px-4 py-2 text-sm text-red-400 hover:bg-gray-800 hover:text-red-300 transition-colors duration-200"
-                      >
-                        <span className="flex items-center space-x-2">
-                          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
-                          </svg>
-                          <span>Logout</span>
-                        </span>
-                      </button>
-                    </div>
+                    {/* Logout is handled in TopNavbar */}
                   </div>
                 )}
               </div>
-            ) : (
-              // Not logged in - Show Login/Signup buttons
-              <div className="flex items-center space-x-3">
-                <Link 
-                  href="/login"
-                  className="px-4 py-2 text-sm font-medium text-amber-400 hover:text-amber-300 transition-colors duration-300"
-                >
-                  Login
-                </Link>
-                <Link 
-                  href="/signup"
-                  className="px-4 py-2 text-sm font-medium bg-gradient-to-r from-amber-500 to-yellow-600 text-white rounded-lg hover:from-amber-600 hover:to-yellow-700 transition-all duration-300 shadow-lg hover:shadow-xl"
-                >
-                  Sign Up
-                </Link>
-              </div>
-            )}
+            ) : null}
+            {/* When not logged in, show nothing (Login/Signup buttons are in TopNavbar) */}
           </div>
         </div>
       </div>

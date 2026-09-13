@@ -85,14 +85,14 @@
 import Link from 'next/link';
 import React, { useState, useContext } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faPhone, faSignInAlt, faUserPlus, faSignOutAlt } from '@fortawesome/free-solid-svg-icons';
+import { faPhone, faSignInAlt, faUserPlus, faSignOutAlt, faUser } from '@fortawesome/free-solid-svg-icons';
 import { useRouter } from 'next/navigation';
 import { AuthContext } from '@/components/AuthContext';
 
 const TopNavbarCom = ({ visible }) => {
   const router = useRouter();
   const [isLoggingOut, setIsLoggingOut] = useState(false);
-  const { isAuthenticated, logout: authLogout } = useContext(AuthContext);
+  const { isAuthenticated, user, logout: authLogout } = useContext(AuthContext);
 
   const handleLogout = async () => {
     setIsLoggingOut(true);
@@ -107,8 +107,22 @@ const TopNavbarCom = ({ visible }) => {
     }
   };
 
+  // Get user display name
+  const getDisplayName = () => {
+    if (!user) return 'User';
+    
+    if (user.full_name) {
+      return user.full_name;
+    } else if (user.first_name && user.last_name) {
+      return `${user.first_name} ${user.last_name}`;
+    } else if (user.username) {
+      return user.username;
+    }
+    return 'User';
+  };
+
   return (
-    <div className={`bg-gradient-to-r from-gray-900 via-black to-gray-900 text-white shadow-md transition-all duration-300 ${
+    <div className={`bg-gradient-to-r from-gray-900 via-black to-gray-900 text-white shadow-md transition-all duration-300 relative z-30 ${
       visible ? 'translate-y-0 opacity-100' : '-translate-y-full opacity-0'
     }`}>
       <div className="container mx-auto flex justify-between items-center py-1.5 px-5 text-xs">
@@ -123,17 +137,29 @@ const TopNavbarCom = ({ visible }) => {
         {/* Right Section */}
         <div className="flex items-center space-x-3 font-medium">
           {isAuthenticated ? (
-            <button
-              onClick={handleLogout}
-              disabled={isLoggingOut}
-              className={`flex items-center gap-1.5 transition-all duration-300 px-3 py-0.5 rounded-full 
-                bg-gradient-to-r from-red-500 to-red-700 text-white hover:shadow-[0_0_8px_rgba(255,0,0,0.5)] 
-                hover:scale-105 active:scale-95
-                ${isLoggingOut ? 'opacity-50 cursor-not-allowed' : ''}`}
-            >
-              <FontAwesomeIcon icon={faSignOutAlt} className="h-3 w-3" />
-              <span>{isLoggingOut ? '...' : 'Logout'}</span>
-            </button>
+            <>
+              {/* Account Link when logged in */}
+              <Link href="/profile">
+                <div className="flex items-center gap-1.5 px-3 py-0.5 rounded-full bg-gradient-to-r from-amber-500 to-yellow-600 
+                  hover:shadow-[0_0_8px_rgba(251,191,36,0.5)] hover:scale-105 active:scale-95 transition-all duration-300 cursor-pointer">
+                  <FontAwesomeIcon icon={faUser} className="h-3 w-3" />
+                  <span>{getDisplayName()}</span>
+                </div>
+              </Link>
+
+              {/* Logout Button */}
+              <button
+                onClick={handleLogout}
+                disabled={isLoggingOut}
+                className={`flex items-center gap-1.5 transition-all duration-300 px-3 py-0.5 rounded-full 
+                  bg-gradient-to-r from-red-500 to-red-700 text-white hover:shadow-[0_0_8px_rgba(255,0,0,0.5)] 
+                  hover:scale-105 active:scale-95
+                  ${isLoggingOut ? 'opacity-50 cursor-not-allowed' : ''}`}
+              >
+                <FontAwesomeIcon icon={faSignOutAlt} className="h-3 w-3" />
+                <span>{isLoggingOut ? '...' : 'Logout'}</span>
+              </button>
+            </>
           ) : (
             <>
               <Link href="/login">
