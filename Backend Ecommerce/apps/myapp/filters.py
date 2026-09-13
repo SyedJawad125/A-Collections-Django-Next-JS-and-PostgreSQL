@@ -667,7 +667,7 @@ from django_filters import FilterSet, CharFilter, DateFilter, BooleanFilter, Num
 from django.db.models import Q, F
 
 from .models import (
-    Category, ProductTag, Product, Color, ProductVariant, SalesProductColor, SalesProductVariant, 
+    Category, ProductTag, Product, Color, ProductVariant, SalesProductColor, SalesProductVariant,
     SalesInventory, Inventory, SalesProduct, Order, OrderDetail, Contact, Review,
     Address, ShippingMethod, Coupon, Cart, CartItem,
     Wishlist, WishlistItem, ReturnRequest, Payment,
@@ -832,7 +832,6 @@ class PublicColorFilter(FilterSet):
         fields = ['id', 'name']
 
 
-
 # ============================================================================
 # PRODUCT VARIANT
 # ============================================================================
@@ -855,12 +854,13 @@ class ProductVariantFilter(FilterSet):
         model  = ProductVariant
         fields = {'size': ['exact'], 'is_active': ['exact']}
 
+
 class PublicProductVariantFilter(FilterSet):
     """
     Public filter for ProductVariant.
     Accepts BOTH ?product= and ?product_id= so the frontend can use either.
     """
-    product     = CharFilter(field_name='product__id')   # ← alias
+    product     = CharFilter(field_name='product__id')
     product_id  = CharFilter(field_name='product__id')
     size        = CharFilter(field_name='size', lookup_expr='iexact')
     colors      = CharFilter(field_name='colors__name', lookup_expr='icontains')
@@ -876,7 +876,6 @@ class PublicProductVariantFilter(FilterSet):
         if value:
             return queryset.filter(stock_quantity__gt=0, is_active=True)
         return queryset
-
 
 
 # ============================================================================
@@ -915,7 +914,7 @@ class PublicInventoryFilter(FilterSet):
     Accepts BOTH ?product= and ?product_id= (both scope via product_variant__product).
     Also accepts ?variant_id= / ?product_variant=.
     """
-    product         = CharFilter(field_name='product_variant__product__id')  # ← alias
+    product         = CharFilter(field_name='product_variant__product__id')
     product_id      = CharFilter(field_name='product_variant__product__id')
     variant_id      = CharFilter(field_name='product_variant__id')
     product_variant = CharFilter(field_name='product_variant__id')
@@ -933,24 +932,25 @@ class PublicInventoryFilter(FilterSet):
             return queryset.filter(current_stock__gt=0)
         return queryset
 
+
 # ============================================================================
 # SALES PRODUCT
 # ============================================================================
 
 class SalesProductFilter(FilterSet):
-    id                = CharFilter(field_name='id')
-    name              = CharFilter(field_name='name', lookup_expr='icontains')
+    id                 = CharFilter(field_name='id')
+    name               = CharFilter(field_name='name', lookup_expr='icontains')
     min_original_price = NumberFilter(field_name='original_price', lookup_expr='gte')
     max_original_price = NumberFilter(field_name='original_price', lookup_expr='lte')
-    min_final_price   = NumberFilter(field_name='final_price', lookup_expr='gte')
-    max_final_price   = NumberFilter(field_name='final_price', lookup_expr='lte')
-    min_discount      = NumberFilter(field_name='discount_percent', lookup_expr='gte')
-    max_discount      = NumberFilter(field_name='discount_percent', lookup_expr='lte')
-    has_discount      = BooleanFilter(method='filter_has_discount')
-    category          = CharFilter(field_name='salesprod_has_category__id')
-    category_name     = CharFilter(field_name='salesprod_has_category__name', lookup_expr='icontains')
-    date_from         = DateFilter(field_name='created_at', lookup_expr='gte')
-    date_to           = DateFilter(field_name='created_at', lookup_expr='lte')
+    min_final_price    = NumberFilter(field_name='final_price', lookup_expr='gte')
+    max_final_price    = NumberFilter(field_name='final_price', lookup_expr='lte')
+    min_discount       = NumberFilter(field_name='discount_percent', lookup_expr='gte')
+    max_discount       = NumberFilter(field_name='discount_percent', lookup_expr='lte')
+    has_discount       = BooleanFilter(method='filter_has_discount')
+    category           = CharFilter(field_name='salesprod_has_category__id')
+    category_name      = CharFilter(field_name='salesprod_has_category__name', lookup_expr='icontains')
+    date_from          = DateFilter(field_name='created_at', lookup_expr='gte')
+    date_to            = DateFilter(field_name='created_at', lookup_expr='lte')
 
     class Meta:
         model   = SalesProduct
@@ -991,23 +991,37 @@ class SalesProductColorFilter(FilterSet):
         fields = '__all__'
 
 
+class PublicSalesProductColorFilter(FilterSet):
+    id        = CharFilter(field_name='id')
+    name      = CharFilter(field_name='name', lookup_expr='icontains')
+    date_from = DateFilter(field_name='created_at', lookup_expr='gte')
+    date_to   = DateFilter(field_name='created_at', lookup_expr='lte')
+
+    class Meta:
+        model  = SalesProductColor
+        fields = [
+            'id',
+            'name',
+        ]
+
+
 # ============================================================================
 # SALES PRODUCT VARIANT
 # ============================================================================
 
 class SalesProductVariantFilter(FilterSet):
-    id                  = CharFilter(field_name='id')
-    salesproduct_id     = CharFilter(field_name='salesproduct__id')
-    salesproduct_name   = CharFilter(field_name='salesproduct__name', lookup_expr='icontains')
-    size                = CharFilter(field_name='size', lookup_expr='iexact')
-    colors              = CharFilter(field_name='colors__name', lookup_expr='icontains')
-    material            = CharFilter(field_name='material', lookup_expr='icontains')
-    sku                 = CharFilter(field_name='sku', lookup_expr='icontains')
-    min_stock           = NumberFilter(field_name='stock_quantity', lookup_expr='gte')
-    max_stock           = NumberFilter(field_name='stock_quantity', lookup_expr='lte')
-    is_active           = BooleanFilter(field_name='is_active')
-    date_from           = DateFilter(field_name='created_at', lookup_expr='gte')
-    date_to             = DateFilter(field_name='created_at', lookup_expr='lte')
+    id                = CharFilter(field_name='id')
+    salesproduct_id   = CharFilter(field_name='salesproduct__id')
+    salesproduct_name = CharFilter(field_name='salesproduct__name', lookup_expr='icontains')
+    size              = CharFilter(field_name='size', lookup_expr='iexact')
+    colors            = CharFilter(field_name='colors__name', lookup_expr='icontains')
+    material          = CharFilter(field_name='material', lookup_expr='icontains')
+    sku               = CharFilter(field_name='sku', lookup_expr='icontains')
+    min_stock         = NumberFilter(field_name='stock_quantity', lookup_expr='gte')
+    max_stock         = NumberFilter(field_name='stock_quantity', lookup_expr='lte')
+    is_active         = BooleanFilter(field_name='is_active')
+    date_from         = DateFilter(field_name='created_at', lookup_expr='gte')
+    date_to           = DateFilter(field_name='created_at', lookup_expr='lte')
 
     class Meta:
         model  = SalesProductVariant
@@ -1036,17 +1050,17 @@ class PublicSalesProductVariantFilter(FilterSet):
 # ============================================================================
 
 class SalesInventoryFilter(FilterSet):
-    id                  = CharFilter(field_name='id')
-    salesproduct_id     = CharFilter(field_name='sales_product_variant__salesproduct__id')
-    salesproduct_name   = CharFilter(field_name='sales_product_variant__salesproduct__name', lookup_expr='icontains')
-    variant_id          = CharFilter(field_name='sales_product_variant__id')
-    variant_sku         = CharFilter(field_name='sales_product_variant__sku', lookup_expr='icontains')
-    min_stock           = NumberFilter(field_name='current_stock', lookup_expr='gte')
-    max_stock           = NumberFilter(field_name='current_stock', lookup_expr='lte')
-    is_low_stock        = BooleanFilter(method='filter_is_low_stock')
-    needs_reorder       = BooleanFilter(method='filter_needs_reorder')
-    date_from           = DateFilter(field_name='created_at', lookup_expr='gte')
-    date_to             = DateFilter(field_name='created_at', lookup_expr='lte')
+    id                = CharFilter(field_name='id')
+    salesproduct_id   = CharFilter(field_name='sales_product_variant__salesproduct__id')
+    salesproduct_name = CharFilter(field_name='sales_product_variant__salesproduct__name', lookup_expr='icontains')
+    variant_id        = CharFilter(field_name='sales_product_variant__id')
+    variant_sku       = CharFilter(field_name='sales_product_variant__sku', lookup_expr='icontains')
+    min_stock         = NumberFilter(field_name='current_stock', lookup_expr='gte')
+    max_stock         = NumberFilter(field_name='current_stock', lookup_expr='lte')
+    is_low_stock      = BooleanFilter(method='filter_is_low_stock')
+    needs_reorder     = BooleanFilter(method='filter_needs_reorder')
+    date_from         = DateFilter(field_name='created_at', lookup_expr='gte')
+    date_to           = DateFilter(field_name='created_at', lookup_expr='lte')
 
     class Meta:
         model  = SalesInventory
@@ -1061,18 +1075,54 @@ class SalesInventoryFilter(FilterSet):
                else queryset.filter(current_stock__gt=F('reorder_point'))
 
 
-class PublicSalesProductFilter(FilterSet):
-    id            = CharFilter(field_name='id')
-    name          = CharFilter(field_name='name', lookup_expr='icontains')
-    min_price     = NumberFilter(field_name='final_price', lookup_expr='gte')
-    max_price     = NumberFilter(field_name='final_price', lookup_expr='lte')
-    min_discount  = NumberFilter(field_name='discount_percent', lookup_expr='gte')
-    category      = CharFilter(field_name='salesprod_has_category__id')
-    category_name = CharFilter(field_name='salesprod_has_category__name', lookup_expr='icontains')
+class PublicSalesInventoryFilter(FilterSet):
+
+    id                = CharFilter(field_name='id')
+    salesproduct_id   = CharFilter(field_name='sales_product_variant__salesproduct__id')
+    salesproduct_name = CharFilter(field_name='sales_product_variant__salesproduct__name', lookup_expr='icontains')
+    variant_id        = CharFilter(field_name='sales_product_variant__id')
+    variant_sku       = CharFilter(field_name='sales_product_variant__sku', lookup_expr='icontains')
+    size              = CharFilter(field_name='sales_product_variant__size', lookup_expr='iexact')
+    material          = CharFilter(field_name='sales_product_variant__material', lookup_expr='icontains')
+    min_stock         = NumberFilter(field_name='current_stock', lookup_expr='gte')
+    max_stock         = NumberFilter(field_name='current_stock', lookup_expr='lte')
+    is_low_stock      = BooleanFilter(method='filter_is_low_stock')
+    needs_reorder     = BooleanFilter(method='filter_needs_reorder')
+    in_stock          = BooleanFilter(method='filter_in_stock')
+    date_from         = DateFilter(field_name='created_at', lookup_expr='gte')
+    date_to           = DateFilter(field_name='created_at', lookup_expr='lte')
 
     class Meta:
-        model  = SalesProduct
-        fields = ['id', 'name', 'category']
+        model = SalesInventory
+        fields = [
+            'id',
+            'salesproduct_id',
+            'salesproduct_name',
+            'variant_id',
+            'variant_sku',
+            'size',
+            'material',
+            'min_stock',
+            'max_stock',
+            'is_low_stock',
+            'needs_reorder',
+            'in_stock',
+        ]
+
+    def filter_is_low_stock(self, queryset, name, value):
+        if value:
+            return queryset.filter(current_stock__lte=F('minimum_stock_level'))
+        return queryset.filter(current_stock__gt=F('minimum_stock_level'))
+
+    def filter_needs_reorder(self, queryset, name, value):
+        if value:
+            return queryset.filter(current_stock__lte=F('reorder_point'))
+        return queryset.filter(current_stock__gt=F('reorder_point'))
+
+    def filter_in_stock(self, queryset, name, value):
+        if value:
+            return queryset.filter(current_stock__gt=0, sales_product_variant__is_active=True)
+        return queryset
 
 
 class SalesProductDropdownFilter(FilterSet):
@@ -1096,14 +1146,14 @@ class DropDownListSalesProductFilter(FilterSet):
 
 
 # ============================================================================
-# ADDRESS  ── NEW
+# ADDRESS
 # ============================================================================
 
 class AddressFilter(FilterSet):
-    id                = CharFilter(field_name='id')
-    label             = CharFilter(field_name='label', lookup_expr='iexact')
-    city              = CharFilter(field_name='city',  lookup_expr='icontains')
-    delivery_address  = CharFilter(field_name='delivery_address', lookup_expr='icontains')
+    id               = CharFilter(field_name='id')
+    label            = CharFilter(field_name='label', lookup_expr='iexact')
+    city             = CharFilter(field_name='city', lookup_expr='icontains')
+    delivery_address = CharFilter(field_name='delivery_address', lookup_expr='icontains')
 
     class Meta:
         model  = Address
@@ -1111,7 +1161,7 @@ class AddressFilter(FilterSet):
 
 
 # ============================================================================
-# SHIPPING METHOD  ── NEW
+# SHIPPING METHOD
 # ============================================================================
 
 class ShippingMethodFilter(FilterSet):
@@ -1125,7 +1175,7 @@ class ShippingMethodFilter(FilterSet):
 
 
 # ============================================================================
-# COUPON  ── NEW
+# COUPON
 # ============================================================================
 
 class CouponFilter(FilterSet):
@@ -1134,7 +1184,7 @@ class CouponFilter(FilterSet):
     discount_type = CharFilter(field_name='discount_type', lookup_expr='iexact')
     is_active     = BooleanFilter(field_name='is_active')
     date_from     = DateFilter(field_name='valid_from', lookup_expr='gte')
-    date_to       = DateFilter(field_name='valid_to',   lookup_expr='lte')
+    date_to       = DateFilter(field_name='valid_to', lookup_expr='lte')
     search        = CharFilter(method='filter_search')
 
     class Meta:
@@ -1150,22 +1200,22 @@ class CouponFilter(FilterSet):
 # ============================================================================
 
 class OrderFilter(FilterSet):
-    id              = CharFilter(field_name='id')
-    customer_id     = CharFilter(field_name='customer__id')
-    customer_name   = CharFilter(field_name='customer_name',  lookup_expr='icontains')
-    customer_email  = CharFilter(field_name='customer_email', lookup_expr='icontains')
-    customer_phone  = CharFilter(field_name='customer_phone', lookup_expr='icontains')
-    city            = CharFilter(field_name='city', lookup_expr='icontains')
-    status          = ChoiceFilter(field_name='status',         choices=Order.STATUS_CHOICES)
-    payment_method  = ChoiceFilter(field_name='payment_method', choices=Order.PAYMENT_CHOICES)
-    payment_status  = BooleanFilter(field_name='payment_status')
-    rider_id        = CharFilter(field_name='rider__id')
-    min_bill        = NumberFilter(field_name='bill', lookup_expr='gte')
-    max_bill        = NumberFilter(field_name='bill', lookup_expr='lte')
-    date_from       = DateFilter(field_name='created_at',   lookup_expr='gte')
-    date_to         = DateFilter(field_name='created_at',   lookup_expr='lte')
-    delivery_from   = DateFilter(field_name='delivery_date', lookup_expr='gte')
-    delivery_to     = DateFilter(field_name='delivery_date', lookup_expr='lte')
+    id             = CharFilter(field_name='id')
+    customer_id    = CharFilter(field_name='customer__id')
+    customer_name  = CharFilter(field_name='customer_name', lookup_expr='icontains')
+    customer_email = CharFilter(field_name='customer_email', lookup_expr='icontains')
+    customer_phone = CharFilter(field_name='customer_phone', lookup_expr='icontains')
+    city           = CharFilter(field_name='city', lookup_expr='icontains')
+    status         = ChoiceFilter(field_name='status', choices=Order.STATUS_CHOICES)
+    payment_method = ChoiceFilter(field_name='payment_method', choices=Order.PAYMENT_CHOICES)
+    payment_status = BooleanFilter(field_name='payment_status')
+    rider_id       = CharFilter(field_name='rider__id')
+    min_bill       = NumberFilter(field_name='bill', lookup_expr='gte')
+    max_bill       = NumberFilter(field_name='bill', lookup_expr='lte')
+    date_from      = DateFilter(field_name='created_at', lookup_expr='gte')
+    date_to        = DateFilter(field_name='created_at', lookup_expr='lte')
+    delivery_from  = DateFilter(field_name='delivery_date', lookup_expr='gte')
+    delivery_to    = DateFilter(field_name='delivery_date', lookup_expr='lte')
 
     class Meta:
         model  = Order
@@ -1193,25 +1243,25 @@ class OrderSearchFilter(FilterSet):
 
     def multi_field_search(self, queryset, name, value):
         return queryset.filter(
-            Q(id__icontains=value)                 |
-            Q(customer_name__icontains=value)      |
-            Q(customer_email__icontains=value)     |
-            Q(customer_phone__icontains=value)     |
-            Q(delivery_address__icontains=value)   |
+            Q(id__icontains=value)               |
+            Q(customer_name__icontains=value)    |
+            Q(customer_email__icontains=value)   |
+            Q(customer_phone__icontains=value)   |
+            Q(delivery_address__icontains=value) |
             Q(city__icontains=value)
         ).distinct()
 
 
 # ============================================================================
-# PAYMENT  ── NEW
+# PAYMENT
 # ============================================================================
 
 class PaymentFilter(FilterSet):
     id              = CharFilter(field_name='id')
     order_id        = CharFilter(field_name='order__id')
-    status          = CharFilter(field_name='status',          lookup_expr='iexact')
+    status          = CharFilter(field_name='status', lookup_expr='iexact')
     payment_gateway = CharFilter(field_name='payment_gateway', lookup_expr='icontains')
-    transaction_id  = CharFilter(field_name='transaction_id',  lookup_expr='icontains')
+    transaction_id  = CharFilter(field_name='transaction_id', lookup_expr='icontains')
     date_from       = DateFilter(field_name='paid_at', lookup_expr='gte')
     date_to         = DateFilter(field_name='paid_at', lookup_expr='lte')
 
@@ -1221,7 +1271,7 @@ class PaymentFilter(FilterSet):
 
 
 # ============================================================================
-# CART  ── NEW
+# CART
 # ============================================================================
 
 class CartFilter(FilterSet):
@@ -1234,7 +1284,7 @@ class CartFilter(FilterSet):
 
 
 # ============================================================================
-# WISHLIST  ── NEW
+# WISHLIST
 # ============================================================================
 
 class WishlistFilter(FilterSet):
@@ -1247,30 +1297,15 @@ class WishlistFilter(FilterSet):
 
 
 # ============================================================================
-# RETURN REQUEST  ── NEW
+# RETURN REQUEST
 # ============================================================================
+
 class AdminReturnRequestFilter(django_filters.FilterSet):
-    status = django_filters.CharFilter(
-        field_name='status',
-        lookup_expr='exact'
-    )
-
-    reason = django_filters.CharFilter(
-        field_name='reason',
-        lookup_expr='exact'
-    )
-
-    order = django_filters.NumberFilter(
-        field_name='order_id'
-    )
-
-    order_detail = django_filters.NumberFilter(
-        field_name='order_detail_id'
-    )
-
-    customer = django_filters.NumberFilter(
-        field_name='order__customer_id'
-    )
+    status       = django_filters.CharFilter(field_name='status', lookup_expr='exact')
+    reason       = django_filters.CharFilter(field_name='reason', lookup_expr='exact')
+    order        = django_filters.NumberFilter(field_name='order_id')
+    order_detail = django_filters.NumberFilter(field_name='order_detail_id')
+    customer     = django_filters.NumberFilter(field_name='order__customer_id')
 
     class Meta:
         model = ReturnRequest
@@ -1282,24 +1317,12 @@ class AdminReturnRequestFilter(django_filters.FilterSet):
             'customer',
         ]
 
+
 class CustomerReturnRequestFilter(django_filters.FilterSet):
-    status = django_filters.CharFilter(
-        field_name='status',
-        lookup_expr='exact'
-    )
-
-    reason = django_filters.CharFilter(
-        field_name='reason',
-        lookup_expr='exact'
-    )
-
-    order = django_filters.NumberFilter(
-        field_name='order_id'
-    )
-
-    order_detail = django_filters.NumberFilter(
-        field_name='order_detail_id'
-    )
+    status       = django_filters.CharFilter(field_name='status', lookup_expr='exact')
+    reason       = django_filters.CharFilter(field_name='reason', lookup_expr='exact')
+    order        = django_filters.NumberFilter(field_name='order_id')
+    order_detail = django_filters.NumberFilter(field_name='order_detail_id')
 
     class Meta:
         model = ReturnRequest
@@ -1309,14 +1332,16 @@ class CustomerReturnRequestFilter(django_filters.FilterSet):
             'order',
             'order_detail',
         ]
+
+
 # ============================================================================
 # CONTACT
 # ============================================================================
 
 class ContactFilter(FilterSet):
     id           = CharFilter(field_name='id')
-    name         = CharFilter(field_name='name',         lookup_expr='icontains')
-    email        = CharFilter(field_name='email',        lookup_expr='icontains')
+    name         = CharFilter(field_name='name', lookup_expr='icontains')
+    email        = CharFilter(field_name='email', lookup_expr='icontains')
     phone_number = CharFilter(field_name='phone_number', lookup_expr='icontains')
     date_from    = DateFilter(field_name='created_at', lookup_expr='gte')
     date_to      = DateFilter(field_name='created_at', lookup_expr='lte')
@@ -1348,18 +1373,18 @@ class PublicContactFilter(FilterSet):
 # ============================================================================
 
 class ReviewFilter(FilterSet):
-    id                = CharFilter(field_name='id')
-    name              = CharFilter(field_name='name',  lookup_expr='icontains')
-    email             = CharFilter(field_name='email', lookup_expr='icontains')
-    user_id           = CharFilter(field_name='user__id')
-    rating            = NumberFilter(field_name='rating')
-    min_rating        = NumberFilter(field_name='rating', lookup_expr='gte')
-    max_rating        = NumberFilter(field_name='rating', lookup_expr='lte')
-    product_id        = NumberFilter(field_name='product__id')
-    sales_product_id  = NumberFilter(field_name='sales_product__id')
-    date_from         = DateFilter(field_name='created_at', lookup_expr='gte')
-    date_to           = DateFilter(field_name='created_at', lookup_expr='lte')
-    search            = CharFilter(method='multi_field_search')
+    id               = CharFilter(field_name='id')
+    name             = CharFilter(field_name='name', lookup_expr='icontains')
+    email            = CharFilter(field_name='email', lookup_expr='icontains')
+    user_id          = CharFilter(field_name='user__id')
+    rating           = NumberFilter(field_name='rating')
+    min_rating       = NumberFilter(field_name='rating', lookup_expr='gte')
+    max_rating       = NumberFilter(field_name='rating', lookup_expr='lte')
+    product_id       = NumberFilter(field_name='product__id')
+    sales_product_id = NumberFilter(field_name='sales_product__id')
+    date_from        = DateFilter(field_name='created_at', lookup_expr='gte')
+    date_to          = DateFilter(field_name='created_at', lookup_expr='lte')
+    search           = CharFilter(method='multi_field_search')
 
     class Meta:
         model  = Review
