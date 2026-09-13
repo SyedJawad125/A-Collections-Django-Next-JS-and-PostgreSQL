@@ -1344,7 +1344,390 @@ const ProductDetailsCom = () => {
 
   /* ---------------- render ---------------- */
 
-  return (
+//   return (
+//   <div className="min-h-screen bg-gray-50">
+//     <nav className="bg-white shadow-sm py-4 px-8 flex justify-between items-center">
+//       <button
+//         onClick={handleBackButton}
+//         className="flex items-center text-gray-700 hover:text-gold-600 transition-colors"
+//       >
+//         <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+//           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+//         </svg>
+//         Back to Products
+//       </button>
+//     </nav>
+
+//     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-12 py-12 -mt-8">
+//       {/* ============ Product card ============ */}
+//       <div className="bg-white rounded-xl shadow-lg overflow-hidden">
+//         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
+//           {/* Images */}
+//           <div className="p-8">
+//             <div className="relative h-96 w-full mb-6 rounded-xl overflow-hidden bg-gray-100 flex items-center justify-center">
+//               {mainImage ? (
+//                 <img
+//                   src={mainImage}
+//                   alt={product.name}
+//                   className="object-contain w-full h-full transition-transform duration-500 hover:scale-105"
+//                   onError={(e) => { e.target.onerror = null; e.target.src = '/images/default-product.jpg'; }}
+//                 />
+//               ) : (
+//                 <div className="bg-gray-200 w-full h-full flex items-center justify-center text-gray-500">
+//                   <span>No image available</span>
+//                 </div>
+//               )}
+//             </div>
+
+//             {product.processedImageUrls?.length > 1 && (
+//               <div className="flex space-x-3 overflow-x-auto py-2 scrollbar-hide">
+//                 {product.processedImageUrls.map((imgUrl, index) => (
+//                   <div
+//                     key={index}
+//                     onClick={() => setMainImage(imgUrl)}
+//                     className={`flex-shrink-0 w-20 h-20 border-2 rounded-lg overflow-hidden cursor-pointer transition-all ${
+//                       mainImage === imgUrl ? 'border-gold-500 shadow-md' : 'border-gray-200 hover:border-gray-300'
+//                     }`}
+//                   >
+//                     <img
+//                       src={imgUrl}
+//                       alt={`Thumbnail ${index + 1}`}
+//                       className="object-cover w-full h-full"
+//                       onError={(e) => { e.target.onerror = null; e.target.src = '/images/default-product.jpg'; }}
+//                     />
+//                   </div>
+//                 ))}
+//               </div>
+//             )}
+//           </div>
+
+//           {/* Details */}
+//           <div className="p-8 flex flex-col justify-center -mt-8">
+//             <div className="mb-6">
+//               <span className="text-sm font-medium text-gold-600 uppercase tracking-wider">Premium Product</span>
+//               <h1 className="text-3xl font-serif font-bold text-gray-900 mt-2">{product.name}</h1>
+//             </div>
+
+//             <div className="flex items-center mb-6">
+//               <div className="flex items-center">
+//                 {renderStars(Math.round(averageRating))}
+//                 <span className="text-gray-600 ml-2">({reviews.length} reviews)</span>
+//               </div>
+//               <span className="ml-4 text-sm text-gray-500">|</span>
+//               <span className="ml-4 text-sm text-gray-500">SKU: {product.sku || product.id}</span>
+//               {product.category && (
+//                 <>
+//                   <span className="ml-4 text-sm text-gray-500">|</span>
+//                   <span className="ml-4 text-sm text-gray-500">Category: {product.category}</span>
+//                 </>
+//               )}
+//             </div>
+
+//             <div className="mb-8">
+//               <p className="text-gray-700 leading-relaxed">{product.description}</p>
+//             </div>
+
+//             <div className="mb-8">
+//               <div className="flex items-center">
+//                 <span className="text-3xl font-serif font-bold text-gray-900">
+//                   PKR {parseFloat(product.final_price || 0).toLocaleString()}
+//                 </span>
+//                 {product.original_price && parseFloat(product.original_price) > parseFloat(product.final_price) && (
+//                   <>
+//                     <span className="ml-3 text-lg text-gray-500 line-through">
+//                       PKR {parseFloat(product.original_price).toLocaleString()}
+//                     </span>
+//                     <span className="ml-3 px-2 py-1 bg-red-100 text-red-800 text-xs font-medium rounded">
+//                       SAVE {product.discount_percent || Math.round(((product.original_price - product.final_price) / product.original_price) * 100)}%
+//                     </span>
+//                   </>
+//                 )}
+//               </div>
+//             </div>
+
+//             {/* Quantity */}
+//             <div className="mb-8">
+//               <h3 className="text-xs font-semibold tracking-[0.2em] text-gray-500 uppercase mb-4">Quantity</h3>
+//               <div className="inline-flex items-center h-10 rounded-full border border-amber-200 bg-gradient-to-r from-amber-50 via-white to-amber-50 p-0.5 shadow-sm">
+//                 <button
+//                   onClick={decreaseQuantity}
+//                   aria-label="Decrease quantity"
+//                   className="group w-9 h-9 rounded-full flex items-center justify-center text-gray-600 transition-all hover:bg-amber-600 hover:text-white active:scale-90"
+//                 >
+//                   <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}>
+//                     <path strokeLinecap="round" strokeLinejoin="round" d="M20 12H4" />
+//                   </svg>
+//                 </button>
+//                 <div className="min-w-[52px] px-2 text-center">
+//                   <span className="text-base font-semibold tracking-wide text-gray-900">{quantity}</span>
+//                 </div>
+//                 <button
+//                   onClick={increaseQuantity}
+//                   aria-label="Increase quantity"
+//                   className="group w-9 h-9 rounded-full flex items-center justify-center text-gray-600 transition-all hover:bg-amber-600 hover:text-white active:scale-90"
+//                 >
+//                   <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}>
+//                     <path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" />
+//                   </svg>
+//                 </button>
+//               </div>
+//             </div>
+
+//             {/* Variants */}
+//             {!variantLoading && productVariants.length > 0 && (
+//               <div className="mb-8">
+//                 <h3 className="text-sm font-medium text-gray-900 uppercase mb-3">Variants</h3>
+//                 <div className="space-y-3">
+//                   {productVariants.map((variant) => {
+//                     const stock = getStockStatus(variant.id);
+//                     const selected = selectedVariant?.id === variant.id;
+//                     return (
+//                       <div
+//                         key={variant.id}
+//                         onClick={() => handleVariantSelect(variant)}
+//                         className={`p-4 border-2 rounded-lg cursor-pointer transition-all ${
+//                           selected ? 'border-black bg-gray-50' : 'border-gray-200 hover:border-gray-300'
+//                         }`}
+//                       >
+//                         <div className="flex justify-between items-start">
+//                           <div>
+//                             <div className="font-medium text-gray-900">
+//                               {variant.size && <span className="mr-2">Size: {variant.size}</span>}
+//                               {variant.material && <span>Material: {variant.material}</span>}
+//                             </div>
+//                             {variant.additional_price && parseFloat(variant.additional_price) > 0 && (
+//                               <div className="text-sm text-gray-600">
+//                                 +PKR {parseFloat(variant.additional_price).toLocaleString()}
+//                               </div>
+//                             )}
+//                           </div>
+//                           {stock && (
+//                             <div className={`text-sm font-medium ${
+//                               stock.color === 'red' ? 'text-red-600' :
+//                               stock.color === 'orange' ? 'text-orange-600' : 'text-green-600'
+//                             }`}>
+//                               {stock.text}
+//                             </div>
+//                           )}
+//                         </div>
+//                       </div>
+//                     );
+//                   })}
+//                 </div>
+//               </div>
+//             )}
+
+//             {/* Colors */}
+//             {selectedVariant && availableColors.length > 0 && (
+//               <div className="mb-8">
+//                 <h3 className="text-sm font-medium text-gray-900 uppercase mb-3">Available Colors</h3>
+//                 <div className="flex flex-wrap gap-3">
+//                   {availableColors.map((color) => {
+//                     const isSel = selectedColor?.id === color.id;
+//                     return (
+//                       <div
+//                         key={color.id}
+//                         onClick={() => setSelectedColor(color)}
+//                         className={`relative w-10 h-10 rounded-full cursor-pointer transition-all ${
+//                           isSel ? 'ring-2 ring-offset-2 ring-black scale-110' : 'hover:scale-105'
+//                         }`}
+//                         style={{ backgroundColor: color.hex_code || color.code || color.name, border: '1px solid #e5e7eb' }}
+//                         title={color.name}
+//                       >
+//                         {isSel && (
+//                           <div className="absolute inset-0 flex items-center justify-center">
+//                             <svg className="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 20 20">
+//                               <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+//                             </svg>
+//                           </div>
+//                         )}
+//                       </div>
+//                     );
+//                   })}
+//                 </div>
+//                 {selectedColor && (
+//                   <p className="mt-2 text-sm text-gray-600">Selected: {selectedColor.name}</p>
+//                 )}
+//               </div>
+//             )}
+
+//             {/* Selected variant stock badge */}
+//             {selectedVariant && (() => {
+//               const stock = getStockStatus(selectedVariant.id);
+//               if (!stock) return null;
+//               return (
+//                 <div className="mb-8">
+//                   <div className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium ${
+//                     stock.color === 'red' ? 'bg-red-100 text-red-800' :
+//                     stock.color === 'orange' ? 'bg-orange-100 text-orange-800' :
+//                     'bg-green-100 text-green-800'
+//                   }`}>
+//                     {stock.text}
+//                   </div>
+//                 </div>
+//               );
+//             })()}
+
+//             <button
+//               onClick={handleAddToCart}
+//               className="w-full bg-black text-white py-4 rounded-lg font-medium hover:bg-gray-800 transition-colors mb-6"
+//             >
+//               Add to Cart
+//             </button>
+
+//             <div className="mb-8">
+//               <h3 className="text-sm font-medium text-gray-900 uppercase mb-3">Details</h3>
+//               <ul className="space-y-2 text-gray-700">
+//                 {['Premium quality material', 'Authentic craftsmanship', 'Fast shipping available'].map((t) => (
+//                   <li key={t} className="flex items-center">
+//                     <svg className="w-4 h-4 mr-2 text-gold-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+//                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7" />
+//                     </svg>
+//                     {t}
+//                   </li>
+//                 ))}
+//               </ul>
+//             </div>
+//           </div>
+//         </div>
+//       </div>
+
+//       {/* ============ Featured products slider (You May Also Like) ============ */}
+//       {featuredProducts.length > 0 && (
+//         <div className="mt-12">
+//           <div className="flex justify-between items-center mb-6">
+//             <h2 className="text-2xl font-serif font-bold text-gray-900">You May Also Like</h2>
+//             <div className="flex space-x-2">
+//               <button
+//                 onClick={() => scrollToItem('left')}
+//                 className="w-10 h-10 rounded-full border border-gray-300 flex items-center justify-center hover:bg-gray-100 transition-colors"
+//               >
+//                 <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+//                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+//                 </svg>
+//               </button>
+//               <button
+//                 onClick={() => scrollToItem('right')}
+//                 className="w-10 h-10 rounded-full border border-gray-300 flex items-center justify-center hover:bg-gray-100 transition-colors"
+//               >
+//                 <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+//                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+//                 </svg>
+//               </button>
+//             </div>
+//           </div>
+//           <div
+//             ref={sliderRef}
+//             className="flex space-x-6 overflow-x-auto pb-4 scrollbar-hide"
+//             onMouseEnter={() => setIsHovered(true)}
+//             onMouseLeave={() => setIsHovered(false)}
+//           >
+//             {featuredProducts.map((fp) => (
+//               <div
+//                 key={fp.id}
+//                 onClick={() => router.push(`/productdetailpage?ProductId=${fp.id}`)}
+//                 className="flex-shrink-0 w-60 bg-white rounded-xl shadow-sm overflow-hidden cursor-pointer transform transition-all hover:shadow-lg hover:-translate-y-1"
+//               >
+//                 <div className="relative h-64 w-full">
+//                   <img
+//                     src={fp.mainImage}
+//                     alt={fp.name}
+//                     className="object-cover w-full h-full"
+//                     onError={(e) => { e.target.onerror = null; e.target.src = '/images/default-product.jpg'; }}
+//                   />
+//                 </div>
+//                 <div className="p-4">
+//                   <h3 className="font-medium text-gray-900 mb-2 truncate">{fp.name}</h3>
+//                   <p className="text-gold-600 font-bold">
+//                     PKR {parseFloat(fp.final_price || fp.price || 0).toLocaleString()}
+//                   </p>
+//                 </div>
+//               </div>
+//             ))}
+//           </div>
+//         </div>
+//       )}
+
+//       {/* ============ Reviews (LAST) ============ */}
+//       <div className="mt-12 bg-white rounded-xl shadow-lg p-8">
+//         <h2 className="text-2xl font-serif font-bold text-gray-900 mb-6">Customer Reviews</h2>
+
+//         <div className="mb-8 p-6 bg-gray-50 rounded-lg">
+//           <h3 className="text-lg font-medium text-gray-900 mb-4">Write a Review</h3>
+//           <div className="mb-4">
+//             <label className="block text-sm font-medium text-gray-700 mb-2">Rating</label>
+//             <div className="flex">{renderStars(newReview.rating, true)}</div>
+//           </div>
+//           <div className="mb-4">
+//             <label className="block text-sm font-medium text-gray-700 mb-2">Name</label>
+//             <input
+//               type="text" name="name" value={newReview.name} onChange={handleReviewChange}
+//               className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gold-500 focus:border-transparent"
+//               placeholder="Your name"
+//             />
+//           </div>
+//           <div className="mb-4">
+//             <label className="block text-sm font-medium text-gray-700 mb-2">Email (optional)</label>
+//             <input
+//               type="email" name="email" value={newReview.email} onChange={handleReviewChange}
+//               className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gold-500 focus:border-transparent"
+//               placeholder="your@email.com"
+//             />
+//           </div>
+//           <div className="mb-4">
+//             <label className="block text-sm font-medium text-gray-700 mb-2">Review</label>
+//             <textarea
+//               name="comment" value={newReview.comment} onChange={handleReviewChange} rows="4"
+//               className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gold-500 focus:border-transparent"
+//               placeholder="Share your thoughts about this product..."
+//             />
+//           </div>
+//           <button
+//             onClick={submitReview}
+//             className="px-6 py-2 bg-black text-white rounded-lg hover:bg-gray-800 transition-colors"
+//           >
+//             Submit Review
+//           </button>
+//         </div>
+
+//         {reviewLoading ? (
+//           <div className="flex justify-center items-center py-8">
+//             <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-gold-500" />
+//           </div>
+//         ) : reviews.length > 0 ? (
+//           <div className="space-y-6">
+//             {reviews.map((review) => (
+//               <div key={review.id} className="border-b border-gray-200 pb-6 last:border-b-0">
+//                 <div className="flex items-center mb-2">
+//                   {renderStars(review.rating)}
+//                   <span className="ml-2 text-sm text-gray-500">{formatDate(review.created_at)}</span>
+//                 </div>
+//                 <p className="font-medium text-gray-900 mb-1">{review.name}</p>
+//                 <p className="text-gray-700">{review.comment}</p>
+//               </div>
+//             ))}
+//           </div>
+//         ) : (
+//           <p className="text-gray-500 text-center py-8">No reviews yet. Be the first to review this product!</p>
+//         )}
+//       </div>
+//     </div>
+
+//     <ToastContainer position="bottom-right" />
+//   </div>
+// );
+
+
+
+
+// };
+
+// export default ProductDetailsCom;
+
+
+
+
+return (
   <div className="min-h-screen bg-gray-50">
     <nav className="bg-white shadow-sm py-4 px-8 flex justify-between items-center">
       <button
@@ -1402,191 +1785,177 @@ const ProductDetailsCom = () => {
           </div>
 
           {/* Details */}
-          <div className="p-8 flex flex-col justify-center -mt-8">
-            <div className="mb-6">
-              <span className="text-sm font-medium text-gold-600 uppercase tracking-wider">Premium Product</span>
-              <h1 className="text-3xl font-serif font-bold text-gray-900 mt-2">{product.name}</h1>
-            </div>
-
-            <div className="flex items-center mb-6">
-              <div className="flex items-center">
-                {renderStars(Math.round(averageRating))}
-                <span className="text-gray-600 ml-2">({reviews.length} reviews)</span>
+          <div className="p-8 flex flex-col">
+            <div className="lg:sticky lg:top-6">
+              <div className="mb-3">
+                <span className="text-sm font-medium text-gold-600 uppercase tracking-wider">Premium Product</span>
+                <h1 className="text-2xl font-serif font-bold text-gray-900 mt-1">{product.name}</h1>
               </div>
-              <span className="ml-4 text-sm text-gray-500">|</span>
-              <span className="ml-4 text-sm text-gray-500">SKU: {product.sku || product.id}</span>
-              {product.category && (
-                <>
-                  <span className="ml-4 text-sm text-gray-500">|</span>
-                  <span className="ml-4 text-sm text-gray-500">Category: {product.category}</span>
-                </>
-              )}
-            </div>
 
-            <div className="mb-8">
-              <p className="text-gray-700 leading-relaxed">{product.description}</p>
-            </div>
-
-            <div className="mb-8">
-              <div className="flex items-center">
-                <span className="text-3xl font-serif font-bold text-gray-900">
-                  PKR {parseFloat(product.final_price || 0).toLocaleString()}
-                </span>
-                {product.original_price && parseFloat(product.original_price) > parseFloat(product.final_price) && (
+              <div className="flex items-center flex-wrap mb-3">
+                <div className="flex items-center">
+                  {renderStars(Math.round(averageRating))}
+                  <span className="text-gray-600 ml-2 text-sm">({reviews.length} reviews)</span>
+                </div>
+                <span className="ml-4 text-sm text-gray-500">|</span>
+                <span className="ml-4 text-sm text-gray-500">SKU: {product.sku || product.id}</span>
+                {product.category && (
                   <>
-                    <span className="ml-3 text-lg text-gray-500 line-through">
-                      PKR {parseFloat(product.original_price).toLocaleString()}
-                    </span>
-                    <span className="ml-3 px-2 py-1 bg-red-100 text-red-800 text-xs font-medium rounded">
-                      SAVE {product.discount_percent || Math.round(((product.original_price - product.final_price) / product.original_price) * 100)}%
-                    </span>
+                    <span className="ml-4 text-sm text-gray-500">|</span>
+                    <span className="ml-4 text-sm text-gray-500">Category: {product.category}</span>
                   </>
                 )}
               </div>
-            </div>
 
-            {/* Quantity */}
-            <div className="mb-8">
-              <h3 className="text-xs font-semibold tracking-[0.2em] text-gray-500 uppercase mb-4">Quantity</h3>
-              <div className="inline-flex items-center h-10 rounded-full border border-amber-200 bg-gradient-to-r from-amber-50 via-white to-amber-50 p-0.5 shadow-sm">
-                <button
-                  onClick={decreaseQuantity}
-                  aria-label="Decrease quantity"
-                  className="group w-9 h-9 rounded-full flex items-center justify-center text-gray-600 transition-all hover:bg-amber-600 hover:text-white active:scale-90"
-                >
-                  <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}>
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M20 12H4" />
-                  </svg>
-                </button>
-                <div className="min-w-[52px] px-2 text-center">
-                  <span className="text-base font-semibold tracking-wide text-gray-900">{quantity}</span>
-                </div>
-                <button
-                  onClick={increaseQuantity}
-                  aria-label="Increase quantity"
-                  className="group w-9 h-9 rounded-full flex items-center justify-center text-gray-600 transition-all hover:bg-amber-600 hover:text-white active:scale-90"
-                >
-                  <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}>
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" />
-                  </svg>
-                </button>
-              </div>
-            </div>
+              <p className="text-gray-700 leading-relaxed mb-4 line-clamp-3">{product.description}</p>
 
-            {/* Variants */}
-            {!variantLoading && productVariants.length > 0 && (
-              <div className="mb-8">
-                <h3 className="text-sm font-medium text-gray-900 uppercase mb-3">Variants</h3>
-                <div className="space-y-3">
-                  {productVariants.map((variant) => {
-                    const stock = getStockStatus(variant.id);
-                    const selected = selectedVariant?.id === variant.id;
-                    return (
-                      <div
-                        key={variant.id}
-                        onClick={() => handleVariantSelect(variant)}
-                        className={`p-4 border-2 rounded-lg cursor-pointer transition-all ${
-                          selected ? 'border-black bg-gray-50' : 'border-gray-200 hover:border-gray-300'
-                        }`}
-                      >
-                        <div className="flex justify-between items-start">
-                          <div>
-                            <div className="font-medium text-gray-900">
-                              {variant.size && <span className="mr-2">Size: {variant.size}</span>}
-                              {variant.material && <span>Material: {variant.material}</span>}
-                            </div>
-                            {variant.additional_price && parseFloat(variant.additional_price) > 0 && (
-                              <div className="text-sm text-gray-600">
-                                +PKR {parseFloat(variant.additional_price).toLocaleString()}
-                              </div>
-                            )}
-                          </div>
-                          {stock && (
-                            <div className={`text-sm font-medium ${
-                              stock.color === 'red' ? 'text-red-600' :
-                              stock.color === 'orange' ? 'text-orange-600' : 'text-green-600'
-                            }`}>
-                              {stock.text}
-                            </div>
-                          )}
-                        </div>
-                      </div>
-                    );
-                  })}
+              {/* Price */}
+              <div className="mb-4">
+                <div className="flex items-center flex-wrap gap-2">
+                  <span className="text-2xl font-serif font-bold text-gray-900">
+                    PKR {parseFloat(product.final_price || 0).toLocaleString()}
+                  </span>
+                  {product.original_price && parseFloat(product.original_price) > parseFloat(product.final_price) && (
+                    <>
+                      <span className="text-base text-gray-500 line-through">
+                        PKR {parseFloat(product.original_price).toLocaleString()}
+                      </span>
+                      <span className="px-2 py-1 bg-red-100 text-red-800 text-xs font-medium rounded">
+                        SAVE {product.discount_percent || Math.round(((product.original_price - product.final_price) / product.original_price) * 100)}%
+                      </span>
+                    </>
+                  )}
                 </div>
               </div>
-            )}
 
-            {/* Colors */}
-            {selectedVariant && availableColors.length > 0 && (
-              <div className="mb-8">
-                <h3 className="text-sm font-medium text-gray-900 uppercase mb-3">Available Colors</h3>
-                <div className="flex flex-wrap gap-3">
-                  {availableColors.map((color) => {
-                    const isSel = selectedColor?.id === color.id;
-                    return (
-                      <div
-                        key={color.id}
-                        onClick={() => setSelectedColor(color)}
-                        className={`relative w-10 h-10 rounded-full cursor-pointer transition-all ${
-                          isSel ? 'ring-2 ring-offset-2 ring-black scale-110' : 'hover:scale-105'
-                        }`}
-                        style={{ backgroundColor: color.hex_code || color.code || color.name, border: '1px solid #e5e7eb' }}
-                        title={color.name}
-                      >
-                        {isSel && (
-                          <div className="absolute inset-0 flex items-center justify-center">
-                            <svg className="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 20 20">
-                              <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                            </svg>
-                          </div>
-                        )}
-                      </div>
-                    );
-                  })}
-                </div>
-                {selectedColor && (
-                  <p className="mt-2 text-sm text-gray-600">Selected: {selectedColor.name}</p>
-                )}
-              </div>
-            )}
-
-            {/* Selected variant stock badge */}
-            {selectedVariant && (() => {
-              const stock = getStockStatus(selectedVariant.id);
-              if (!stock) return null;
-              return (
-                <div className="mb-8">
-                  <div className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium ${
-                    stock.color === 'red' ? 'bg-red-100 text-red-800' :
-                    stock.color === 'orange' ? 'bg-orange-100 text-orange-800' :
-                    'bg-green-100 text-green-800'
-                  }`}>
-                    {stock.text}
+              {/* Quantity + Add to Cart moved up, always visible near the top */}
+              <div className="flex items-center gap-4 mb-4">
+                <div className="inline-flex items-center h-10 rounded-full border border-amber-200 bg-gradient-to-r from-amber-50 via-white to-amber-50 p-0.5 shadow-sm">
+                  <button
+                    onClick={decreaseQuantity}
+                    aria-label="Decrease quantity"
+                    className="group w-9 h-9 rounded-full flex items-center justify-center text-gray-600 transition-all hover:bg-amber-600 hover:text-white active:scale-90"
+                  >
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}>
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M20 12H4" />
+                    </svg>
+                  </button>
+                  <div className="min-w-[52px] px-2 text-center">
+                    <span className="text-base font-semibold tracking-wide text-gray-900">{quantity}</span>
                   </div>
+                  <button
+                    onClick={increaseQuantity}
+                    aria-label="Increase quantity"
+                    className="group w-9 h-9 rounded-full flex items-center justify-center text-gray-600 transition-all hover:bg-amber-600 hover:text-white active:scale-90"
+                  >
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}>
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" />
+                    </svg>
+                  </button>
                 </div>
-              );
-            })()}
+              </div>
 
-            <button
-              onClick={handleAddToCart}
-              className="w-full bg-black text-white py-4 rounded-lg font-medium hover:bg-gray-800 transition-colors mb-6"
-            >
-              Add to Cart
-            </button>
+              <button
+                onClick={handleAddToCart}
+                className="w-full bg-black text-white py-3 rounded-lg font-medium hover:bg-gray-800 transition-colors mb-4"
+              >
+                Add to Cart
+              </button>
 
-            <div className="mb-8">
-              <h3 className="text-sm font-medium text-gray-900 uppercase mb-3">Details</h3>
-              <ul className="space-y-2 text-gray-700">
+              {/* Details list - condensed to inline chips */}
+              <div className="mb-4 flex flex-wrap gap-2">
                 {['Premium quality material', 'Authentic craftsmanship', 'Fast shipping available'].map((t) => (
-                  <li key={t} className="flex items-center">
-                    <svg className="w-4 h-4 mr-2 text-gold-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <span key={t} className="inline-flex items-center px-2.5 py-1 bg-gray-100 rounded-full text-xs text-gray-700">
+                    <svg className="w-3 h-3 mr-1 text-gold-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7" />
                     </svg>
                     {t}
-                  </li>
+                  </span>
                 ))}
-              </ul>
+              </div>
+
+              {/* Variants */}
+              {!variantLoading && productVariants.length > 0 && (
+                <div className="mb-4">
+                  <h3 className="text-xs font-medium text-gray-900 uppercase mb-2">Variants</h3>
+                  <div className="flex flex-wrap gap-2">
+                    {productVariants.map((variant) => {
+                      const stock = getStockStatus(variant.id);
+                      const selected = selectedVariant?.id === variant.id;
+                      return (
+                        <button
+                          key={variant.id}
+                          onClick={() => handleVariantSelect(variant)}
+                          className={`px-3 py-1.5 border rounded-md text-xs transition-all ${
+                            selected ? 'border-black bg-gray-50 font-medium' : 'border-gray-200 hover:border-gray-300'
+                          }`}
+                        >
+                          {variant.size && <span className="mr-1">{variant.size}</span>}
+                          {variant.material}
+                          {variant.additional_price && parseFloat(variant.additional_price) > 0 && (
+                            <span className="text-gray-500"> (+PKR {parseFloat(variant.additional_price).toLocaleString()})</span>
+                          )}
+                          {stock && (
+                            <span className={`ml-1 ${
+                              stock.color === 'red' ? 'text-red-600' :
+                              stock.color === 'orange' ? 'text-orange-600' : 'text-green-600'
+                            }`}> · {stock.text}</span>
+                          )}
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+              )}
+
+              {/* Colors */}
+              {selectedVariant && availableColors.length > 0 && (
+                <div className="mb-2">
+                  <h3 className="text-xs font-medium text-gray-900 uppercase mb-2">Available Colors</h3>
+                  <div className="flex flex-wrap gap-2 items-center">
+                    {availableColors.map((color) => {
+                      const isSel = selectedColor?.id === color.id;
+                      return (
+                        <div
+                          key={color.id}
+                          onClick={() => setSelectedColor(color)}
+                          className={`relative w-7 h-7 rounded-full cursor-pointer transition-all ${
+                            isSel ? 'ring-2 ring-offset-1 ring-black scale-110' : 'hover:scale-105'
+                          }`}
+                          style={{ backgroundColor: color.hex_code || color.code || color.name, border: '1px solid #e5e7eb' }}
+                          title={color.name}
+                        >
+                          {isSel && (
+                            <div className="absolute inset-0 flex items-center justify-center">
+                              <svg className="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 20 20">
+                                <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                              </svg>
+                            </div>
+                          )}
+                        </div>
+                      );
+                    })}
+                    {selectedColor && <span className="text-xs text-gray-600">{selectedColor.name}</span>}
+                  </div>
+                </div>
+              )}
+
+              {/* Selected variant stock badge */}
+              {selectedVariant && (() => {
+                const stock = getStockStatus(selectedVariant.id);
+                if (!stock) return null;
+                return (
+                  <div className="mt-2">
+                    <div className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium ${
+                      stock.color === 'red' ? 'bg-red-100 text-red-800' :
+                      stock.color === 'orange' ? 'bg-orange-100 text-orange-800' :
+                      'bg-green-100 text-green-800'
+                    }`}>
+                      {stock.text}
+                    </div>
+                  </div>
+                );
+              })()}
             </div>
           </div>
         </div>

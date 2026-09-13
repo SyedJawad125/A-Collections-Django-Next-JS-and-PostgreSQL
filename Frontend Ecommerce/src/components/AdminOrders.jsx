@@ -211,467 +211,1505 @@ const Orders = () => {
     );
   }
 
-  return (
-    <div className="min-h-screen bg-gradient-to-b from-gray-900 to-gray-800 py-12 px-4 sm:px-6 lg:px-8">
-      <ToastContainer 
-        position="top-center"
-        autoClose={2000}
-        hideProgressBar
-        newestOnTop={false}
-        closeOnClick
-        rtl={false}
-        pauseOnFocusLoss
-        draggable
-        pauseOnHover
-        theme="dark"
-      />
+//   return (
+//     <div className="min-h-screen bg-gradient-to-b from-gray-900 to-gray-800 py-12 px-4 sm:px-6 lg:px-8">
+//       <ToastContainer 
+//         position="top-center"
+//         autoClose={2000}
+//         hideProgressBar
+//         newestOnTop={false}
+//         closeOnClick
+//         rtl={false}
+//         pauseOnFocusLoss
+//         draggable
+//         pauseOnHover
+//         theme="dark"
+//       />
       
-      <div className="max-w-7xl mx-auto">
-        {/* Header Section */}
-        <div className="backdrop-blur-2xl bg-gradient-to-br from-slate-900/90 via-slate-800/80 to-slate-900/90 rounded-3xl border border-amber-400/30 shadow-2xl shadow-amber-500/20 p-4 relative overflow-hidden mb-4 -mt-12">
+//       <div className="max-w-7xl mx-auto">
+//         {/* Header Section */}
+//         <div className="backdrop-blur-2xl bg-gradient-to-br from-slate-900/90 via-slate-800/80 to-slate-900/90 rounded-3xl border border-amber-400/30 shadow-2xl shadow-amber-500/20 p-4 relative overflow-hidden mb-4 -mt-12">
 
-          {/* Glow Background */}
-          <div className="absolute inset-0 rounded-3xl bg-gradient-to-r from-amber-500/20 via-yellow-500/20 to-amber-500/20 animate-pulse opacity-40"></div>
+//           {/* Glow Background */}
+//           <div className="absolute inset-0 rounded-3xl bg-gradient-to-r from-amber-500/20 via-yellow-500/20 to-amber-500/20 animate-pulse opacity-40"></div>
 
-            {/* Inner Glass Layer */}
-            <div className="absolute inset-[1px] rounded-3xl bg-gradient-to-br from-slate-900/95 to-slate-800/90 backdrop-blur-2xl"></div>
+//             {/* Inner Glass Layer */}
+//             <div className="absolute inset-[1px] rounded-3xl bg-gradient-to-br from-slate-900/95 to-slate-800/90 backdrop-blur-2xl"></div>
 
-            <div className="relative z-10">
-              <div className="flex flex-col md:flex-row justify-between items-start md:items-center">
+//             <div className="relative z-10">
+//               <div className="flex flex-col md:flex-row justify-between items-start md:items-center">
 
-                {/* Left Content */}
-                <div>
+//                 {/* Left Content */}
+//                 <div>
 
-                  {/* Icon */}
-                  <div className="inline-flex items-center justify-center w-12 h-12 bg-gradient-to-br from-amber-400 to-yellow-500 rounded-full shadow-2xl shadow-amber-500/50 mb-1">
-                    <svg
-                      className="w-6 h-6 text-slate-900"
-                      fill="currentColor"
-                      viewBox="0 0 20 20"
-                    >
-                      <path
-                        fillRule="evenodd"
-                        d="M2 5a2 2 0 012-2h12a2 2 0 012 2v10a2 2 0 01-2 2H4a2 2 0 01-2-2V5zm3 1a1 1 0 000 2h10a1 1 0 100-2H5zm0 4a1 1 0 100 2h6a1 1 0 100-2H5zm0 4a1 1 0 100 2h4a1 1 0 100-2H5z"
-                        clipRule="evenodd"
-                      />
-                    </svg>
-                  </div>
+//                   {/* Icon */}
+//                   <div className="inline-flex items-center justify-center w-12 h-12 bg-gradient-to-br from-amber-400 to-yellow-500 rounded-full shadow-2xl shadow-amber-500/50 mb-1">
+//                     <svg
+//                       className="w-6 h-6 text-slate-900"
+//                       fill="currentColor"
+//                       viewBox="0 0 20 20"
+//                     >
+//                       <path
+//                         fillRule="evenodd"
+//                         d="M2 5a2 2 0 012-2h12a2 2 0 012 2v10a2 2 0 01-2 2H4a2 2 0 01-2-2V5zm3 1a1 1 0 000 2h10a1 1 0 100-2H5zm0 4a1 1 0 100 2h6a1 1 0 100-2H5zm0 4a1 1 0 100 2h4a1 1 0 100-2H5z"
+//                         clipRule="evenodd"
+//                       />
+//                     </svg>
+//                   </div>
 
-                  {/* Heading */}
-                  <h1 className="text-3xl font-bold bg-gradient-to-r from-amber-300 via-yellow-400 to-amber-300 bg-clip-text text-transparent mb-2">
-                    ORDERS MANAGEMENT
-                  </h1>
+//                   {/* Heading */}
+//                   <h1 className="text-3xl font-bold bg-gradient-to-r from-amber-300 via-yellow-400 to-amber-300 bg-clip-text text-transparent mb-2">
+//                     ORDERS MANAGEMENT
+//                   </h1>
 
-                  {/* Underline */}
-                  <div className="w-80 h-1 bg-gradient-to-r from-amber-400 to-yellow-500 mb-2"></div>
+//                   {/* Underline */}
+//                   <div className="w-80 h-1 bg-gradient-to-r from-amber-400 to-yellow-500 mb-2"></div>
 
-                  {/* Description */}
-                  <p className="text-slate-400 text-sm">
-                    Manage and track customer orders
-                  </p>
+//                   {/* Description */}
+//                   <p className="text-slate-400 text-sm">
+//                     Manage and track customer orders
+//                   </p>
 
-                </div>
+//                 </div>
 
-              </div>
-            </div>
-          </div>
+//               </div>
+//             </div>
+//           </div>
         
-        {/* Stats and Search */}
-        <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 bg-gray-800/50 p-4 rounded-xl gap-4">
-          {permissions.create_order && (     
-            <button
-              className="px-6 py-3 bg-transparent border border-amber-500 text-amber-500 font-medium text-sm leading-tight uppercase rounded-full hover:bg-amber-500 hover:text-black focus:outline-none focus:ring-0 transition duration-150 ease-in-out transform hover:scale-105 flex items-center"
-              onClick={() => router.push('/admin/adminaddorder')}
-            >
-              <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-1" viewBox="0 0 20 20" fill="currentColor">
-                <path fillRule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clipRule="evenodd" />
-              </svg>
-              Add Order
-            </button>
-          )}
+//         {/* Stats and Search */}
+//         <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 bg-gray-800/50 p-4 rounded-xl gap-4">
+//           {permissions.create_order && (     
+//             <button
+//               className="px-6 py-3 bg-transparent border border-amber-500 text-amber-500 font-medium text-sm leading-tight uppercase rounded-full hover:bg-amber-500 hover:text-black focus:outline-none focus:ring-0 transition duration-150 ease-in-out transform hover:scale-105 flex items-center"
+//               onClick={() => router.push('/admin/adminaddorder')}
+//             >
+//               <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-1" viewBox="0 0 20 20" fill="currentColor">
+//                 <path fillRule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clipRule="evenodd" />
+//               </svg>
+//               Add Order
+//             </button>
+//           )}
 
-          <div className="text-amber-400 font-light">
-            Showing {orders.length} of {pagination.count} orders
-          </div>
+//           <div className="text-amber-400 font-light">
+//             Showing {orders.length} of {pagination.count} orders
+//           </div>
           
-          <div className="flex flex-col md:flex-row gap-4 w-full md:w-2/3">
-            <div className="relative w-full">
-              <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                <svg className="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+//           <div className="flex flex-col md:flex-row gap-4 w-full md:w-2/3">
+//             <div className="relative w-full">
+//               <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+//                 <svg className="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+//                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+//                 </svg>
+//               </div>
+//               <input
+//                 type="text"
+//                 placeholder="Search orders..."
+//                 value={searchTerm}
+//                 onChange={handleSearch}
+//                 className="w-full pl-10 pr-4 py-3 bg-gray-700 border border-gray-600 rounded-full focus:outline-none focus:ring-2 focus:ring-amber-500 text-white placeholder-gray-400 transition duration-300"
+//               />
+//             </div>
+            
+//             <div className="flex gap-2 items-center">
+//               <select 
+//                 value={pagination.limit}
+//                 onChange={handleLimitChange}
+//                 className="bg-gray-700 text-white rounded-full px-3 py-2 border border-gray-600 focus:outline-none focus:ring-amber-500"
+//               >
+//                 <option value="10">10 per page</option>
+//                 <option value="20">20 per page</option>
+//                 <option value="30">30 per page</option>
+//                 <option value="50">50 per page</option>
+//               </select>
+//             </div>
+//           </div>
+//         </div>
+
+//         {/* Loading State */}
+//         {isLoading && (
+//           <div className="space-y-6">
+//             {[...Array(pagination.limit)].map((_, index) => (
+//               <div key={index} className="animate-pulse bg-gray-800 rounded-xl p-6">
+//                 <div className="flex items-center space-x-4 mb-4">
+//                   <div className="h-10 w-10 bg-gray-700 rounded-full"></div>
+//                   <div className="space-y-2">
+//                     <div className="h-4 bg-gray-700 rounded w-32"></div>
+//                     <div className="h-3 bg-gray-700 rounded w-24"></div>
+//                   </div>
+//                 </div>
+//                 <div className="h-4 bg-gray-700 rounded w-16 mb-4"></div>
+//                 <div className="space-y-2">
+//                   <div className="h-3 bg-gray-700 rounded w-full"></div>
+//                   <div className="h-3 bg-gray-700 rounded w-5/6"></div>
+//                 </div>
+//               </div>
+//             ))}
+//           </div>
+//         )}
+
+//         {/* Orders List */}
+//         {!isLoading && (
+//           <>
+//             {orders.length > 0 ? (
+//               <div className="space-y-6">
+//                 {orders.map((order) => (
+//                   <div key={order.id} className="bg-gray-800/50 rounded-xl shadow-lg overflow-hidden">
+//                     {/* Hidden PDF content */}
+//                     <div style={{ position: 'absolute', left: '-9999px' }}>
+//                       <div
+//                         ref={(el) => (pdfRefs.current[order.id] = el)}
+//                         className="bg-white p-6 text-black"
+//                         style={{ width: '210mm', minHeight: '297mm' }}
+//                       >
+//                         <h1 className="text-2xl font-bold mb-4">Order #{order.id}</h1>
+//                         <div className="mb-6">
+//                           <h2 className="text-xl font-semibold border-b pb-2 mb-2">Customer Details</h2>
+//                           <p>Name: {order.customer_name || 'N/A'}</p>
+//                           <p>Email: {order.customer_email || 'N/A'}</p>
+//                           <p>Phone: {order.customer_phone || 'N/A'}</p>
+//                         </div>
+//                         <div className="mb-6">
+//                           <h2 className="text-xl font-semibold border-b pb-2 mb-2">Delivery Info</h2>
+//                           <p>Address: {order.delivery_address || 'N/A'}</p>
+//                           <p>City: {order.city || 'N/A'}</p>
+//                           <p>Delivery Date: {formatDate(order.delivery_date)}</p>
+//                         </div>
+//                         <div className="mb-6">
+//                           <h2 className="text-xl font-semibold border-b pb-2 mb-2">Payment Info</h2>
+//                           <p>Method: {order.payment_method || 'N/A'}</p>
+//                           <p>Total Bill: PKR {order.bill || order.total_amount || '0'}</p>
+//                           <p>Payment Status: {order.payment_status ? 'Paid' : 'Unpaid'}</p>
+//                           <p>Order Status: {order.status}</p>
+//                         </div>
+//                         <div className="mb-6">
+//                           <h2 className="text-xl font-semibold border-b pb-2 mb-2">Order Items ({order.items_count || 0})</h2>
+//                           <table className="w-full border-collapse">
+//                             <thead>
+//                               <tr className="bg-gray-200">
+//                                 <th className="border p-2">Item ID</th>
+//                                 <th className="border p-2">Product</th>
+//                                 <th className="border p-2">Type</th>
+//                                 <th className="border p-2">Unit Price</th>
+//                                 <th className="border p-2">Quantity</th>
+//                                 <th className="border p-2">Total</th>
+//                               </tr>
+//                             </thead>
+//                             <tbody>
+//                               {order.order_details?.map((item, index) => (
+//                                 <tr key={index} className={index % 2 === 0 ? 'bg-gray-100' : ''}>
+//                                   <td className="border p-2">{item.id}</td>
+//                                   <td className="border p-2">{item.product_name}</td>
+//                                   <td className="border p-2">{item.product_type}</td>
+//                                   <td className="border p-2">PKR {item.unit_price}</td>
+//                                   <td className="border p-2">{item.quantity}</td>
+//                                   <td className="border p-2">PKR {item.total_price}</td>
+//                                 </tr>
+//                               ))}
+//                             </tbody>
+//                           </table>
+//                         </div>
+//                         <div className="mt-8 text-right">
+//                           <p className="font-bold text-lg">Total Amount: PKR {order.total_amount || order.bill}</p>
+//                           <p className="mt-4">Generated on: {new Date().toLocaleDateString()}</p>
+//                         </div>
+//                       </div>
+//                     </div>
+
+//                     {/* Visible Order Card */}
+//                     <div className="p-6">
+//                       <div className="flex flex-col md:flex-row justify-between mb-4">
+//                         <div>
+//                           <h2 className="text-xl font-semibold text-white">Order #{order.id}</h2>
+//                           <p className="text-gray-400 text-sm">
+//                             Created: {formatDate(order.created_at)}
+//                           </p>
+//                         </div>
+//                         <div className="mt-4 md:mt-0 flex gap-2">
+//                           <span className={`px-3 py-1 rounded-full text-sm font-medium ${
+//                             order.status === 'pending' ? 'bg-yellow-500 text-black' :
+//                             order.status === 'completed' ? 'bg-green-500 text-white' :
+//                             'bg-gray-500 text-white'
+//                           }`}>
+//                             {order.status}
+//                           </span>
+//                           <span className={`px-3 py-1 rounded-full text-sm font-medium ${
+//                             order.payment_status ? 'bg-green-500 text-white' : 'bg-red-500 text-white'
+//                           }`}>
+//                             {order.payment_status ? 'Paid' : 'Unpaid'}
+//                           </span>
+//                         </div>
+//                       </div>
+
+//                       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-6">
+//                         <div className="bg-gray-700 p-4 rounded-lg">
+//                           <h3 className="text-lg font-medium text-white mb-2">Customer Details</h3>
+//                           <p className="text-gray-300">Name: {order.customer_name || order.customer_name_display || 'N/A'}</p>
+//                           <p className="text-gray-300">Email: {order.customer_email || 'N/A'}</p>
+//                           <p className="text-gray-300">Phone: {order.customer_phone || 'N/A'}</p>
+//                         </div>
+
+//                         <div className="bg-gray-700 p-4 rounded-lg">
+//                           <h3 className="text-lg font-medium text-white mb-2">Delivery Info</h3>
+//                           <p className="text-gray-300">Address: {order.delivery_address || 'N/A'}</p>
+//                           <p className="text-gray-300">City: {order.city || 'N/A'}</p>
+//                           <p className="text-gray-300">Delivery Date: {formatDate(order.delivery_date)}</p>
+//                           {order.rider_name && <p className="text-gray-300">Rider: {order.rider_name}</p>}
+//                         </div>
+
+//                         <div className="bg-gray-700 p-4 rounded-lg">
+//                           <h3 className="text-lg font-medium text-white mb-2">Payment Info</h3>
+//                           <p className="text-gray-300">Method: {order.payment_method || 'N/A'}</p>
+//                           <p className="text-gray-300">Bill Amount: PKR {order.bill || '0'}</p>
+//                           <p className="text-gray-300">Total Amount: PKR {order.total_amount || '0'}</p>
+//                           <p className="text-gray-300">Items: {order.items_count || 0}</p>
+//                         </div>
+//                       </div>
+
+//                       <div className="mb-6">
+//                         <h3 className="text-lg font-medium text-white mb-3">Order Items</h3>
+//                         <div className="overflow-x-auto">
+//                           <table className="min-w-full bg-gray-700 rounded-lg overflow-hidden">
+//                             <thead className="bg-gray-600">
+//                               <tr>
+//                                 <th className="px-4 py-3 text-left text-xs font-medium text-white uppercase tracking-wider">Item ID</th>
+//                                 <th className="px-4 py-3 text-left text-xs font-medium text-white uppercase tracking-wider">Product</th>
+//                                 <th className="px-4 py-3 text-left text-xs font-medium text-white uppercase tracking-wider">Type</th>
+//                                 <th className="px-4 py-3 text-left text-xs font-medium text-white uppercase tracking-wider">Unit Price</th>
+//                                 <th className="px-4 py-3 text-left text-xs font-medium text-white uppercase tracking-wider">Quantity</th>
+//                                 <th className="px-4 py-3 text-left text-xs font-medium text-white uppercase tracking-wider">Total</th>
+//                               </tr>
+//                             </thead>
+//                             <tbody className="divide-y divide-gray-600">
+//                               {order.order_details?.map((item, index) => (
+//                                 <tr key={index}>
+//                                   <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-300">{item.id}</td>
+//                                   <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-300">{item.product_name}</td>
+//                                   <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-300">
+//                                     <span className={`px-2 py-1 rounded text-xs ${
+//                                       item.product_type === 'product' ? 'bg-blue-500' : 'bg-purple-500'
+//                                     }`}>
+//                                       {item.product_type}
+//                                     </span>
+//                                   </td>
+//                                   <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-300">PKR {item.unit_price}</td>
+//                                   <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-300">{item.quantity}</td>
+//                                   <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-300">PKR {item.total_price}</td>
+//                                 </tr>
+//                               ))}
+//                             </tbody>
+//                           </table>
+//                         </div>
+//                       </div>
+
+//                       <div className="flex flex-wrap justify-end gap-3">
+//                         <button
+//                           onClick={() => handleDownloadPdf(order.id)}
+//                           className="relative overflow-hidden px-4 py-2 bg-gradient-to-r from-blue-600/30 to-blue-700/20 border border-blue-500/30 text-blue-300 rounded-lg hover:from-blue-600/40 hover:to-blue-700/30 transition-all duration-300 group flex items-center shadow-lg shadow-blue-500/10 hover:shadow-blue-500/20"
+//                         >
+//                           <span className="absolute inset-0 bg-gradient-to-r from-blue-500/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></span>
+//                           <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+//                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+//                           </svg>
+//                           <span className="relative z-10 font-medium">Download PDF</span>
+//                           <span className="absolute bottom-0 left-0 w-full h-0.5 bg-gradient-to-r from-blue-400 to-blue-600 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></span>
+//                         </button>
+
+//                         <button
+//                           onClick={() => handlePrint(order.id)}
+//                           className="relative overflow-hidden px-4 py-2 bg-gradient-to-r from-purple-600/30 to-purple-700/20 border border-purple-500/30 text-purple-300 rounded-lg hover:from-purple-600/40 hover:to-purple-700/30 transition-all duration-300 group flex items-center shadow-lg shadow-purple-500/10 hover:shadow-purple-500/20"
+//                         >
+//                           <span className="absolute inset-0 bg-gradient-to-r from-purple-500/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></span>
+//                           <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+//                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" />
+//                           </svg>
+//                           <span className="relative z-10 font-medium">Print</span>
+//                           <span className="absolute bottom-0 left-0 w-full h-0.5 bg-gradient-to-r from-purple-400 to-purple-600 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></span>
+//                         </button>
+
+//                         {permissions.update_order && (
+//                           <button
+//                             onClick={() => updateOrder(order.id)}
+//                             className="relative overflow-hidden px-4 py-2 bg-gradient-to-r from-amber-600/30 to-amber-700/20 border border-amber-500/30 text-amber-300 rounded-lg hover:from-amber-600/40 hover:to-amber-700/30 transition-all duration-300 group flex items-center shadow-lg shadow-amber-500/10 hover:shadow-amber-500/20"
+//                           >
+//                             <span className="absolute inset-0 bg-gradient-to-r from-amber-500/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></span>
+//                             <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+//                               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+//                             </svg>
+//                             <span className="relative z-10 font-medium">Edit Order</span>
+//                             <span className="absolute bottom-0 left-0 w-full h-0.5 bg-gradient-to-r from-amber-400 to-amber-600 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></span>
+//                           </button>
+//                         )}
+
+//                         {permissions.delete_order && (
+//                           <button
+//                             onClick={() => deleteOrder(order.id)}
+//                             className="relative overflow-hidden px-4 py-2 bg-gradient-to-r from-red-600/30 to-red-700/20 border border-red-500/30 text-red-300 rounded-lg hover:from-red-600/40 hover:to-red-700/30 transition-all duration-300 group flex items-center shadow-lg shadow-red-500/10 hover:shadow-red-500/20"
+//                           >
+//                             <span className="absolute inset-0 bg-gradient-to-r from-red-500/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></span>
+//                             <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+//                               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+//                             </svg>
+//                             <span className="relative z-10 font-medium">Delete</span>
+//                             <span className="absolute bottom-0 left-0 w-full h-0.5 bg-gradient-to-r from-red-400 to-red-600 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></span>
+//                           </button>
+//                         )}
+//                       </div>
+//                     </div>
+//                   </div>
+//                 ))}
+//               </div>
+//             ) : (
+//               <div className="text-center py-20">
+//                 <div className="mx-auto w-24 h-24 bg-gray-800 rounded-full flex items-center justify-center mb-6">
+//                   <svg className="h-12 w-12 text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+//                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1" d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+//                   </svg>
+//                 </div>
+//                 <h3 className="text-2xl font-light text-white mb-2">No orders found</h3>
+//                 <p className="text-gray-400 max-w-md mx-auto">
+//                   {searchTerm ? "No orders match your search." : "There are no orders to display."}
+//                 </p>
+//                 {searchTerm && (
+//                   <button
+//                     onClick={() => setSearchTerm('')}
+//                     className="mt-4 px-4 py-2 bg-amber-600 text-white rounded-lg hover:bg-amber-700 transition-colors"
+//                   >
+//                     Clear search
+//                   </button>
+//                 )}
+//               </div>
+//             )}
+//           </>
+//         )}
+
+//         {/* Enhanced Pagination */}
+//         {pagination.total_pages > 1 && (
+//           <div className="flex flex-col md:flex-row justify-between items-center mt-16 gap-4">
+//             <div className="text-gray-400 text-sm">
+//               Page {pagination.current_page} of {pagination.total_pages} • Total {pagination.count} orders
+//             </div>
+            
+//             <div className="flex items-center gap-2">
+//               <button
+//                 onClick={() => handlePageChange(1)}
+//                 disabled={pagination.current_page === 1}
+//                 className="p-2 rounded-full bg-gray-700 hover:bg-gray-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors text-white"
+//                 aria-label="First page"
+//               >
+//                 <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+//                   <path fillRule="evenodd" d="M15.707 15.707a1 1 0 01-1.414 0l-5-5a1 1 0 010-1.414l5-5a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 010 1.414zm-6 0a1 1 0 01-1.414 0l-5-5a1 1 0 010-1.414l5-5a1 1 0 011.414 1.414L5.414 10l4.293 4.293a1 1 0 010 1.414z" clipRule="evenodd" />
+//                 </svg>
+//               </button>
+              
+//               <button
+//                 onClick={() => handlePageChange(pagination.current_page - 1)}
+//                 disabled={!pagination.previous}
+//                 className="p-2 rounded-full bg-gray-700 hover:bg-gray-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors text-white"
+//                 aria-label="Previous page"
+//               >
+//                 <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+//                   <path fillRule="evenodd" d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z" clipRule="evenodd" />
+//                 </svg>
+//               </button>
+              
+//               <div className="flex items-center gap-1">
+//                 {Array.from({ length: Math.min(5, pagination.total_pages) }, (_, i) => {
+//                   let pageNum;
+//                   if (pagination.total_pages <= 5) {
+//                     pageNum = i + 1;
+//                   } else if (pagination.current_page <= 3) {
+//                     pageNum = i + 1;
+//                   } else if (pagination.current_page >= pagination.total_pages - 2) {
+//                     pageNum = pagination.total_pages - 4 + i;
+//                   } else {
+//                     pageNum = pagination.current_page - 2 + i;
+//                   }
+                  
+//                   return (
+//                     <button
+//                       key={pageNum}
+//                       onClick={() => handlePageChange(pageNum)}
+//                       className={`w-8 h-8 rounded-full text-sm transition-colors ${
+//                         pagination.current_page === pageNum
+//                           ? 'bg-amber-600 text-white'
+//                           : 'bg-gray-700 hover:bg-gray-600 text-gray-300'
+//                       }`}
+//                       aria-label={`Page ${pageNum}`}
+//                     >
+//                       {pageNum}
+//                     </button>
+//                   );
+//                 })}
+//               </div>
+              
+//               <button
+//                 onClick={() => handlePageChange(pagination.current_page + 1)}
+//                 disabled={!pagination.next}
+//                 className="p-2 rounded-full bg-gray-700 hover:bg-gray-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors text-white"
+//                 aria-label="Next page"
+//               >
+//                 <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+//                   <path fillRule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clipRule="evenodd" />
+//                 </svg>
+//               </button>
+              
+//               <button
+//                 onClick={() => handlePageChange(pagination.total_pages)}
+//                 disabled={pagination.current_page === pagination.total_pages}
+//                 className="p-2 rounded-full bg-gray-700 hover:bg-gray-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors text-white"
+//                 aria-label="Last page"
+//               >
+//                 <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+//                   <path fillRule="evenodd" d="M10.293 15.707a1 1 0 010-1.414L14.586 10l-4.293-4.293a1 1 0 111.414-1.414l5 5a1 1 0 010 1.414l-5 5a1 1 0 01-1.414 0z" clipRule="evenodd" />
+//                   <path fillRule="evenodd" d="M4.293 15.707a1 1 0 010-1.414L8.586 10 4.293 5.707a1 1 0 011.414-1.414l5 5a1 1 0 010 1.414l-5 5a1 1 0 01-1.414 0z" clipRule="evenodd" />
+//                 </svg>
+//               </button>
+//             </div>
+//           </div>
+//         )}
+//       </div>
+//     </div>
+//   );
+// };
+
+// return (
+//     <div className="min-h-screen bg-gradient-to-b from-gray-900 to-gray-800 py-12 px-4 sm:px-6 lg:px-8">
+//       <ToastContainer 
+//         position="top-center"
+//         autoClose={2000}
+//         hideProgressBar
+//         newestOnTop={false}
+//         closeOnClick
+//         rtl={false}
+//         pauseOnFocusLoss
+//         draggable
+//         pauseOnHover
+//         theme="dark"
+//       />
+      
+//       <div className="max-w-7xl mx-auto">
+//         {/* Header Section */}
+//         <div className="backdrop-blur-2xl bg-gradient-to-br from-slate-900/90 via-slate-800/80 to-slate-900/90 rounded-3xl border border-amber-400/30 shadow-2xl shadow-amber-500/20 p-4 relative overflow-hidden mb-4 -mt-12">
+
+//           {/* Glow Background */}
+//           <div className="absolute inset-0 rounded-3xl bg-gradient-to-r from-amber-500/20 via-yellow-500/20 to-amber-500/20 animate-pulse opacity-40"></div>
+
+//             {/* Inner Glass Layer */}
+//             <div className="absolute inset-[1px] rounded-3xl bg-gradient-to-br from-slate-900/95 to-slate-800/90 backdrop-blur-2xl"></div>
+
+//             <div className="relative z-10">
+//               <div className="flex flex-col md:flex-row justify-between items-start md:items-center">
+
+//                 {/* Left Content */}
+//                 <div>
+
+//                   {/* Icon */}
+//                   <div className="inline-flex items-center justify-center w-12 h-12 bg-gradient-to-br from-amber-400 to-yellow-500 rounded-full shadow-2xl shadow-amber-500/50 mb-1">
+//                     <svg
+//                       className="w-6 h-6 text-slate-900"
+//                       fill="currentColor"
+//                       viewBox="0 0 20 20"
+//                     >
+//                       <path
+//                         fillRule="evenodd"
+//                         d="M2 5a2 2 0 012-2h12a2 2 0 012 2v10a2 2 0 01-2 2H4a2 2 0 01-2-2V5zm3 1a1 1 0 000 2h10a1 1 0 100-2H5zm0 4a1 1 0 100 2h6a1 1 0 100-2H5zm0 4a1 1 0 100 2h4a1 1 0 100-2H5z"
+//                         clipRule="evenodd"
+//                       />
+//                     </svg>
+//                   </div>
+
+//                   {/* Heading */}
+//                   <h1 className="text-3xl font-bold bg-gradient-to-r from-amber-300 via-yellow-400 to-amber-300 bg-clip-text text-transparent mb-2">
+//                     ORDERS MANAGEMENT
+//                   </h1>
+
+//                   {/* Underline */}
+//                   <div className="w-80 h-1 bg-gradient-to-r from-amber-400 to-yellow-500 mb-2"></div>
+
+//                   {/* Description */}
+//                   <p className="text-slate-400 text-sm">
+//                     Manage and track customer orders
+//                   </p>
+
+//                 </div>
+
+//               </div>
+//             </div>
+//           </div>
+        
+//         {/* Stats and Search */}
+//         <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 bg-gray-800/50 p-4 rounded-xl gap-4">
+//           {permissions.create_order && (     
+//             <button
+//               className="px-6 py-3 bg-transparent border border-amber-500 text-amber-500 font-medium text-sm leading-tight uppercase rounded-full hover:bg-amber-500 hover:text-black focus:outline-none focus:ring-0 transition duration-150 ease-in-out transform hover:scale-105 flex items-center"
+//               onClick={() => router.push('/admin/adminaddorder')}
+//             >
+//               <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-1" viewBox="0 0 20 20" fill="currentColor">
+//                 <path fillRule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clipRule="evenodd" />
+//               </svg>
+//               Add Order
+//             </button>
+//           )}
+
+//           <div className="text-amber-400 font-light">
+//             Showing {orders.length} of {pagination.count} orders
+//           </div>
+          
+//           <div className="flex flex-col md:flex-row gap-4 w-full md:w-2/3">
+//             <div className="relative w-full">
+//               <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+//                 <svg className="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+//                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+//                 </svg>
+//               </div>
+//               <input
+//                 type="text"
+//                 placeholder="Search orders..."
+//                 value={searchTerm}
+//                 onChange={handleSearch}
+//                 className="w-full pl-10 pr-4 py-3 bg-gray-700 border border-gray-600 rounded-full focus:outline-none focus:ring-2 focus:ring-amber-500 text-white placeholder-gray-400 transition duration-300"
+//               />
+//             </div>
+            
+//             <div className="flex gap-2 items-center">
+//               <select 
+//                 value={pagination.limit}
+//                 onChange={handleLimitChange}
+//                 className="bg-gray-700 text-white rounded-full px-3 py-2 border border-gray-600 focus:outline-none focus:ring-amber-500"
+//               >
+//                 <option value="10">10 per page</option>
+//                 <option value="20">20 per page</option>
+//                 <option value="30">30 per page</option>
+//                 <option value="50">50 per page</option>
+//               </select>
+//             </div>
+//           </div>
+//         </div>
+
+//         {/* Loading State */}
+//         {isLoading && (
+//           <div className="space-y-6">
+//             {[...Array(pagination.limit)].map((_, index) => (
+//               <div key={index} className="animate-pulse bg-white rounded-xl p-6 shadow-lg">
+//                 <div className="flex items-center space-x-4 mb-4">
+//                   <div className="h-10 w-10 bg-gray-200 rounded-full"></div>
+//                   <div className="space-y-2">
+//                     <div className="h-4 bg-gray-200 rounded w-32"></div>
+//                     <div className="h-3 bg-gray-200 rounded w-24"></div>
+//                   </div>
+//                 </div>
+//                 <div className="h-4 bg-gray-200 rounded w-16 mb-4"></div>
+//                 <div className="space-y-2">
+//                   <div className="h-3 bg-gray-200 rounded w-full"></div>
+//                   <div className="h-3 bg-gray-200 rounded w-5/6"></div>
+//                 </div>
+//               </div>
+//             ))}
+//           </div>
+//         )}
+
+//         {/* Orders List */}
+//         {!isLoading && (
+//           <>
+//             {orders.length > 0 ? (
+//               <div className="space-y-6">
+//                 {orders.map((order) => (
+//                   <div key={order.id} className="bg-white rounded-xl shadow-lg overflow-hidden border border-gray-200">
+//                     {/* Hidden PDF content */}
+//                     <div style={{ position: 'absolute', left: '-9999px' }}>
+//                       <div
+//                         ref={(el) => (pdfRefs.current[order.id] = el)}
+//                         className="bg-white p-6 text-black"
+//                         style={{ width: '210mm', minHeight: '297mm' }}
+//                       >
+//                         <h1 className="text-2xl font-bold mb-4">Order #{order.id}</h1>
+//                         <div className="mb-6">
+//                           <h2 className="text-xl font-semibold border-b pb-2 mb-2">Customer Details</h2>
+//                           <p>Name: {order.customer_name || 'N/A'}</p>
+//                           <p>Email: {order.customer_email || 'N/A'}</p>
+//                           <p>Phone: {order.customer_phone || 'N/A'}</p>
+//                         </div>
+//                         <div className="mb-6">
+//                           <h2 className="text-xl font-semibold border-b pb-2 mb-2">Delivery Info</h2>
+//                           <p>Address: {order.delivery_address || 'N/A'}</p>
+//                           <p>City: {order.city || 'N/A'}</p>
+//                           <p>Delivery Date: {formatDate(order.delivery_date)}</p>
+//                         </div>
+//                         <div className="mb-6">
+//                           <h2 className="text-xl font-semibold border-b pb-2 mb-2">Payment Info</h2>
+//                           <p>Method: {order.payment_method || 'N/A'}</p>
+//                           <p>Total Bill: PKR {order.bill || order.total_amount || '0'}</p>
+//                           <p>Payment Status: {order.payment_status ? 'Paid' : 'Unpaid'}</p>
+//                           <p>Order Status: {order.status}</p>
+//                         </div>
+//                         <div className="mb-6">
+//                           <h2 className="text-xl font-semibold border-b pb-2 mb-2">Order Items ({order.items_count || 0})</h2>
+//                           <table className="w-full border-collapse">
+//                             <thead>
+//                               <tr className="bg-gray-200">
+//                                 <th className="border p-2">Item ID</th>
+//                                 <th className="border p-2">Product</th>
+//                                 <th className="border p-2">Type</th>
+//                                 <th className="border p-2">Unit Price</th>
+//                                 <th className="border p-2">Quantity</th>
+//                                 <th className="border p-2">Total</th>
+//                               </tr>
+//                             </thead>
+//                             <tbody>
+//                               {order.order_details?.map((item, index) => (
+//                                 <tr key={index} className={index % 2 === 0 ? 'bg-gray-100' : ''}>
+//                                   <td className="border p-2">{item.id}</td>
+//                                   <td className="border p-2">{item.product_name}</td>
+//                                   <td className="border p-2">{item.product_type}</td>
+//                                   <td className="border p-2">PKR {item.unit_price}</td>
+//                                   <td className="border p-2">{item.quantity}</td>
+//                                   <td className="border p-2">PKR {item.total_price}</td>
+//                                 </tr>
+//                               ))}
+//                             </tbody>
+//                           </table>
+//                         </div>
+//                         <div className="mt-8 text-right">
+//                           <p className="font-bold text-lg">Total Amount: PKR {order.total_amount || order.bill}</p>
+//                           <p className="mt-4">Generated on: {new Date().toLocaleDateString()}</p>
+//                         </div>
+//                       </div>
+//                     </div>
+
+//                     {/* Visible Order Card — LIGHT THEME */}
+//                     <div className="p-6">
+//                       <div className="flex flex-col md:flex-row justify-between mb-4">
+//                         <div>
+//                           <h2 className="text-xl font-semibold text-gray-900">Order #{order.id}</h2>
+//                           <p className="text-gray-500 text-sm">
+//                             Created: {formatDate(order.created_at)}
+//                           </p>
+//                         </div>
+//                         <div className="mt-4 md:mt-0 flex gap-2">
+//                           <span className={`px-3 py-1 rounded-full text-sm font-medium ${
+//                             order.status === 'pending' ? 'bg-yellow-400 text-yellow-900' :
+//                             order.status === 'completed' ? 'bg-green-500 text-white' :
+//                             'bg-gray-400 text-white'
+//                           }`}>
+//                             {order.status}
+//                           </span>
+//                           <span className={`px-3 py-1 rounded-full text-sm font-medium ${
+//                             order.payment_status ? 'bg-green-500 text-white' : 'bg-red-500 text-white'
+//                           }`}>
+//                             {order.payment_status ? 'Paid' : 'Unpaid'}
+//                           </span>
+//                         </div>
+//                       </div>
+
+//                       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-6">
+//                         <div className="bg-slate-100 border border-slate-200 p-4 rounded-lg">
+//                           <h3 className="text-lg font-medium text-gray-900 mb-2">Customer Details</h3>
+//                           <p className="text-gray-700">Name: {order.customer_name || order.customer_name_display || 'N/A'}</p>
+//                           <p className="text-gray-700">Email: {order.customer_email || 'N/A'}</p>
+//                           <p className="text-gray-700">Phone: {order.customer_phone || 'N/A'}</p>
+//                         </div>
+
+//                         <div className="bg-slate-100 border border-slate-200 p-4 rounded-lg">
+//                           <h3 className="text-lg font-medium text-gray-900 mb-2">Delivery Info</h3>
+//                           <p className="text-gray-700">Address: {order.delivery_address || 'N/A'}</p>
+//                           <p className="text-gray-700">City: {order.city || 'N/A'}</p>
+//                           <p className="text-gray-700">Delivery Date: {formatDate(order.delivery_date)}</p>
+//                           {order.rider_name && <p className="text-gray-700">Rider: {order.rider_name}</p>}
+//                         </div>
+
+//                         <div className="bg-slate-100 border border-slate-200 p-4 rounded-lg">
+//                           <h3 className="text-lg font-medium text-gray-900 mb-2">Payment Info</h3>
+//                           <p className="text-gray-700">Method: {order.payment_method || 'N/A'}</p>
+//                           <p className="text-gray-700">Bill Amount: PKR {order.bill || '0'}</p>
+//                           <p className="text-gray-700">Total Amount: PKR {order.total_amount || '0'}</p>
+//                           <p className="text-gray-700">Items: {order.items_count || 0}</p>
+//                         </div>
+//                       </div>
+
+//                       <div className="mb-6">
+//                         <h3 className="text-lg font-medium text-gray-900 mb-3">Order Items</h3>
+//                         <div className="overflow-x-auto rounded-lg border border-gray-200">
+//                           <table className="min-w-full bg-white">
+//                             <thead className="bg-gray-100">
+//                               <tr>
+//                                 <th className="px-4 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Item ID</th>
+//                                 <th className="px-4 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Product</th>
+//                                 <th className="px-4 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Type</th>
+//                                 <th className="px-4 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Unit Price</th>
+//                                 <th className="px-4 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Quantity</th>
+//                                 <th className="px-4 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Total</th>
+//                               </tr>
+//                             </thead>
+//                             <tbody className="divide-y divide-gray-200">
+//                               {order.order_details?.map((item, index) => (
+//                                 <tr key={index} className="hover:bg-slate-50 transition-colors">
+//                                   <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-700">{item.id}</td>
+//                                   <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-700">{item.product_name}</td>
+//                                   <td className="px-4 py-3 whitespace-nowrap text-sm">
+//                                     <span className={`px-2 py-1 rounded text-xs font-medium text-white ${
+//                                       item.product_type === 'product' ? 'bg-blue-500' : 'bg-purple-500'
+//                                     }`}>
+//                                       {item.product_type}
+//                                     </span>
+//                                   </td>
+//                                   <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-700">PKR {item.unit_price}</td>
+//                                   <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-700">{item.quantity}</td>
+//                                   <td className="px-4 py-3 whitespace-nowrap text-sm font-semibold text-gray-900">PKR {item.total_price}</td>
+//                                 </tr>
+//                               ))}
+//                             </tbody>
+//                           </table>
+//                         </div>
+//                       </div>
+
+//                       <div className="flex flex-wrap justify-end gap-3">
+//                         <button
+//                           onClick={() => handleDownloadPdf(order.id)}
+//                           className="relative overflow-hidden px-4 py-2 bg-blue-50 border border-blue-300 text-blue-700 rounded-lg hover:bg-blue-100 transition-all duration-300 group flex items-center shadow-sm hover:shadow-md"
+//                         >
+//                           <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+//                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+//                           </svg>
+//                           <span className="relative z-10 font-medium">Download PDF</span>
+//                         </button>
+
+//                         <button
+//                           onClick={() => handlePrint(order.id)}
+//                           className="relative overflow-hidden px-4 py-2 bg-purple-50 border border-purple-300 text-purple-700 rounded-lg hover:bg-purple-100 transition-all duration-300 group flex items-center shadow-sm hover:shadow-md"
+//                         >
+//                           <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+//                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" />
+//                           </svg>
+//                           <span className="relative z-10 font-medium">Print</span>
+//                         </button>
+
+//                         {permissions.update_order && (
+//                           <button
+//                             onClick={() => updateOrder(order.id)}
+//                             className="relative overflow-hidden px-4 py-2 bg-amber-50 border border-amber-300 text-amber-700 rounded-lg hover:bg-amber-100 transition-all duration-300 group flex items-center shadow-sm hover:shadow-md"
+//                           >
+//                             <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+//                               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+//                             </svg>
+//                             <span className="relative z-10 font-medium">Edit Order</span>
+//                           </button>
+//                         )}
+
+//                         {permissions.delete_order && (
+//                           <button
+//                             onClick={() => deleteOrder(order.id)}
+//                             className="relative overflow-hidden px-4 py-2 bg-red-50 border border-red-300 text-red-700 rounded-lg hover:bg-red-100 transition-all duration-300 group flex items-center shadow-sm hover:shadow-md"
+//                           >
+//                             <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+//                               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+//                             </svg>
+//                             <span className="relative z-10 font-medium">Delete</span>
+//                           </button>
+//                         )}
+//                       </div>
+//                     </div>
+//                   </div>
+//                 ))}
+//               </div>
+//             ) : (
+//               <div className="text-center py-20">
+//                 <div className="mx-auto w-24 h-24 bg-gray-800 rounded-full flex items-center justify-center mb-6">
+//                   <svg className="h-12 w-12 text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+//                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1" d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+//                   </svg>
+//                 </div>
+//                 <h3 className="text-2xl font-light text-white mb-2">No orders found</h3>
+//                 <p className="text-gray-400 max-w-md mx-auto">
+//                   {searchTerm ? "No orders match your search." : "There are no orders to display."}
+//                 </p>
+//                 {searchTerm && (
+//                   <button
+//                     onClick={() => setSearchTerm('')}
+//                     className="mt-4 px-4 py-2 bg-amber-600 text-white rounded-lg hover:bg-amber-700 transition-colors"
+//                   >
+//                     Clear search
+//                   </button>
+//                 )}
+//               </div>
+//             )}
+//           </>
+//         )}
+
+//         {/* Enhanced Pagination */}
+//         {pagination.total_pages > 1 && (
+//           <div className="flex flex-col md:flex-row justify-between items-center mt-16 gap-4">
+//             <div className="text-gray-400 text-sm">
+//               Page {pagination.current_page} of {pagination.total_pages} • Total {pagination.count} orders
+//             </div>
+            
+//             <div className="flex items-center gap-2">
+//               <button
+//                 onClick={() => handlePageChange(1)}
+//                 disabled={pagination.current_page === 1}
+//                 className="p-2 rounded-full bg-gray-700 hover:bg-gray-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors text-white"
+//                 aria-label="First page"
+//               >
+//                 <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+//                   <path fillRule="evenodd" d="M15.707 15.707a1 1 0 01-1.414 0l-5-5a1 1 0 010-1.414l5-5a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 010 1.414zm-6 0a1 1 0 01-1.414 0l-5-5a1 1 0 010-1.414l5-5a1 1 0 011.414 1.414L5.414 10l4.293 4.293a1 1 0 010 1.414z" clipRule="evenodd" />
+//                 </svg>
+//               </button>
+              
+//               <button
+//                 onClick={() => handlePageChange(pagination.current_page - 1)}
+//                 disabled={!pagination.previous}
+//                 className="p-2 rounded-full bg-gray-700 hover:bg-gray-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors text-white"
+//                 aria-label="Previous page"
+//               >
+//                 <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+//                   <path fillRule="evenodd" d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z" clipRule="evenodd" />
+//                 </svg>
+//               </button>
+              
+//               <div className="flex items-center gap-1">
+//                 {Array.from({ length: Math.min(5, pagination.total_pages) }, (_, i) => {
+//                   let pageNum;
+//                   if (pagination.total_pages <= 5) {
+//                     pageNum = i + 1;
+//                   } else if (pagination.current_page <= 3) {
+//                     pageNum = i + 1;
+//                   } else if (pagination.current_page >= pagination.total_pages - 2) {
+//                     pageNum = pagination.total_pages - 4 + i;
+//                   } else {
+//                     pageNum = pagination.current_page - 2 + i;
+//                   }
+                  
+//                   return (
+//                     <button
+//                       key={pageNum}
+//                       onClick={() => handlePageChange(pageNum)}
+//                       className={`w-8 h-8 rounded-full text-sm transition-colors ${
+//                         pagination.current_page === pageNum
+//                           ? 'bg-amber-600 text-white'
+//                           : 'bg-gray-700 hover:bg-gray-600 text-gray-300'
+//                       }`}
+//                       aria-label={`Page ${pageNum}`}
+//                     >
+//                       {pageNum}
+//                     </button>
+//                   );
+//                 })}
+//               </div>
+              
+//               <button
+//                 onClick={() => handlePageChange(pagination.current_page + 1)}
+//                 disabled={!pagination.next}
+//                 className="p-2 rounded-full bg-gray-700 hover:bg-gray-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors text-white"
+//                 aria-label="Next page"
+//               >
+//                 <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+//                   <path fillRule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clipRule="evenodd" />
+//                 </svg>
+//               </button>
+              
+//               <button
+//                 onClick={() => handlePageChange(pagination.total_pages)}
+//                 disabled={pagination.current_page === pagination.total_pages}
+//                 className="p-2 rounded-full bg-gray-700 hover:bg-gray-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors text-white"
+//                 aria-label="Last page"
+//               >
+//                 <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+//                   <path fillRule="evenodd" d="M10.293 15.707a1 1 0 010-1.414L14.586 10l-4.293-4.293a1 1 0 111.414-1.414l5 5a1 1 0 010 1.414l-5 5a1 1 0 01-1.414 0z" clipRule="evenodd" />
+//                   <path fillRule="evenodd" d="M4.293 15.707a1 1 0 010-1.414L8.586 10 4.293 5.707a1 1 0 011.414-1.414l5 5a1 1 0 010 1.414l-5 5a1 1 0 01-1.414 0z" clipRule="evenodd" />
+//                 </svg>
+//               </button>
+//             </div>
+//           </div>
+//         )}
+//       </div>
+//     </div>
+//   );
+// };
+
+
+
+return (
+  // <div className="min-h-screen bg-gradient-to-b from-gray-900 to-gray-800 py-12 px-4 sm:px-6 lg:px-8">
+    <div className="min-h-screen bg-gray-800 py-12 px-4 sm:px-6 lg:px-8">
+    <ToastContainer
+      position="top-center"
+      autoClose={2000}
+      hideProgressBar
+      newestOnTop={false}
+      closeOnClick
+      rtl={false}
+      pauseOnFocusLoss
+      draggable
+      pauseOnHover
+      theme="dark"
+    />
+
+    <div className="max-w-7xl mx-auto">
+      {/* Header Section */}
+      <div className="backdrop-blur-2xl bg-gradient-to-br from-slate-900/90 via-slate-800/80 to-slate-900/90 rounded-3xl border border-amber-400/30 shadow-2xl shadow-amber-500/20 p-4 relative overflow-hidden mb-4 -mt-12">
+
+        {/* Glow Background */}
+        <div className="absolute inset-0 rounded-3xl bg-gradient-to-r from-amber-500/20 via-yellow-500/20 to-amber-500/20 animate-pulse opacity-40"></div>
+
+        {/* Inner Glass Layer */}
+        <div className="absolute inset-[1px] rounded-3xl bg-gradient-to-br from-slate-900/95 to-slate-800/90 backdrop-blur-2xl"></div>
+
+        <div className="relative z-10">
+          <div className="flex flex-col md:flex-row justify-between items-start md:items-center">
+
+            {/* Left Content */}
+            <div>
+
+              {/* Icon */}
+              <div className="inline-flex items-center justify-center w-12 h-12 bg-gradient-to-br from-amber-400 to-yellow-500 rounded-full shadow-2xl shadow-amber-500/50 mb-1">
+                <svg
+                  className="w-6 h-6 text-slate-900"
+                  fill="currentColor"
+                  viewBox="0 0 20 20"
+                >
+                  <path
+                    fillRule="evenodd"
+                    d="M2 5a2 2 0 012-2h12a2 2 0 012 2v10a2 2 0 01-2 2H4a2 2 0 01-2-2V5zm3 1a1 1 0 000 2h10a1 1 0 100-2H5zm0 4a1 1 0 100 2h6a1 1 0 100-2H5zm0 4a1 1 0 100 2h4a1 1 0 100-2H5z"
+                    clipRule="evenodd"
+                  />
                 </svg>
               </div>
-              <input
-                type="text"
-                placeholder="Search orders..."
-                value={searchTerm}
-                onChange={handleSearch}
-                className="w-full pl-10 pr-4 py-3 bg-gray-700 border border-gray-600 rounded-full focus:outline-none focus:ring-2 focus:ring-amber-500 text-white placeholder-gray-400 transition duration-300"
-              />
+
+              {/* Heading */}
+              <h1 className="text-3xl font-bold bg-gradient-to-r from-amber-300 via-yellow-400 to-amber-300 bg-clip-text text-transparent mb-2">
+                ORDERS MANAGEMENT
+              </h1>
+
+              {/* Underline */}
+              <div className="w-80 h-1 bg-gradient-to-r from-amber-400 to-yellow-500 mb-2"></div>
+
+              {/* Description */}
+              <p className="text-slate-400 text-sm">
+                Manage and track customer orders
+              </p>
+
             </div>
-            
-            <div className="flex gap-2 items-center">
-              <select 
-                value={pagination.limit}
-                onChange={handleLimitChange}
-                className="bg-gray-700 text-white rounded-full px-3 py-2 border border-gray-600 focus:outline-none focus:ring-amber-500"
-              >
-                <option value="10">10 per page</option>
-                <option value="20">20 per page</option>
-                <option value="30">30 per page</option>
-                <option value="50">50 per page</option>
-              </select>
-            </div>
+
           </div>
         </div>
-
-        {/* Loading State */}
-        {isLoading && (
-          <div className="space-y-6">
-            {[...Array(pagination.limit)].map((_, index) => (
-              <div key={index} className="animate-pulse bg-gray-800 rounded-xl p-6">
-                <div className="flex items-center space-x-4 mb-4">
-                  <div className="h-10 w-10 bg-gray-700 rounded-full"></div>
-                  <div className="space-y-2">
-                    <div className="h-4 bg-gray-700 rounded w-32"></div>
-                    <div className="h-3 bg-gray-700 rounded w-24"></div>
-                  </div>
-                </div>
-                <div className="h-4 bg-gray-700 rounded w-16 mb-4"></div>
-                <div className="space-y-2">
-                  <div className="h-3 bg-gray-700 rounded w-full"></div>
-                  <div className="h-3 bg-gray-700 rounded w-5/6"></div>
-                </div>
-              </div>
-            ))}
-          </div>
-        )}
-
-        {/* Orders List */}
-        {!isLoading && (
-          <>
-            {orders.length > 0 ? (
-              <div className="space-y-6">
-                {orders.map((order) => (
-                  <div key={order.id} className="bg-gray-800/50 rounded-xl shadow-lg overflow-hidden">
-                    {/* Hidden PDF content */}
-                    <div style={{ position: 'absolute', left: '-9999px' }}>
-                      <div
-                        ref={(el) => (pdfRefs.current[order.id] = el)}
-                        className="bg-white p-6 text-black"
-                        style={{ width: '210mm', minHeight: '297mm' }}
-                      >
-                        <h1 className="text-2xl font-bold mb-4">Order #{order.id}</h1>
-                        <div className="mb-6">
-                          <h2 className="text-xl font-semibold border-b pb-2 mb-2">Customer Details</h2>
-                          <p>Name: {order.customer_name || 'N/A'}</p>
-                          <p>Email: {order.customer_email || 'N/A'}</p>
-                          <p>Phone: {order.customer_phone || 'N/A'}</p>
-                        </div>
-                        <div className="mb-6">
-                          <h2 className="text-xl font-semibold border-b pb-2 mb-2">Delivery Info</h2>
-                          <p>Address: {order.delivery_address || 'N/A'}</p>
-                          <p>City: {order.city || 'N/A'}</p>
-                          <p>Delivery Date: {formatDate(order.delivery_date)}</p>
-                        </div>
-                        <div className="mb-6">
-                          <h2 className="text-xl font-semibold border-b pb-2 mb-2">Payment Info</h2>
-                          <p>Method: {order.payment_method || 'N/A'}</p>
-                          <p>Total Bill: PKR {order.bill || order.total_amount || '0'}</p>
-                          <p>Payment Status: {order.payment_status ? 'Paid' : 'Unpaid'}</p>
-                          <p>Order Status: {order.status}</p>
-                        </div>
-                        <div className="mb-6">
-                          <h2 className="text-xl font-semibold border-b pb-2 mb-2">Order Items ({order.items_count || 0})</h2>
-                          <table className="w-full border-collapse">
-                            <thead>
-                              <tr className="bg-gray-200">
-                                <th className="border p-2">Item ID</th>
-                                <th className="border p-2">Product</th>
-                                <th className="border p-2">Type</th>
-                                <th className="border p-2">Unit Price</th>
-                                <th className="border p-2">Quantity</th>
-                                <th className="border p-2">Total</th>
-                              </tr>
-                            </thead>
-                            <tbody>
-                              {order.order_details?.map((item, index) => (
-                                <tr key={index} className={index % 2 === 0 ? 'bg-gray-100' : ''}>
-                                  <td className="border p-2">{item.id}</td>
-                                  <td className="border p-2">{item.product_name}</td>
-                                  <td className="border p-2">{item.product_type}</td>
-                                  <td className="border p-2">PKR {item.unit_price}</td>
-                                  <td className="border p-2">{item.quantity}</td>
-                                  <td className="border p-2">PKR {item.total_price}</td>
-                                </tr>
-                              ))}
-                            </tbody>
-                          </table>
-                        </div>
-                        <div className="mt-8 text-right">
-                          <p className="font-bold text-lg">Total Amount: PKR {order.total_amount || order.bill}</p>
-                          <p className="mt-4">Generated on: {new Date().toLocaleDateString()}</p>
-                        </div>
-                      </div>
-                    </div>
-
-                    {/* Visible Order Card */}
-                    <div className="p-6">
-                      <div className="flex flex-col md:flex-row justify-between mb-4">
-                        <div>
-                          <h2 className="text-xl font-semibold text-white">Order #{order.id}</h2>
-                          <p className="text-gray-400 text-sm">
-                            Created: {formatDate(order.created_at)}
-                          </p>
-                        </div>
-                        <div className="mt-4 md:mt-0 flex gap-2">
-                          <span className={`px-3 py-1 rounded-full text-sm font-medium ${
-                            order.status === 'pending' ? 'bg-yellow-500 text-black' :
-                            order.status === 'completed' ? 'bg-green-500 text-white' :
-                            'bg-gray-500 text-white'
-                          }`}>
-                            {order.status}
-                          </span>
-                          <span className={`px-3 py-1 rounded-full text-sm font-medium ${
-                            order.payment_status ? 'bg-green-500 text-white' : 'bg-red-500 text-white'
-                          }`}>
-                            {order.payment_status ? 'Paid' : 'Unpaid'}
-                          </span>
-                        </div>
-                      </div>
-
-                      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-6">
-                        <div className="bg-gray-700 p-4 rounded-lg">
-                          <h3 className="text-lg font-medium text-white mb-2">Customer Details</h3>
-                          <p className="text-gray-300">Name: {order.customer_name || order.customer_name_display || 'N/A'}</p>
-                          <p className="text-gray-300">Email: {order.customer_email || 'N/A'}</p>
-                          <p className="text-gray-300">Phone: {order.customer_phone || 'N/A'}</p>
-                        </div>
-
-                        <div className="bg-gray-700 p-4 rounded-lg">
-                          <h3 className="text-lg font-medium text-white mb-2">Delivery Info</h3>
-                          <p className="text-gray-300">Address: {order.delivery_address || 'N/A'}</p>
-                          <p className="text-gray-300">City: {order.city || 'N/A'}</p>
-                          <p className="text-gray-300">Delivery Date: {formatDate(order.delivery_date)}</p>
-                          {order.rider_name && <p className="text-gray-300">Rider: {order.rider_name}</p>}
-                        </div>
-
-                        <div className="bg-gray-700 p-4 rounded-lg">
-                          <h3 className="text-lg font-medium text-white mb-2">Payment Info</h3>
-                          <p className="text-gray-300">Method: {order.payment_method || 'N/A'}</p>
-                          <p className="text-gray-300">Bill Amount: PKR {order.bill || '0'}</p>
-                          <p className="text-gray-300">Total Amount: PKR {order.total_amount || '0'}</p>
-                          <p className="text-gray-300">Items: {order.items_count || 0}</p>
-                        </div>
-                      </div>
-
-                      <div className="mb-6">
-                        <h3 className="text-lg font-medium text-white mb-3">Order Items</h3>
-                        <div className="overflow-x-auto">
-                          <table className="min-w-full bg-gray-700 rounded-lg overflow-hidden">
-                            <thead className="bg-gray-600">
-                              <tr>
-                                <th className="px-4 py-3 text-left text-xs font-medium text-white uppercase tracking-wider">Item ID</th>
-                                <th className="px-4 py-3 text-left text-xs font-medium text-white uppercase tracking-wider">Product</th>
-                                <th className="px-4 py-3 text-left text-xs font-medium text-white uppercase tracking-wider">Type</th>
-                                <th className="px-4 py-3 text-left text-xs font-medium text-white uppercase tracking-wider">Unit Price</th>
-                                <th className="px-4 py-3 text-left text-xs font-medium text-white uppercase tracking-wider">Quantity</th>
-                                <th className="px-4 py-3 text-left text-xs font-medium text-white uppercase tracking-wider">Total</th>
-                              </tr>
-                            </thead>
-                            <tbody className="divide-y divide-gray-600">
-                              {order.order_details?.map((item, index) => (
-                                <tr key={index}>
-                                  <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-300">{item.id}</td>
-                                  <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-300">{item.product_name}</td>
-                                  <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-300">
-                                    <span className={`px-2 py-1 rounded text-xs ${
-                                      item.product_type === 'product' ? 'bg-blue-500' : 'bg-purple-500'
-                                    }`}>
-                                      {item.product_type}
-                                    </span>
-                                  </td>
-                                  <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-300">PKR {item.unit_price}</td>
-                                  <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-300">{item.quantity}</td>
-                                  <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-300">PKR {item.total_price}</td>
-                                </tr>
-                              ))}
-                            </tbody>
-                          </table>
-                        </div>
-                      </div>
-
-                      <div className="flex flex-wrap justify-end gap-3">
-                        <button
-                          onClick={() => handleDownloadPdf(order.id)}
-                          className="relative overflow-hidden px-4 py-2 bg-gradient-to-r from-blue-600/30 to-blue-700/20 border border-blue-500/30 text-blue-300 rounded-lg hover:from-blue-600/40 hover:to-blue-700/30 transition-all duration-300 group flex items-center shadow-lg shadow-blue-500/10 hover:shadow-blue-500/20"
-                        >
-                          <span className="absolute inset-0 bg-gradient-to-r from-blue-500/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></span>
-                          <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                          </svg>
-                          <span className="relative z-10 font-medium">Download PDF</span>
-                          <span className="absolute bottom-0 left-0 w-full h-0.5 bg-gradient-to-r from-blue-400 to-blue-600 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></span>
-                        </button>
-
-                        <button
-                          onClick={() => handlePrint(order.id)}
-                          className="relative overflow-hidden px-4 py-2 bg-gradient-to-r from-purple-600/30 to-purple-700/20 border border-purple-500/30 text-purple-300 rounded-lg hover:from-purple-600/40 hover:to-purple-700/30 transition-all duration-300 group flex items-center shadow-lg shadow-purple-500/10 hover:shadow-purple-500/20"
-                        >
-                          <span className="absolute inset-0 bg-gradient-to-r from-purple-500/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></span>
-                          <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" />
-                          </svg>
-                          <span className="relative z-10 font-medium">Print</span>
-                          <span className="absolute bottom-0 left-0 w-full h-0.5 bg-gradient-to-r from-purple-400 to-purple-600 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></span>
-                        </button>
-
-                        {permissions.update_order && (
-                          <button
-                            onClick={() => updateOrder(order.id)}
-                            className="relative overflow-hidden px-4 py-2 bg-gradient-to-r from-amber-600/30 to-amber-700/20 border border-amber-500/30 text-amber-300 rounded-lg hover:from-amber-600/40 hover:to-amber-700/30 transition-all duration-300 group flex items-center shadow-lg shadow-amber-500/10 hover:shadow-amber-500/20"
-                          >
-                            <span className="absolute inset-0 bg-gradient-to-r from-amber-500/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></span>
-                            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-                            </svg>
-                            <span className="relative z-10 font-medium">Edit Order</span>
-                            <span className="absolute bottom-0 left-0 w-full h-0.5 bg-gradient-to-r from-amber-400 to-amber-600 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></span>
-                          </button>
-                        )}
-
-                        {permissions.delete_order && (
-                          <button
-                            onClick={() => deleteOrder(order.id)}
-                            className="relative overflow-hidden px-4 py-2 bg-gradient-to-r from-red-600/30 to-red-700/20 border border-red-500/30 text-red-300 rounded-lg hover:from-red-600/40 hover:to-red-700/30 transition-all duration-300 group flex items-center shadow-lg shadow-red-500/10 hover:shadow-red-500/20"
-                          >
-                            <span className="absolute inset-0 bg-gradient-to-r from-red-500/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></span>
-                            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                            </svg>
-                            <span className="relative z-10 font-medium">Delete</span>
-                            <span className="absolute bottom-0 left-0 w-full h-0.5 bg-gradient-to-r from-red-400 to-red-600 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></span>
-                          </button>
-                        )}
-                      </div>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            ) : (
-              <div className="text-center py-20">
-                <div className="mx-auto w-24 h-24 bg-gray-800 rounded-full flex items-center justify-center mb-6">
-                  <svg className="h-12 w-12 text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1" d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                  </svg>
-                </div>
-                <h3 className="text-2xl font-light text-white mb-2">No orders found</h3>
-                <p className="text-gray-400 max-w-md mx-auto">
-                  {searchTerm ? "No orders match your search." : "There are no orders to display."}
-                </p>
-                {searchTerm && (
-                  <button
-                    onClick={() => setSearchTerm('')}
-                    className="mt-4 px-4 py-2 bg-amber-600 text-white rounded-lg hover:bg-amber-700 transition-colors"
-                  >
-                    Clear search
-                  </button>
-                )}
-              </div>
-            )}
-          </>
-        )}
-
-        {/* Enhanced Pagination */}
-        {pagination.total_pages > 1 && (
-          <div className="flex flex-col md:flex-row justify-between items-center mt-16 gap-4">
-            <div className="text-gray-400 text-sm">
-              Page {pagination.current_page} of {pagination.total_pages} • Total {pagination.count} orders
-            </div>
-            
-            <div className="flex items-center gap-2">
-              <button
-                onClick={() => handlePageChange(1)}
-                disabled={pagination.current_page === 1}
-                className="p-2 rounded-full bg-gray-700 hover:bg-gray-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors text-white"
-                aria-label="First page"
-              >
-                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                  <path fillRule="evenodd" d="M15.707 15.707a1 1 0 01-1.414 0l-5-5a1 1 0 010-1.414l5-5a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 010 1.414zm-6 0a1 1 0 01-1.414 0l-5-5a1 1 0 010-1.414l5-5a1 1 0 011.414 1.414L5.414 10l4.293 4.293a1 1 0 010 1.414z" clipRule="evenodd" />
-                </svg>
-              </button>
-              
-              <button
-                onClick={() => handlePageChange(pagination.current_page - 1)}
-                disabled={!pagination.previous}
-                className="p-2 rounded-full bg-gray-700 hover:bg-gray-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors text-white"
-                aria-label="Previous page"
-              >
-                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                  <path fillRule="evenodd" d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z" clipRule="evenodd" />
-                </svg>
-              </button>
-              
-              <div className="flex items-center gap-1">
-                {Array.from({ length: Math.min(5, pagination.total_pages) }, (_, i) => {
-                  let pageNum;
-                  if (pagination.total_pages <= 5) {
-                    pageNum = i + 1;
-                  } else if (pagination.current_page <= 3) {
-                    pageNum = i + 1;
-                  } else if (pagination.current_page >= pagination.total_pages - 2) {
-                    pageNum = pagination.total_pages - 4 + i;
-                  } else {
-                    pageNum = pagination.current_page - 2 + i;
-                  }
-                  
-                  return (
-                    <button
-                      key={pageNum}
-                      onClick={() => handlePageChange(pageNum)}
-                      className={`w-8 h-8 rounded-full text-sm transition-colors ${
-                        pagination.current_page === pageNum
-                          ? 'bg-amber-600 text-white'
-                          : 'bg-gray-700 hover:bg-gray-600 text-gray-300'
-                      }`}
-                      aria-label={`Page ${pageNum}`}
-                    >
-                      {pageNum}
-                    </button>
-                  );
-                })}
-              </div>
-              
-              <button
-                onClick={() => handlePageChange(pagination.current_page + 1)}
-                disabled={!pagination.next}
-                className="p-2 rounded-full bg-gray-700 hover:bg-gray-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors text-white"
-                aria-label="Next page"
-              >
-                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                  <path fillRule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clipRule="evenodd" />
-                </svg>
-              </button>
-              
-              <button
-                onClick={() => handlePageChange(pagination.total_pages)}
-                disabled={pagination.current_page === pagination.total_pages}
-                className="p-2 rounded-full bg-gray-700 hover:bg-gray-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors text-white"
-                aria-label="Last page"
-              >
-                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                  <path fillRule="evenodd" d="M10.293 15.707a1 1 0 010-1.414L14.586 10l-4.293-4.293a1 1 0 111.414-1.414l5 5a1 1 0 010 1.414l-5 5a1 1 0 01-1.414 0z" clipRule="evenodd" />
-                  <path fillRule="evenodd" d="M4.293 15.707a1 1 0 010-1.414L8.586 10 4.293 5.707a1 1 0 011.414-1.414l5 5a1 1 0 010 1.414l-5 5a1 1 0 01-1.414 0z" clipRule="evenodd" />
-                </svg>
-              </button>
-            </div>
-          </div>
-        )}
       </div>
-    </div>
-  );
-};
 
+      {/* Stats and Search */}
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 bg-gray-800/50 p-4 rounded-xl gap-4">
+        {permissions.create_order && (
+          <button
+            className="px-6 py-3 bg-transparent border border-amber-500 text-amber-500 font-medium text-sm leading-tight uppercase rounded-full hover:bg-amber-500 hover:text-black focus:outline-none focus:ring-0 transition duration-150 ease-in-out transform hover:scale-105 flex items-center"
+            onClick={() => router.push('/admin/adminaddorder')}
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-1" viewBox="0 0 20 20" fill="currentColor">
+              <path fillRule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clipRule="evenodd" />
+            </svg>
+            Add Order
+          </button>
+        )}
+
+        <div className="text-amber-400 font-light">
+          Showing {orders.length} of {pagination.count} orders
+        </div>
+
+        <div className="flex flex-col md:flex-row gap-4 w-full md:w-2/3">
+          <div className="relative w-full">
+            <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+              <svg className="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+              </svg>
+            </div>
+            <input
+              type="text"
+              placeholder="Search orders..."
+              value={searchTerm}
+              onChange={handleSearch}
+              className="w-full pl-10 pr-4 py-3 bg-gray-700 border border-gray-600 rounded-full focus:outline-none focus:ring-2 focus:ring-amber-500 text-white placeholder-gray-400 transition duration-300"
+            />
+          </div>
+
+          <div className="flex gap-2 items-center">
+            <select
+              value={pagination.limit}
+              onChange={handleLimitChange}
+              className="bg-gray-700 text-white rounded-full px-3 py-2 border border-gray-600 focus:outline-none focus:ring-amber-500"
+            >
+              <option value="10">10 per page</option>
+              <option value="20">20 per page</option>
+              <option value="30">30 per page</option>
+              <option value="50">50 per page</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      {/* Loading State — Pastel Skeleton */}
+      {isLoading && (
+        <div className="space-y-6">
+          {[...Array(pagination.limit)].map((_, index) => (
+            <div
+              key={index}
+              className="animate-pulse rounded-2xl p-6 border-2 border-indigo-100 bg-gradient-to-br from-sky-50/80 via-indigo-50/70 to-purple-50/80"
+            >
+              <div className="flex items-center space-x-4 mb-4">
+                <div className="h-10 w-10 bg-indigo-200/70 rounded-full"></div>
+                <div className="space-y-2">
+                  <div className="h-4 bg-indigo-200/70 rounded w-32"></div>
+                  <div className="h-3 bg-indigo-200/70 rounded w-24"></div>
+                </div>
+              </div>
+              <div className="h-4 bg-indigo-200/70 rounded w-16 mb-4"></div>
+              <div className="space-y-2">
+                <div className="h-3 bg-indigo-200/70 rounded w-full"></div>
+                <div className="h-3 bg-indigo-200/70 rounded w-5/6"></div>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+
+      {/* Orders List */}
+      {!isLoading && (
+        <>
+          {orders.length > 0 ? (
+            <div className="space-y-6">
+              {orders.map((order) => (
+                <div
+                  key={order.id}
+                  className="rounded-2xl shadow-xl overflow-hidden border border-gray-200 bg-white"
+                >
+                  {/* Hidden PDF content — untouched */}
+                  <div style={{ position: 'absolute', left: '-9999px' }}>
+                    <div
+                      ref={(el) => (pdfRefs.current[order.id] = el)}
+                      className="bg-white p-6 text-black"
+                      style={{ width: '210mm', minHeight: '297mm' }}
+                    >
+                      <h1 className="text-2xl font-bold mb-4">Order #{order.id}</h1>
+                      <div className="mb-6">
+                        <h2 className="text-xl font-semibold border-b pb-2 mb-2">Customer Details</h2>
+                        <p>Name: {order.customer_name || 'N/A'}</p>
+                        <p>Email: {order.customer_email || 'N/A'}</p>
+                        <p>Phone: {order.customer_phone || 'N/A'}</p>
+                      </div>
+                      <div className="mb-6">
+                        <h2 className="text-xl font-semibold border-b pb-2 mb-2">Delivery Info</h2>
+                        <p>Address: {order.delivery_address || 'N/A'}</p>
+                        <p>City: {order.city || 'N/A'}</p>
+                        <p>Delivery Date: {formatDate(order.delivery_date)}</p>
+                      </div>
+                      <div className="mb-6">
+                        <h2 className="text-xl font-semibold border-b pb-2 mb-2">Payment Info</h2>
+                        <p>Method: {order.payment_method || 'N/A'}</p>
+                        <p>Total Bill: PKR {order.bill || order.total_amount || '0'}</p>
+                        <p>Payment Status: {order.payment_status ? 'Paid' : 'Unpaid'}</p>
+                        <p>Order Status: {order.status}</p>
+                      </div>
+                      <div className="mb-6">
+                        <h2 className="text-xl font-semibold border-b pb-2 mb-2">Order Items ({order.items_count || 0})</h2>
+                        <table className="w-full border-collapse">
+                          <thead>
+                            <tr className="bg-gray-200">
+                              <th className="border p-2">Item ID</th>
+                              <th className="border p-2">Product</th>
+                              <th className="border p-2">Type</th>
+                              <th className="border p-2">Unit Price</th>
+                              <th className="border p-2">Quantity</th>
+                              <th className="border p-2">Total</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            {order.order_details?.map((item, index) => (
+                              <tr key={index} className={index % 2 === 0 ? 'bg-gray-100' : ''}>
+                                <td className="border p-2">{item.id}</td>
+                                <td className="border p-2">{item.product_name}</td>
+                                <td className="border p-2">{item.product_type}</td>
+                                <td className="border p-2">PKR {item.unit_price}</td>
+                                <td className="border p-2">{item.quantity}</td>
+                                <td className="border p-2">PKR {item.total_price}</td>
+                              </tr>
+                            ))}
+                          </tbody>
+                        </table>
+                      </div>
+                      <div className="mt-8 text-right">
+                        <p className="font-bold text-lg">Total Amount: PKR {order.total_amount || order.bill}</p>
+                        <p className="mt-4">Generated on: {new Date().toLocaleDateString()}</p>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* ============ VISIBLE ORDER CARD — PASTEL THEME ============ */}
+                  {/* <div className="p-6 bg-gradient-to-br from-sky-50/80 via-indigo-50/70 to-purple-50/80"> */}
+                  <div className="p-6 bg-white">
+                    {/* Header row */}
+                    <div className="flex flex-col md:flex-row justify-between mb-5 pb-4 border-b-2 border-indigo-100">
+                      <div>
+                        <h2 className="text-xl font-bold text-indigo-900">Order #{order.id}</h2>
+                        <p className="text-indigo-400 text-sm">
+                          Created: {formatDate(order.created_at)}
+                        </p>
+                      </div>
+
+                      {/* ============ BEAUTIFUL STATUS BADGES ============ */}
+                      <div className="mt-4 md:mt-0 flex flex-wrap gap-3">
+
+                        {/* Order Status Badge */}
+                        <span className={`inline-flex items-center gap-2 px-4 py-2 rounded-full text-sm font-bold shadow-lg border-2 transition-all duration-300 hover:scale-105 hover:shadow-xl ${
+                          order.status === 'pending'
+                            ? 'bg-gradient-to-r from-amber-100 via-yellow-100 to-amber-100 text-amber-800 border-amber-300 shadow-amber-300/60'
+                            : order.status === 'completed'
+                              ? 'bg-gradient-to-r from-emerald-100 via-green-100 to-emerald-100 text-emerald-800 border-emerald-300 shadow-emerald-300/60'
+                              : order.status === 'processing'
+                                ? 'bg-gradient-to-r from-blue-100 via-sky-100 to-blue-100 text-blue-800 border-blue-300 shadow-blue-300/60'
+                                : order.status === 'cancelled'
+                                  ? 'bg-gradient-to-r from-red-100 via-rose-100 to-red-100 text-red-800 border-red-300 shadow-red-300/60'
+                                  : order.status === 'shipped'
+                                    ? 'bg-gradient-to-r from-violet-100 via-purple-100 to-violet-100 text-violet-800 border-violet-300 shadow-violet-300/60'
+                                    : 'bg-gradient-to-r from-slate-100 via-gray-100 to-slate-100 text-slate-800 border-slate-300 shadow-slate-300/60'
+                        }`}>
+                          {/* Animated pulse dot */}
+                          <span className="relative flex h-2.5 w-2.5">
+                            {order.status === 'pending' && (
+                              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-amber-500 opacity-75"></span>
+                            )}
+                            <span className={`relative inline-flex rounded-full h-2.5 w-2.5 ${
+                              order.status === 'pending' ? 'bg-amber-500' :
+                              order.status === 'completed' ? 'bg-emerald-500' :
+                              order.status === 'processing' ? 'bg-blue-500' :
+                              order.status === 'cancelled' ? 'bg-red-500' :
+                              order.status === 'shipped' ? 'bg-violet-500' :
+                              'bg-slate-500'
+                            }`}></span>
+                          </span>
+
+                          {/* Icon */}
+                          {order.status === 'pending' && (
+                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            </svg>
+                          )}
+                          {order.status === 'completed' && (
+                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 13l4 4L19 7" />
+                            </svg>
+                          )}
+                          {order.status === 'cancelled' && (
+                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M6 18L18 6M6 6l12 12" />
+                            </svg>
+                          )}
+                          {order.status === 'shipped' && (
+                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M13 16V6a1 1 0 00-1-1H4a1 1 0 00-1 1v10a1 1 0 001 1h1m8-1a1 1 0 01-1 1H9m4-1V8a1 1 0 011-1h2.586a1 1 0 01.707.293l3.414 3.414a1 1 0 01.293.707V16a1 1 0 01-1 1h-1m-6-1a2 2 0 104 0m-4 0a2 2 0 114 0m6 0a2 2 0 104 0m-4 0a2 2 0 114 0" />
+                            </svg>
+                          )}
+                          {(order.status === 'processing' || !['pending', 'completed', 'cancelled', 'shipped'].includes(order.status)) && (
+                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M13 10V3L4 14h7v7l9-11h-7z" />
+                            </svg>
+                          )}
+
+                          <span className="capitalize tracking-wide">{order.status}</span>
+                        </span>
+
+                        {/* ============ PAYMENT STATUS BADGE ============ */}
+                        <span className={`inline-flex items-center gap-2 px-4 py-2 rounded-full text-sm font-bold shadow-lg border-2 transition-all duration-300 hover:scale-105 hover:shadow-xl ${
+                          order.payment_status
+                            ? 'bg-gradient-to-r from-emerald-100 via-green-100 to-emerald-100 text-emerald-800 border-emerald-300 shadow-emerald-300/60'
+                            : 'bg-gradient-to-r from-rose-100 via-red-100 to-rose-100 text-red-800 border-red-300 shadow-red-300/60'
+                        }`}>
+                          {/* Animated pulse dot */}
+                          <span className="relative flex h-2.5 w-2.5">
+                            {!order.payment_status && (
+                              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-500 opacity-75"></span>
+                            )}
+                            <span className={`relative inline-flex rounded-full h-2.5 w-2.5 ${
+                              order.payment_status ? 'bg-emerald-500' : 'bg-red-500'
+                            }`}></span>
+                          </span>
+
+                          {/* Icon */}
+                          {order.payment_status ? (
+                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            </svg>
+                          ) : (
+                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                            </svg>
+                          )}
+
+                          <span className="tracking-wide">{order.payment_status ? 'Paid' : 'Unpaid'}</span>
+                        </span>
+                      </div>
+                    </div>
+
+                    {/* ============ INFO CARDS — PASTEL HALF-WHITE ============ */}
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-6">
+
+                      {/* Customer — Sky */}
+                      <div className="bg-sky-50/90 border-2 border-sky-200 p-4 rounded-xl shadow-sm hover:shadow-lg hover:shadow-sky-200/60 transition-all duration-300">
+                        <h3 className="text-base font-bold text-sky-900 mb-3 flex items-center gap-2">
+                          <span className="inline-flex items-center justify-center w-7 h-7 rounded-lg bg-gradient-to-br from-sky-200 to-cyan-200 text-sky-800">
+                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                            </svg>
+                          </span>
+                          Customer Details
+                        </h3>
+                        <p className="text-sky-800 text-sm"><span className="font-semibold">Name:</span> {order.customer_name || order.customer_name_display || 'N/A'}</p>
+                        <p className="text-sky-800 text-sm"><span className="font-semibold">Email:</span> {order.customer_email || 'N/A'}</p>
+                        <p className="text-sky-800 text-sm"><span className="font-semibold">Phone:</span> {order.customer_phone || 'N/A'}</p>
+                      </div>
+
+                      {/* Delivery — Emerald */}
+                      <div className="bg-emerald-50/90 border-2 border-emerald-200 p-4 rounded-xl shadow-sm hover:shadow-lg hover:shadow-emerald-200/60 transition-all duration-300">
+                        <h3 className="text-base font-bold text-emerald-900 mb-3 flex items-center gap-2">
+                          <span className="inline-flex items-center justify-center w-7 h-7 rounded-lg bg-gradient-to-br from-emerald-200 to-green-200 text-emerald-800">
+                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                            </svg>
+                          </span>
+                          Delivery Info
+                        </h3>
+                        <p className="text-emerald-800 text-sm"><span className="font-semibold">Address:</span> {order.delivery_address || 'N/A'}</p>
+                        <p className="text-emerald-800 text-sm"><span className="font-semibold">City:</span> {order.city || 'N/A'}</p>
+                        <p className="text-emerald-800 text-sm"><span className="font-semibold">Delivery Date:</span> {formatDate(order.delivery_date)}</p>
+                        {order.rider_name && <p className="text-emerald-800 text-sm"><span className="font-semibold">Rider:</span> {order.rider_name}</p>}
+                      </div>
+
+                      {/* Payment — Amber */}
+                      <div className="bg-amber-50/90 border-2 border-amber-200 p-4 rounded-xl shadow-sm hover:shadow-lg hover:shadow-amber-200/60 transition-all duration-300">
+                        <h3 className="text-base font-bold text-amber-900 mb-3 flex items-center gap-2">
+                          <span className="inline-flex items-center justify-center w-7 h-7 rounded-lg bg-gradient-to-br from-amber-200 to-yellow-200 text-amber-800">
+                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            </svg>
+                          </span>
+                          Payment Info
+                        </h3>
+                        <p className="text-amber-800 text-sm"><span className="font-semibold">Method:</span> {order.payment_method || 'N/A'}</p>
+                        <p className="text-amber-800 text-sm"><span className="font-semibold">Bill Amount:</span> PKR {order.bill || '0'}</p>
+                        <p className="text-amber-800 text-sm"><span className="font-semibold">Total Amount:</span> PKR {order.total_amount || '0'}</p>
+                        <p className="text-amber-800 text-sm"><span className="font-semibold">Items:</span> {order.items_count || 0}</p>
+                      </div>
+                    </div>
+
+                    {/* ============ ORDER ITEMS TABLE — PASTEL ============ */}
+                    <div className="mb-6">
+                      <h3 className="text-base font-bold text-indigo-900 mb-3 flex items-center gap-2">
+                        <span className="inline-flex items-center justify-center w-7 h-7 rounded-lg bg-gradient-to-br from-indigo-200 to-purple-200 text-indigo-800">
+                          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01" />
+                          </svg>
+                        </span>
+                        Order Items
+                      </h3>
+                      <div className="overflow-x-auto rounded-xl border-2 border-indigo-100 shadow-sm">
+                        <table className="min-w-full bg-white/80">
+                          <thead className="bg-gradient-to-r from-indigo-100 via-purple-100 to-indigo-100">
+                            <tr>
+                              <th className="px-4 py-3 text-left text-xs font-bold text-indigo-800 uppercase tracking-wider">Item ID</th>
+                              <th className="px-4 py-3 text-left text-xs font-bold text-indigo-800 uppercase tracking-wider">Product</th>
+                              <th className="px-4 py-3 text-left text-xs font-bold text-indigo-800 uppercase tracking-wider">Type</th>
+                              <th className="px-4 py-3 text-left text-xs font-bold text-indigo-800 uppercase tracking-wider">Unit Price</th>
+                              <th className="px-4 py-3 text-left text-xs font-bold text-indigo-800 uppercase tracking-wider">Quantity</th>
+                              <th className="px-4 py-3 text-left text-xs font-bold text-indigo-800 uppercase tracking-wider">Total</th>
+                            </tr>
+                          </thead>
+                          <tbody className="divide-y divide-indigo-100">
+                            {order.order_details?.map((item, index) => (
+                              <tr
+                                key={index}
+                                className={`${
+                                  index % 2 === 0 ? 'bg-indigo-50/50' : 'bg-purple-50/50'
+                                } hover:bg-indigo-100/70 transition-colors`}
+                              >
+                                <td className="px-4 py-3 whitespace-nowrap text-sm font-medium text-indigo-900">{item.id}</td>
+                                <td className="px-4 py-3 whitespace-nowrap text-sm text-indigo-800">{item.product_name}</td>
+                                <td className="px-4 py-3 whitespace-nowrap text-sm">
+                                  <span className={`px-2.5 py-1 rounded-md text-xs font-bold text-white shadow-sm ${
+                                    item.product_type === 'product'
+                                      ? 'bg-gradient-to-r from-blue-400 to-sky-500'
+                                      : 'bg-gradient-to-r from-purple-400 to-fuchsia-500'
+                                  }`}>
+                                    {item.product_type}
+                                  </span>
+                                </td>
+                                <td className="px-4 py-3 whitespace-nowrap text-sm text-indigo-800">PKR {item.unit_price}</td>
+                                <td className="px-4 py-3 whitespace-nowrap text-sm text-indigo-800">{item.quantity}</td>
+                                <td className="px-4 py-3 whitespace-nowrap text-sm font-bold text-indigo-900">PKR {item.total_price}</td>
+                              </tr>
+                            ))}
+                          </tbody>
+                        </table>
+                      </div>
+                    </div>
+
+                    {/* ============ ACTION BUTTONS — PASTEL ============ */}
+                    <div className="flex flex-wrap justify-end gap-3 pt-4 border-t-2 border-indigo-100">
+                      <button
+                        onClick={() => handleDownloadPdf(order.id)}
+                        className="px-5 py-2.5 bg-gradient-to-r from-blue-50 to-sky-50 border-2 border-blue-200 text-blue-700 font-semibold rounded-xl hover:from-blue-100 hover:to-sky-100 hover:border-blue-300 hover:shadow-lg hover:shadow-blue-200/60 hover:scale-105 transition-all duration-300 flex items-center shadow-sm"
+                      >
+                        <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                        </svg>
+                        <span>Download PDF</span>
+                      </button>
+
+                      <button
+                        onClick={() => handlePrint(order.id)}
+                        className="px-5 py-2.5 bg-gradient-to-r from-purple-50 to-fuchsia-50 border-2 border-purple-200 text-purple-700 font-semibold rounded-xl hover:from-purple-100 hover:to-fuchsia-100 hover:border-purple-300 hover:shadow-lg hover:shadow-purple-200/60 hover:scale-105 transition-all duration-300 flex items-center shadow-sm"
+                      >
+                        <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" />
+                        </svg>
+                        <span>Print</span>
+                      </button>
+
+                      {permissions.update_order && (
+                        <button
+                          onClick={() => updateOrder(order.id)}
+                          className="px-5 py-2.5 bg-gradient-to-r from-amber-50 to-yellow-50 border-2 border-amber-200 text-amber-700 font-semibold rounded-xl hover:from-amber-100 hover:to-yellow-100 hover:border-amber-300 hover:shadow-lg hover:shadow-amber-200/60 hover:scale-105 transition-all duration-300 flex items-center shadow-sm"
+                        >
+                          <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                          </svg>
+                          <span>Edit Order</span>
+                        </button>
+                      )}
+
+                      {permissions.delete_order && (
+                        <button
+                          onClick={() => deleteOrder(order.id)}
+                          className="px-5 py-2.5 bg-gradient-to-r from-red-50 to-rose-50 border-2 border-red-200 text-red-700 font-semibold rounded-xl hover:from-red-100 hover:to-rose-100 hover:border-red-300 hover:shadow-lg hover:shadow-red-200/60 hover:scale-105 transition-all duration-300 flex items-center shadow-sm"
+                        >
+                          <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                          </svg>
+                          <span>Delete</span>
+                        </button>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <div className="text-center py-20">
+              <div className="mx-auto w-24 h-24 bg-gray-800 rounded-full flex items-center justify-center mb-6">
+                <svg className="h-12 w-12 text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1" d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                </svg>
+              </div>
+              <h3 className="text-2xl font-light text-white mb-2">No orders found</h3>
+              <p className="text-gray-400 max-w-md mx-auto">
+                {searchTerm ? "No orders match your search." : "There are no orders to display."}
+              </p>
+              {searchTerm && (
+                <button
+                  onClick={() => setSearchTerm('')}
+                  className="mt-4 px-4 py-2 bg-amber-600 text-white rounded-lg hover:bg-amber-700 transition-colors"
+                >
+                  Clear search
+                </button>
+              )}
+            </div>
+          )}
+        </>
+      )}
+
+      {/* Enhanced Pagination */}
+      {pagination.total_pages > 1 && (
+        <div className="flex flex-col md:flex-row justify-between items-center mt-16 gap-4">
+          <div className="text-gray-400 text-sm">
+            Page {pagination.current_page} of {pagination.total_pages} • Total {pagination.count} orders
+          </div>
+
+          <div className="flex items-center gap-2">
+            <button
+              onClick={() => handlePageChange(1)}
+              disabled={pagination.current_page === 1}
+              className="p-2 rounded-full bg-gray-700 hover:bg-gray-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors text-white"
+              aria-label="First page"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                <path fillRule="evenodd" d="M15.707 15.707a1 1 0 01-1.414 0l-5-5a1 1 0 010-1.414l5-5a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 010 1.414zm-6 0a1 1 0 01-1.414 0l-5-5a1 1 0 010-1.414l5-5a1 1 0 011.414 1.414L5.414 10l4.293 4.293a1 1 0 010 1.414z" clipRule="evenodd" />
+              </svg>
+            </button>
+
+            <button
+              onClick={() => handlePageChange(pagination.current_page - 1)}
+              disabled={!pagination.previous}
+              className="p-2 rounded-full bg-gray-700 hover:bg-gray-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors text-white"
+              aria-label="Previous page"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                <path fillRule="evenodd" d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z" clipRule="evenodd" />
+              </svg>
+            </button>
+
+            <div className="flex items-center gap-1">
+              {Array.from({ length: Math.min(5, pagination.total_pages) }, (_, i) => {
+                let pageNum;
+                if (pagination.total_pages <= 5) {
+                  pageNum = i + 1;
+                } else if (pagination.current_page <= 3) {
+                  pageNum = i + 1;
+                } else if (pagination.current_page >= pagination.total_pages - 2) {
+                  pageNum = pagination.total_pages - 4 + i;
+                } else {
+                  pageNum = pagination.current_page - 2 + i;
+                }
+
+                return (
+                  <button
+                    key={pageNum}
+                    onClick={() => handlePageChange(pageNum)}
+                    className={`w-8 h-8 rounded-full text-sm transition-colors ${
+                      pagination.current_page === pageNum
+                        ? 'bg-amber-600 text-white'
+                        : 'bg-gray-700 hover:bg-gray-600 text-gray-300'
+                    }`}
+                    aria-label={`Page ${pageNum}`}
+                  >
+                    {pageNum}
+                  </button>
+                );
+              })}
+            </div>
+
+            <button
+              onClick={() => handlePageChange(pagination.current_page + 1)}
+              disabled={!pagination.next}
+              className="p-2 rounded-full bg-gray-700 hover:bg-gray-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors text-white"
+              aria-label="Next page"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                <path fillRule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clipRule="evenodd" />
+              </svg>
+            </button>
+
+            <button
+              onClick={() => handlePageChange(pagination.total_pages)}
+              disabled={pagination.current_page === pagination.total_pages}
+              className="p-2 rounded-full bg-gray-700 hover:bg-gray-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors text-white"
+              aria-label="Last page"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                <path fillRule="evenodd" d="M10.293 15.707a1 1 0 010-1.414L14.586 10l-4.293-4.293a1 1 0 111.414-1.414l5 5a1 1 0 010 1.414l-5 5a1 1 0 01-1.414 0z" clipRule="evenodd" />
+                <path fillRule="evenodd" d="M4.293 15.707a1 1 0 010-1.414L8.586 10 4.293 5.707a1 1 0 011.414-1.414l5 5a1 1 0 010 1.414l-5 5a1 1 0 01-1.414 0z" clipRule="evenodd" />
+              </svg>
+            </button>
+          </div>
+        </div>
+      )}
+    </div>
+  </div>
+);
+};
 export default Orders;
 
 

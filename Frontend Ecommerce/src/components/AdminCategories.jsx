@@ -557,6 +557,12 @@ const CategoryCom = () => {
   const [existingImage, setExistingImage] = useState(null);
   const [saving, setSaving] = useState(false);
 
+  // Category products modal states
+  const [productsModalOpen, setProductsModalOpen] = useState(false);
+  const [selectedCategory, setSelectedCategory] = useState(null);
+  const [categoryProducts, setCategoryProducts] = useState([]);
+  const [productsLoading, setProductsLoading] = useState(false);
+
   const [pagination, setPagination] = useState({
     currentPage: 1,
     limit: 12,
@@ -700,6 +706,46 @@ const CategoryCom = () => {
     setCategoryForm({ name: '', description: '', image: null });
     setExistingImage(null);
     setCategoryModalOpen(true);
+  };
+
+  const handleViewCategoryProducts = async (category) => {
+    setSelectedCategory(category);
+    setProductsModalOpen(true);
+    setProductsLoading(true);
+
+    try {
+      const res = await AxiosInstance.get(`/api/myapp/v1/public/product/?category=${category.id}`);
+      const productsData = res?.data?.data || [];
+
+      // Process products to ensure proper image URLs
+      const processedProducts = productsData.map(product => {
+        let mainImage = '/default-product.jpg';
+
+        if (product.image_urls && product.image_urls.length > 0) {
+          mainImage = product.image_urls[0];
+        } else if (product.images && product.images.length > 0) {
+          mainImage = product.images[0].image_url;
+        }
+
+        if (mainImage && !mainImage.startsWith('http') && !mainImage.startsWith('/')) {
+          mainImage = `/${mainImage}`;
+        }
+
+        return {
+          ...product,
+          mainImage: mainImage,
+          allImages: product.image_urls || (product.images ? product.images.map(img => img.image_url) : [])
+        };
+      });
+
+      setCategoryProducts(processedProducts);
+    } catch (error) {
+      console.error('Error fetching category products:', error);
+      toast.error('Failed to load products for this category');
+      setCategoryProducts([]);
+    } finally {
+      setProductsLoading(false);
+    }
   };
 
   const saveCategory = async (e) => {
@@ -1053,7 +1099,7 @@ const CategoryCom = () => {
 
               {/* View Products Button */}
               <button
-                onClick={() => router.push(`/categorywiseproductpage?categoryId=${category.id}`)}
+                onClick={() => handleViewCategoryProducts(category)}
                 className="relative w-full py-2 rounded-sm text-[9px] font-medium tracking-[0.25em] uppercase mt-auto
                            text-emerald-900 bg-transparent
                            border border-emerald-900/40
@@ -1305,6 +1351,123 @@ const CategoryCom = () => {
                   </button>
                 </div>
               </form>
+            </div>
+          </div>
+        )}
+
+        {/* Category Products Modal */}
+        {productsModalOpen && selectedCategory && (
+          <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+            <div className="bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 border-2 border-slate-700/50 rounded-3xl w-full max-w-6xl max-h-[90vh] overflow-hidden shadow-[0_25px_50px_-12px_rgba(0,0,0,0.5)] flex flex-col">
+              {/* Modal Header */}
+              <div className="bg-slate-900/95 backdrop-blur-xl border-b-2 border-slate-700/50 p-6 rounded-t-3xl flex-shrink-0">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-4">
+                    <div className="w-12 h-12 rounded-xl overflow-hidden border-2 border-amber-500/30">
+                      <img
+                        src={getImageUrl(selectedCategory.image)}
+                        alt={selectedCategory.name}
+                        className="w-full h-full object-cover"
+                        onError={(e) => {
+                          e.target.src = '/default-category-image.jpg';
+                        }}
+                      />
+                    </div>
+                    <div>
+                      <h2 className="text-2xl font-bold bg-gradient-to-r from-amber-400 via-orange-400 to-red-400 bg-clip-text text-transparent">
+                        {selectedCategory.name}
+                      </h2>
+                      <p className="text-slate-400 text-sm">
+                        {categoryProducts.length} {categoryProducts.length === 1 ? 'product' : 'products'}
+                      </p>
+                    </div>
+                  </div>
+                  <button
+                    onClick={() => setProductsModalOpen(false)}
+                    className="p-2 bg-slate-800/50 hover:bg-slate-700/50 text-slate-400 hover:text-white rounded-xl transition-all border border-slate-700/50 hover:border-slate-600/50"
+                  >
+                    <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                  </button>
+                </div>
+              </div>
+
+              {/* Modal Content - Products Grid */}
+              <div className="flex-1 overflow-y-auto p-6">
+                {productsLoading ? (
+                  <div className="grid grid-cols-5 gap-4">
+                    {[...Array(5)].map((_, index) => (
+                      <div key={index} className="animate-pulse">
+                        <div className="bg-slate-900/60 rounded-xl aspect-square border border-slate-800/50"></div>
+                        <div className="mt-3 space-y-2">
+                          <div className="h-4 bg-slate-900/60 rounded w-3/4"></div>
+                          <div className="h-4 bg-slate-900/60 rounded w-1/2"></div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                ) : categoryProducts.length > 0 ? (
+                  <div className="grid grid-cols-5 gap-4">
+                    {categoryProducts.map((product) => (
+                      <div
+                        key={product.id}
+                        className="group relative bg-gradient-to-br from-slate-900/80 to-slate-800/80 rounded-xl border border-slate-700/50 overflow-hidden hover:border-amber-500/50 transition-all duration-300 hover:shadow-lg hover:shadow-amber-500/20"
+                      >
+                        {/* Product Image */}
+                        <div className="relative aspect-square overflow-hidden">
+                          <img
+                            src={product.mainImage}
+                            alt={product.name}
+                            className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+                            onError={(e) => {
+                              e.target.src = '/default-product.jpg';
+                            }}
+                          />
+                          <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent"></div>
+                        </div>
+
+                        {/* Product Info */}
+                        <div className="p-4">
+                          <h3 className="text-sm font-semibold text-amber-200 mb-2 line-clamp-2 min-h-[40px]">
+                            {product.name}
+                          </h3>
+                          <div className="flex items-center justify-between">
+                            <span className="text-lg font-bold text-emerald-400">
+                              Rs. {(parseFloat(product.price) || 0).toFixed(2)}
+                            </span>
+                            {product.original_price && parseFloat(product.original_price) > parseFloat(product.price) && (
+                              <span className="text-sm text-slate-500 line-through">
+                                Rs. {parseFloat(product.original_price).toFixed(2)}
+                              </span>
+                            )}
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="text-center py-16">
+                    <div className="w-20 h-20 rounded-full bg-slate-900/50 border-2 border-slate-700/50 flex items-center justify-center mx-auto mb-6">
+                      <svg className="w-10 h-10 text-slate-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
+                      </svg>
+                    </div>
+                    <h3 className="text-xl font-semibold text-slate-300 mb-2">No products found</h3>
+                    <p className="text-slate-500">This category doesn't have any products yet.</p>
+                  </div>
+                )}
+              </div>
+
+              {/* Modal Footer */}
+              <div className="bg-slate-900/95 backdrop-blur-xl border-t-2 border-slate-700/50 p-4 rounded-b-3xl flex-shrink-0">
+                <button
+                  onClick={() => setProductsModalOpen(false)}
+                  className="w-full px-6 py-3 bg-gradient-to-r from-slate-800 to-slate-900 hover:from-slate-700 hover:to-slate-800 text-white rounded-xl font-semibold border-2 border-slate-700/50 hover:border-slate-600/50 transition-all"
+                >
+                  Close
+                </button>
+              </div>
             </div>
           </div>
         )}
