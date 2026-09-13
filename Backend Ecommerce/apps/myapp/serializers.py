@@ -1389,6 +1389,8 @@ class PublicColorSerializer(serializers.ModelSerializer):
         fields = ['id', 'name']
 
 
+
+
 # ============================================================================
 # PRODUCT VARIANT
 # ============================================================================
@@ -1584,6 +1586,18 @@ class PublicInventorySerializer(serializers.ModelSerializer):
                   'current_stock', 'is_low_stock']
 
 
+class PublicSalesInventorySerializer(serializers.ModelSerializer):
+    """Public read-only serializer for SalesInventory model"""
+    salesproduct_name = serializers.CharField(source='sales_product_variant.salesproduct.name', read_only=True)
+    variant_sku = serializers.CharField(source='sales_product_variant.sku', read_only=True)
+    is_low_stock = serializers.BooleanField(read_only=True)
+
+    class Meta:
+        model  = SalesInventory
+        fields = ['id', 'sales_product_variant', 'salesproduct_name', 'variant_sku',
+                  'current_stock', 'is_low_stock']
+
+
 # ============================================================================
 # SALES PRODUCT
 # ============================================================================
@@ -1712,6 +1726,14 @@ class SalesProductColorSerializer(serializers.ModelSerializer):
                     'message': f'Sales product color "{instance.name}" deleted successfully'}
         return super().to_representation(instance)
 
+class PublicSalesProductColorSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = SalesProductColor
+        fields = [
+            'id',
+            'name',
+        ]
 
 # ============================================================================
 # SALES PRODUCT VARIANT
@@ -1782,7 +1804,87 @@ class SalesProductVariantSerializer(serializers.ModelSerializer):
                     'message': f'Sales variant "{instance.sku}" deleted successfully'}
         return super().to_representation(instance)
 
+# ============================================================================
+# PUBLIC SALES PRODUCT VARIANT SERIALIZER
+# ============================================================================
 
+class PublicSalesProductVariantSerializer(serializers.ModelSerializer):
+    salesproduct_id    = serializers.CharField(source='salesproduct.id', read_only=True)
+    salesproduct_name  = serializers.CharField(source='salesproduct.name', read_only=True)
+    salesproduct_price = serializers.DecimalField(
+        source='salesproduct.final_price',
+        max_digits=10,
+        decimal_places=2,
+        read_only=True
+    )
+    total_price  = serializers.SerializerMethodField()
+    color_names  = serializers.SerializerMethodField()
+    colors_data  = serializers.SerializerMethodField()
+    is_low_stock = serializers.SerializerMethodField()
+    in_stock     = serializers.SerializerMethodField()
+
+    class Meta:
+        model = SalesProductVariant
+        fields = [
+            'id',
+
+            # Product
+            'salesproduct_id',
+            'salesproduct_name',
+            'salesproduct_price',
+
+            # Variant
+            'size',
+            'colors',
+            'color_names',
+            'colors_data',
+            'material',
+            'sku',
+            'stock_quantity',
+            'additional_price',
+            'total_price',
+            'is_active',
+            'is_low_stock',
+            'in_stock',
+
+            # Timestamps
+            'created_at',
+            'updated_at',
+        ]
+        read_only_fields = ('created_at', 'updated_at', 'sku')
+
+    def get_total_price(self, obj):
+        if obj.deleted or not obj.salesproduct:
+            return None
+        return float(obj.salesproduct.final_price + obj.additional_price)
+
+    def get_color_names(self, obj):
+        if obj.deleted:
+            return []
+        return [c.name for c in obj.colors.filter(deleted=False)]
+
+    def get_colors_data(self, obj):
+        if obj.deleted:
+            return []
+        return ColorSerializer(obj.colors.filter(deleted=False), many=True).data
+
+    def get_is_low_stock(self, obj):
+        try:
+            return obj.salesinventory.is_low_stock if hasattr(obj, 'salesinventory') else False
+        except Exception:
+            return obj.stock_quantity < 10
+
+    def get_in_stock(self, obj):
+        return obj.stock_quantity > 0 and obj.is_active and not obj.deleted
+
+    def to_representation(self, instance):
+        if instance.deleted:
+            return {
+                'id': instance.id,
+                'sku': instance.sku,
+                'message': f'Sales variant "{instance.sku}" deleted successfully'
+            }
+        return super().to_representation(instance)
 # ============================================================================
 # SALES INVENTORY
 # ============================================================================
@@ -1820,7 +1922,52 @@ class SalesInventorySerializer(serializers.ModelSerializer):
         if reorder > max_l:
             raise serializers.ValidationError({'reorder_point': "Cannot exceed maximum stock level"})
         return attrs
+        
 
+class PublicSalesInventorySerializer(serializers.ModelSerializer):
+
+    sales_product_id = serializers.CharField(source='sales_product_variant.salesproduct.id', read_only=True)
+    sales_product_name = serializers.CharField(source='sales_product_variant.salesproduct.name', read_only=True)
+    variant_id = serializers.CharField(source='sales_product_variant.id', read_only=True)
+    variant_sku = serializers.CharField(source='sales_product_variant.sku', read_only=True)
+    size = serializers.CharField(source='sales_product_variant.size', read_only=True)
+    material = serializers.CharField(source='sales_product_variant.material', read_only=True)
+    is_active = serializers.BooleanField(source='sales_product_variant.is_active', read_only=True)
+    is_low_stock = serializers.BooleanField(read_only=True)
+    needs_reorder = serializers.BooleanField(read_only=True)
+
+    class Meta:
+        model = SalesInventory
+        fields = [
+            'id',
+
+            # Product
+            'sales_product_id',
+            'sales_product_name',
+
+            # Variant
+            'variant_id',
+            'variant_sku',
+            'size',
+            'material',
+            'is_active',
+
+            # Inventory
+            'current_stock',
+            'minimum_stock_level',
+            'maximum_stock_level',
+            'reorder_point',
+            'cost_price',
+            'last_restocked',
+
+            # Status
+            'is_low_stock',
+            'needs_reorder',
+
+            # Timestamps
+            'created_at',
+            'updated_at',
+        ]
 
 # ============================================================================
 # ADDRESS
