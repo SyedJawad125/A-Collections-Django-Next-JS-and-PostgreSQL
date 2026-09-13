@@ -1307,12 +1307,12 @@ from .serializers import (
     ProductSerializer, ColorSerializer, PublicColorSerializer, ProductVariantSerializer, PublicProductVariantSerializer,
     InventorySerializer, PublicInventorySerializer, PubliccategorywiseSerializer, SalesProductSerializer,
     CategorySerializer, ProductTagSerializer, OrderSerializer, ContactSerializer,
-    ReviewSerializer, PublicReviewSerializer, SalesProductColorSerializer,
-    SalesProductVariantSerializer, SalesInventorySerializer,
-    AddressSerializer, ShippingMethodSerializer, CouponSerializer,
+    ReviewSerializer, PublicReviewSerializer, SalesProductColorSerializer, PublicSalesInventorySerializer,
+    SalesProductVariantSerializer, SalesInventorySerializer,PublicSalesProductColorSerializer,
+    AddressSerializer, ShippingMethodSerializer, CouponSerializer, PublicSalesProductVariantSerializer,
     ValidateCouponSerializer, CartSerializer, CartItemSerializer,
     WishlistSerializer, WishlistItemSerializer, PaymentSerializer,
-    AdminReturnRequestSerializer, CustomerReturnRequestSerializer
+    AdminReturnRequestSerializer, CustomerReturnRequestSerializer, 
 )
 from .filters import (
     DropDownListProductFilter, DropDownListSalesProductFilter,
@@ -1322,9 +1322,9 @@ from .filters import (
     SalesProductDropdownFilter, CategoryFilter, PublicCategoryFilter,
     CategoryDropdownFilter, ProductTagFilter, OrderFilter,
     OrderSearchFilter, ContactFilter, PublicContactFilter,
-    ReviewFilter, PublicReviewFilter,
+    ReviewFilter, PublicReviewFilter, PublicSalesProductColorFilter, 
     SalesProductColorFilter, SalesProductVariantFilter, PublicSalesProductVariantFilter,
-    SalesInventoryFilter, AddressFilter, ShippingMethodFilter, CouponFilter,
+    SalesInventoryFilter, PublicSalesInventoryFilter, AddressFilter, ShippingMethodFilter, CouponFilter,
     CartFilter, WishlistFilter, PaymentFilter, AdminReturnRequestFilter, CustomerReturnRequestFilter
 )
 from apps.myapp import serializers
@@ -1622,7 +1622,13 @@ class SalesProductColorView(BaseView):
     def delete(self, request):
         return super().delete_(request)
 
+class PublicSalesProductColorView(BaseView):
+    permission_classes = ()
+    serializer_class   = PublicSalesProductColorSerializer
+    filterset_class    = PublicSalesProductColorFilter
 
+    def get(self, request):
+        return super().get_(request)
 # ============================================================================
 # SALES PRODUCT VARIANT VIEWS
 # ============================================================================
@@ -1651,7 +1657,7 @@ class SalesProductVariantView(BaseView):
 
 class PublicSalesProductVariantView(BaseView):
     permission_classes = ()
-    serializer_class   = SalesProductVariantSerializer
+    serializer_class   = PublicSalesProductVariantSerializer
     filterset_class    = PublicSalesProductVariantFilter
     extra_filters      = {'is_active': True}
 
@@ -1683,6 +1689,14 @@ class SalesInventoryView(BaseView):
     @permission_required(['delete_sales_inventory'])
     def delete(self, request):
         return super().delete_(request)
+
+class PublicSalesInventoryView(BaseView):
+    permission_classes = ()
+    serializer_class   = PublicSalesInventorySerializer
+    filterset_class    = PublicSalesInventoryFilter
+
+    def get(self, request):
+        return super().get_(request)
 
 
 class SalesProductDropdownView(BaseView):
