@@ -933,106 +933,184 @@ const CategoryCom = () => {
           </div>
         </div>
 
-        {/* Categories Grid - Fixed Card Sizes */}
-        {isLoading ? (
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-4 gap-4">
-            {[...Array(pagination.limit)].map((_, index) => (
-              <div key={index} className="animate-pulse">
-                <div className="bg-slate-900/60 rounded-xl h-80 border border-slate-800/50"></div>
-              </div>
-            ))}
-          </div>
-        ) : (
-          <>
-            {categories.length > 0 ? (
-              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-4 gap-4">
-                {categories.map((category) => (
-                  <div 
-                    key={category.id} 
-                    className="group relative overflow-hidden rounded-xl transition-all duration-500 hover:shadow-2xl hover:shadow-amber-500/20 cursor-pointer flex flex-col h-full"
-                  >
-                    {/* Category Image - Fixed Height */}
-                    <div className="relative h-48 overflow-hidden rounded-t-xl flex-shrink-0">
-                      <img
-                        src={getImageUrl(category.image)}
-                        className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
-                        alt={category.name}
-                        onError={(e) => {
-                          e.target.src = '/default-category-image.jpg';
-                        }}
-                      />
-                      <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent"></div>
-                      
-                      {/* Action Buttons */}
-                      <div className="absolute top-2 right-2 flex space-x-1.5 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                        {permissions.update_category && (
-                          <button
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              updateCategory(category.id);
-                            }}
-                            className="p-1.5 bg-gradient-to-r from-amber-600 to-yellow-500 rounded-full shadow-lg shadow-amber-500/50 hover:shadow-amber-500/70 transition-shadow"
-                          >
-                            <svg className="w-3 h-3 text-slate-900" fill="currentColor" viewBox="0 0 20 20">
-                              <path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z" />
-                            </svg>
-                          </button>
-                        )}
-                        {permissions.delete_category && (
-                          <button
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              deleteCategory(category.id);
-                            }}
-                            className="p-1.5 bg-gradient-to-r from-red-600 to-red-500 rounded-full shadow-lg shadow-red-500/50 hover:shadow-red-500/70 transition-shadow"
-                          >
-                            <svg className="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 20 20">
-                              <path fillRule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clipRule="evenodd" />
-                            </svg>
-                          </button>
-                        )}
-                      </div>
-                    </div>
-                    
-                    {/* Category Info - Fixed Height with Flex */}
-                    <div className="p-4 bg-gradient-to-br from-slate-900/80 to-slate-800/80 rounded-b-xl border border-slate-800/50 flex flex-col flex-grow">
-                      <h3 className="text-sm font-semibold text-amber-200 mb-2 line-clamp-1 min-h-[20px]">{category.name}</h3>
-                      <p className="text-slate-400 text-xs mb-3 line-clamp-2 min-h-[32px] flex-grow">{category.description}</p>
-                      
-                      {/* View Products Button */}
-                      <button
-                        onClick={() => router.push(`/categorywiseproductpage?categoryId=${category.id}`)}
-                        className="w-full py-2 bg-gradient-to-r from-slate-800 to-slate-900 border border-slate-700 text-slate-300 rounded-lg hover:bg-slate-700 transition-colors text-xs font-medium mt-auto"
-                      >
-                        View Products
-                      </button>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            ) : (
-              <div className="text-center py-16 bg-slate-900/40 rounded-2xl border border-slate-800/50 backdrop-blur-sm">
-                <div className="w-20 h-20 bg-gradient-to-br from-slate-800 to-slate-900 rounded-full flex items-center justify-center mx-auto mb-4 border border-slate-700/50">
-                  <svg className="w-10 h-10 text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                  </svg>
-                </div>
-                <h3 className="text-xl font-semibold text-amber-200 mb-2">No categories found</h3>
-                <p className="text-slate-400 max-w-md mx-auto text-sm">
-                  {searchTerm ? "No categories match your search." : "There are no categories to display."}
-                </p>
-                {searchTerm && (
+        {/* Categories Grid — Editorial Luxury · 5 per row (Cream · Emerald · Gold) */}
+{isLoading ? (
+  <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-5 gap-4">
+    {[...Array(pagination.limit)].map((_, index) => (
+      <div key={index} className="animate-pulse">
+        <div className="bg-gradient-to-br from-stone-100 to-emerald-50/40 rounded-sm h-72 border border-emerald-900/10"></div>
+      </div>
+    ))}
+  </div>
+) : (
+  <>
+    {categories.length > 0 ? (
+      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-5 gap-4">
+        {categories.map((category) => (
+          <div
+            key={category.id}
+            className="group relative cursor-pointer flex flex-col h-full rounded-sm transition-all duration-500
+                       bg-[#faf8f3]
+                       border border-emerald-900/10
+                       shadow-[0_1px_2px_rgba(6,78,59,0.06)]
+                       hover:border-emerald-900/30
+                       hover:shadow-[0_20px_40px_-18px_rgba(6,78,59,0.35)]
+                       hover:-translate-y-1"
+          >
+            {/* Top gold hairline */}
+            <div className="absolute top-0 left-0 right-0 h-[2px] bg-gradient-to-r from-transparent via-amber-500/70 to-transparent
+                            group-hover:via-amber-500 transition-all duration-500 z-10"></div>
+
+            {/* Category Image */}
+            <div className="relative h-44 overflow-hidden rounded-t-sm flex-shrink-0">
+              <img
+                src={getImageUrl(category.image)}
+                className="w-full h-full object-cover transition-transform duration-[1400ms] ease-out group-hover:scale-[1.08]"
+                alt={category.name}
+                onError={(e) => {
+                  e.target.src = '/default-category-image.jpg';
+                }}
+              />
+
+              {/* Deep emerald overlay */}
+              <div className="absolute inset-0 bg-gradient-to-t from-emerald-950/75 via-emerald-900/20 to-transparent"></div>
+
+              {/* Inner ring */}
+              <div className="pointer-events-none absolute inset-0 rounded-t-sm ring-1 ring-inset ring-amber-200/20"></div>
+
+              {/* Action Buttons */}
+              <div className="absolute top-2.5 right-2.5 flex space-x-1.5 opacity-0 group-hover:opacity-100 translate-y-[-6px] group-hover:translate-y-0 transition-all duration-300">
+                {permissions.update_category && (
                   <button
-                    onClick={() => setSearchTerm('')}
-                    className="mt-4 px-5 py-2 bg-gradient-to-r from-amber-600 to-yellow-500 text-slate-900 font-semibold rounded-xl hover:shadow-lg hover:shadow-amber-500/50 transition-all text-sm"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      updateCategory(category.id);
+                    }}
+                    aria-label="Edit category"
+                    className="w-7 h-7 rounded-full flex items-center justify-center
+                               bg-[#faf8f3]/95 border border-amber-500/50
+                               hover:bg-amber-500 hover:border-amber-500
+                               shadow-sm hover:shadow-md
+                               transition-all duration-300 group/btn"
                   >
-                    Clear search
+                    <svg className="w-3 h-3 text-emerald-900 group-hover/btn:text-white transition-colors" fill="currentColor" viewBox="0 0 20 20">
+                      <path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z" />
+                    </svg>
+                  </button>
+                )}
+                {permissions.delete_category && (
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      deleteCategory(category.id);
+                    }}
+                    aria-label="Delete category"
+                    className="w-7 h-7 rounded-full flex items-center justify-center
+                               bg-[#faf8f3]/95 border border-red-500/40
+                               hover:bg-red-500 hover:border-red-500
+                               shadow-sm hover:shadow-md
+                               transition-all duration-300 group/btn"
+                  >
+                    <svg className="w-3 h-3 text-red-600 group-hover/btn:text-white transition-colors" fill="currentColor" viewBox="0 0 20 20">
+                      <path fillRule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clipRule="evenodd" />
+                    </svg>
                   </button>
                 )}
               </div>
-            )}
-          </>
+
+              {/* Corner label — top left */}
+              <div className="absolute top-2.5 left-2.5 flex items-center gap-2">
+                <span className="text-[8px] tracking-[0.3em] uppercase text-amber-200/90 font-light">
+                  Collection
+                </span>
+              </div>
+
+              {/* Bottom info strip */}
+              <div className="absolute bottom-0 left-0 right-0 px-3 py-2.5 flex items-center justify-between">
+                <span className="inline-block w-8 h-[1px] bg-gradient-to-r from-amber-300 to-amber-300/0"></span>
+                <span className="text-[8px] tracking-[0.3em] uppercase text-amber-100/80 font-light">
+                  Maison
+                </span>
+              </div>
+            </div>
+
+            {/* Category Info */}
+            <div className="relative px-4 pt-5 pb-4 flex flex-col flex-grow">
+              <h3 className="text-base font-serif font-semibold text-emerald-950 mb-1 line-clamp-1 min-h-[22px]
+                             tracking-tight group-hover:text-emerald-800 transition-colors">
+                {category.name}
+              </h3>
+
+              {/* Double-line accent */}
+              <div className="flex items-center gap-1 mb-2.5">
+                <span className="block w-5 h-[1px] bg-amber-500 transition-all duration-500 group-hover:w-8"></span>
+                <span className="block w-2 h-[1px] bg-emerald-800/60"></span>
+              </div>
+
+              <p className="text-stone-500 text-[11px] leading-relaxed mb-4 line-clamp-2 min-h-[30px] flex-grow font-light">
+                {category.description}
+              </p>
+
+              {/* View Products Button */}
+              <button
+                onClick={() => router.push(`/categorywiseproductpage?categoryId=${category.id}`)}
+                className="relative w-full py-2 rounded-sm text-[9px] font-medium tracking-[0.25em] uppercase mt-auto
+                           text-emerald-900 bg-transparent
+                           border border-emerald-900/40
+                           hover:text-amber-50 hover:border-amber-500
+                           transition-all duration-500 overflow-hidden group/btn"
+              >
+                <span className="relative z-10">View Products</span>
+                <span className="absolute inset-0 -translate-x-full group-hover/btn:translate-x-0
+                                 transition-transform duration-500 ease-out
+                                 bg-gradient-to-r from-amber-600 to-amber-500"></span>
+              </button>
+            </div>
+          </div>
+        ))}
+      </div>
+    ) : (
+      <div className="relative text-center py-24 rounded-sm overflow-hidden
+                      bg-[#faf8f3]
+                      border border-emerald-900/15
+                      shadow-[0_1px_2px_rgba(6,78,59,0.06)]">
+        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-32 h-[2px] bg-gradient-to-r from-transparent via-amber-500 to-transparent"></div>
+
+        <div className="w-20 h-20 rounded-full
+                        flex items-center justify-center mx-auto mb-6
+                        bg-emerald-50 border border-emerald-900/20">
+          <svg className="w-9 h-9 text-emerald-800" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.2} d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+        </div>
+
+        <h3 className="text-2xl font-serif font-semibold text-emerald-950 mb-2 tracking-tight">
+          No categories found
+        </h3>
+        <div className="flex items-center justify-center gap-2 mb-4">
+          <span className="block w-8 h-[1px] bg-amber-500"></span>
+          <span className="block w-2 h-[1px] bg-emerald-800/60"></span>
+        </div>
+        <p className="text-stone-500 max-w-md mx-auto text-sm font-light">
+          {searchTerm ? "No categories match your search." : "There are no categories to display."}
+        </p>
+
+        {searchTerm && (
+          <button
+            onClick={() => setSearchTerm('')}
+            className="mt-6 px-8 py-2.5 rounded-sm text-[10px] font-medium tracking-[0.25em] uppercase
+                       text-amber-50 bg-emerald-900
+                       border border-emerald-900
+                       hover:bg-amber-600 hover:border-amber-600
+                       transition-all duration-300"
+          >
+            Clear search
+          </button>
         )}
+      </div>
+    )}
+  </>
+)}
 
         {/* Enhanced Pagination - More Compact */}
         {!isLoading && categories.length > 0 && pagination.totalPages > 1 && (
